@@ -1,0 +1,258 @@
+plugins {
+  id 'application'
+  id 'java'
+  id 'jacoco'
+  id 'io.spring.dependency-management' version '1.1.7'
+  id 'org.springframework.boot' version '3.4.4'
+  id 'com.github.ben-manes.versions' version '0.52.0'
+  id 'org.sonarqube' version '6.1.0.5360'
+
+  id 'org.openapi.generator' version '7.12.0'
+  id 'com.diffplug.spotless' version '7.0.3'
+
+  /*
+    Applies analysis tools including checkstyle and OWASP Dependency checker.
+    See https://github.com/hmcts/gradle-java-plugin
+ */
+  id 'uk.gov.hmcts.java' version '0.12.65'
+}
+
+group = 'uk.gov.hmcts.cp'
+version = '0.0.1'
+
+java {
+  sourceCompatibility = JavaVersion.VERSION_21
+  targetCompatibility = JavaVersion.VERSION_21
+
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(21)
+  }
+}
+
+sourceSets {
+
+  main {
+    java {
+      srcDir "$buildDir/generated/src/main/java"
+    }
+  }
+
+  functionalTest {
+    java {
+      compileClasspath += main.output
+      runtimeClasspath += main.output
+      srcDir file('src/functionalTest/java')
+    }
+    resources.srcDir file('src/functionalTest/resources')
+  }
+
+  integrationTest {
+    java {
+      compileClasspath += main.output
+      runtimeClasspath += main.output
+      srcDir file('src/integrationTest/java')
+    }
+    resources.srcDir file('src/integrationTest/resources')
+  }
+}
+
+configurations {
+  functionalTestImplementation.extendsFrom testImplementation
+  functionalTestRuntimeOnly.extendsFrom runtimeOnly
+
+  integrationTestImplementation.extendsFrom testImplementation
+  integrationTestRuntimeOnly.extendsFrom runtimeOnly
+}
+
+
+tasks.withType(JavaCompile) {
+  options.compilerArgs << "-Xlint:unchecked" << "-Werror"
+}
+
+// https://github.com/gradle/gradle/issues/16791
+tasks.withType(JavaExec).configureEach {
+  javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
+}
+
+tasks.withType(Test) {
+  useJUnitPlatform()
+
+  testLogging {
+    exceptionFormat = 'full'
+  }
+}
+
+test {
+  failFast = true
+}
+
+task functional(type: Test) {
+  description = "Runs functional tests"
+  group = "Verification"
+  testClassesDirs = sourceSets.functionalTest.output.classesDirs
+  classpath = sourceSets.functionalTest.runtimeClasspath
+}
+
+task integration(type: Test) {
+  description = "Runs integration tests"
+  group = "Verification"
+  testClassesDirs = sourceSets.integrationTest.output.classesDirs
+  classpath = sourceSets.integrationTest.runtimeClasspath
+  failFast = true
+}
+
+jacocoTestReport {
+  executionData(test, integration)
+  reports {
+    xml.required = true
+    csv.required = false
+    html.required = true
+  }
+}
+
+project.tasks['sonarqube'].dependsOn jacocoTestReport
+project.tasks['check'].dependsOn integration
+
+sonarqube {
+  properties {
+    property "sonar.projectName", "API CP :: api-cp-springboot-template"
+    property "sonar.projectKey", "uk.gov.hmcts.cp:api-cp-springboot-template"
+  }
+}
+
+// before committing a change, make sure task still works
+dependencyUpdates {
+  def isNonStable = { String version ->
+    def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { qualifier -> version.toUpperCase().contains(qualifier) }
+    def regex = /^[0-9,.v-]+$/
+    return !stableKeyword && !(version ==~ regex)
+  }
+  rejectVersionIf { selection -> // <---- notice how the closure argument is named
+    return isNonStable(selection.candidate.version) && !isNonStable(selection.currentVersion)
+  }
+}
+
+// https://jeremylong.github.io/DependencyCheck/dependency-check-gradle/configuration.html
+dependencyCheck {
+  suppressionFile = 'config/owasp/suppressions.xml'
+}
+
+repositories {
+  mavenLocal()
+  mavenCentral()
+  maven {
+    url = 'https://jitpack.io'
+  }
+}
+
+ext {
+  log4JVersion = "2.24.3"
+  logbackVersion = "1.5.18"
+  lombokVersion = "1.18.38"
+  springBootVersion = "3.4.4"
+}
+
+ext['snakeyaml.version'] = '2.0'
+
+def openApiModule = project(":openapi")
+def inputSpecFile = new File(openApiModule.projectDir, "src/main/resources/openapi/courtHouses.yml")
+
+if (!inputSpecFile.exists()) {
+  throw new GradleException("OpenAPI spec file not found: $inputSpecFile")
+}
+
+openApiGenerate {
+  generatorName = "spring"
+  inputSpec = inputSpecFile.absolutePath
+  outputDir = "$buildDir/generated"
+  apiPackage = "uk.gov.hmcts.cp.openapi.api"
+  modelPackage = "uk.gov.hmcts.cp.openapi.model"
+  generateModelTests = true
+  generateApiTests = true
+  cleanupOutput = true
+  configOptions = [
+    dateLibrary            : "java8",
+    interfaceOnly          : "true",
+    hideGenerationTimestamp: "true",
+    useJakartaEe           : "true",
+    useBeanValidation      : "true",
+    useTags                : "true",
+    useSpringBoot3         : "true",
+    implicitHeaders        : "false",
+    performBeanValidation  : "true",
+    openApiNullable        : "false"
+  ]
+}
+
+tasks.named('compileJava') {
+  dependsOn tasks.named('spotlessApply')
+}
+
+spotless {
+  java {
+    target 'build/generated/src/main/**/*.java'
+    removeUnusedImports()
+    eclipse().configFile('config/formatter/eclipse-formatter.xml')
+  }
+}
+
+tasks.named('spotlessJava') {
+  dependsOn tasks.named('openApiGenerate')
+}
+
+tasks.named('spotlessApply') {
+  dependsOn tasks.named('openApiGenerate')
+}
+
+tasks.withType(Checkstyle).configureEach {
+  def generatedDir = file("${buildDir}/generated/src/main/java").canonicalPath
+  source = source.filter { file ->
+    !file.canonicalPath.startsWith(generatedDir)
+  }
+}
+
+dependencies {
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'org.springframework.boot:spring-boot-starter-actuator'
+  implementation 'org.springframework.boot:spring-boot-starter-aop'
+  implementation 'org.springframework.boot:spring-boot-starter-json'
+  implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.8.6'
+
+  implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: '6.1.8'
+
+  implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4JVersion
+  implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: log4JVersion
+  implementation group: 'ch.qos.logback', name: 'logback-classic', version: logbackVersion
+  implementation group: 'ch.qos.logback', name: 'logback-core', version: logbackVersion
+
+  implementation group: 'io.rest-assured', name: 'rest-assured', version: '5.5.1'
+
+  implementation 'org.openapitools:openapi-generator-core:7.12.0'
+  implementation 'org.hibernate.validator:hibernate-validator:8.0.2.Final'
+
+  testImplementation(platform('org.junit:junit-bom:5.12.1'))
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+  testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion, {
+    exclude group: 'junit', module: 'junit'
+    exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+  }
+
+  compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+  annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+}
+
+application {
+  mainClass = 'uk.gov.hmcts.cp.Application'
+}
+
+bootJar {
+  archiveFileName = "api-cp-springboot-template.jar"
+
+  manifest {
+    attributes('Implementation-Version': project.version.toString())
+  }
+}
+
+wrapper {
+  distributionType = Wrapper.DistributionType.ALL
+}

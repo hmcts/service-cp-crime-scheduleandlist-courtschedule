@@ -1,0 +1,4 @@
+[submodule "openapi"]
+	path = openapi
+	url = ../api-cp-refdata-courthearing-courthouses.git
+	branch = master
