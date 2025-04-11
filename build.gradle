@@ -155,11 +155,8 @@ ext {
 ext['snakeyaml.version'] = '2.0'
 
 def openApiModule = project(":openapi")
-def inputSpecFile = new File(openApiModule.projectDir, "src/main/resources/openapi/courtHouses.yml")
+def inputSpecFile = new File(openApiModule.projectDir, "src/main/resources/openapi/courtSchedule.yml")
 
-if (!inputSpecFile.exists()) {
-  throw new GradleException("OpenAPI spec file not found: $inputSpecFile")
-}
 
 openApiGenerate {
   generatorName = "spring"
