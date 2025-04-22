@@ -1,14 +1,15 @@
 version: '2.1'
 
 services:
-  api-cp-springboot-template:
+  service-cp-crime-schedulingandlisting-courtschedule:
     build:
       context: .
+      dockerfile: Dockerfile
       args:
-        - http_proxy
-        - https_proxy
-        - no_proxy
-    image: hmctspublic.azurecr.io/spring-boot/template
+        http_proxy: ${http_proxy}
+        https_proxy: ${https_proxy}
+        no_proxy: ${no_proxy}
+        FROM_IMAGE: ${FROM_IMAGE}
     environment:
       # these environment variables are used by java-logging library
       - ROOT_APPENDER
@@ -24,3 +25,9 @@ services:
       - LOGBACK_REQUIRE_ERROR_CODE=false
     ports:
       - $SERVER_PORT:$SERVER_PORT
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:${SERVER_PORT}/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s

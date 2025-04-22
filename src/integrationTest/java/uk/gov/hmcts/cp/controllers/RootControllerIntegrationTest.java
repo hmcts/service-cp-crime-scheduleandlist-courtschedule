@@ -28,17 +28,18 @@ class RootControllerIntegrationTest {
     @Test
     void shouldCallRootAndGet200() throws Exception {
         mockMvc.perform(get("/"))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(content().string(containsString("Welcome to api-cp-springboot-template")));
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content()
+                        .string(containsString("Welcome to service-cp-crime-schedulingandlisting-courtschedule")));
     }
 
     @DisplayName("Actuator health status should be UP")
     @Test
     void shouldCallActuatorAndGet200() throws Exception {
         mockMvc.perform(get("/health"))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.status").value("UP"));
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"));
     }
 }

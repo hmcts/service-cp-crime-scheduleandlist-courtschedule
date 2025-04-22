@@ -99,7 +99,7 @@ The project uses [Gradle](https://gradle.org) as a build tool. It already contai
 To build the project execute the following command:
 
 ```bash
-  ./gradlew build
+  ./gradlew clean build
 ```
 
 ### Running the application
@@ -113,17 +113,10 @@ Create the image of the application by executing the following command:
 Note: Docker Compose V2 is highly recommended for building and running the application.
 In the Compose V2 old `docker-compose` command is replaced with `docker compose`.
 
-Create docker image:
+Create docker image and run docker compose:
 
 ```bash
-  docker compose build
-```
-
-Run the distribution (created in `build/install/api-cp-springboot-template` directory)
-by executing the following command:
-
-```bash
-  docker compose up
+  docker compose up --build
 ```
 
 This will start the API container exposing the application's port
