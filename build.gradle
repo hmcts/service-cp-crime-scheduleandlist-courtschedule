@@ -245,7 +245,7 @@ application {
 }
 
 bootJar {
-  archiveFileName = "api-cp-springboot-template.jar"
+  archiveFileName = "service-cp-crime-schedulingandlisting-courtschedule.jar"
 
   manifest {
     attributes('Implementation-Version': project.version.toString())
