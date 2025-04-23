@@ -115,8 +115,8 @@ project.tasks['check'].dependsOn integration
 
 sonarqube {
   properties {
-    property "sonar.projectName", "API CP :: api-cp-springboot-template"
-    property "sonar.projectKey", "uk.gov.hmcts.cp:api-cp-springboot-template"
+    property "sonar.projectName", "Service API CP :: service-cp-crime-schedulingandlisting-courtschedule"
+    property "sonar.projectKey", "uk.gov.hmcts.cp:service-cp-crime-schedulingandlisting-courtschedule"
   }
 }
 
@@ -193,6 +193,8 @@ spotless {
   }
 }
 
+
+
 tasks.named('spotlessJava') {
   dependsOn tasks.named('openApiGenerate')
 }
@@ -243,7 +245,7 @@ application {
 }
 
 bootJar {
-  archiveFileName = "api-cp-springboot-template.jar"
+  archiveFileName = "service-cp-crime-schedulingandlisting-courtschedule.jar"
 
   manifest {
     attributes('Implementation-Version': project.version.toString())

@@ -23,6 +23,6 @@ public class RootController {
      */
     @GetMapping("/")
     public ResponseEntity<String> welcome() {
-        return ok("Welcome to api-cp-springboot-template");
+        return ok("Welcome to service-cp-crime-schedulingandlisting-courtschedule");
     }
 }

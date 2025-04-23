@@ -25,7 +25,7 @@ class CourtSceduleControllerTest {
     @Test
     void shouldCallActuatorAndGet200() throws Exception {
         mockMvc.perform(get("/case/123/courtschedule"))
-            .andDo(print())
-            .andExpect(status().isOk());
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 }
