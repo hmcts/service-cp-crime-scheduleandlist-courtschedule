@@ -187,7 +187,7 @@ tasks.named('compileJava') {
 
 spotless {
   java {
-    target 'build/generated/src/main/**/*.java', 'src/integrationTest/java/**/*.java'
+    target 'build/generated/src/main/**/*.java'
     removeUnusedImports()
     eclipse().configFile('config/formatter/eclipse-formatter.xml')
   }
