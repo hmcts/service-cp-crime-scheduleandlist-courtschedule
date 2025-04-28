@@ -74,7 +74,6 @@ The template contains the following plugins:
 
   Reduces the amount of work needed to create a Spring application
 
-
 * com.github.ben-manes.versions
 
   https://github.com/ben-manes/gradle-versions-plugin

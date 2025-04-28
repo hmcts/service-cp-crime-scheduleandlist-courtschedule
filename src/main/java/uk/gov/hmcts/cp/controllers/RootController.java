@@ -23,6 +23,6 @@ public class RootController {
      */
     @GetMapping("/")
     public ResponseEntity<String> welcome() {
-        return ok("Welcome to service-cp-crime-schedulingandlisting-courtschedule");
+        return ok("Welcome to service-cp-crime-scheduleandlist-courtschedule");
     }
 }

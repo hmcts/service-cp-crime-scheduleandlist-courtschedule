@@ -22,6 +22,6 @@ public class OpenAPIConfiguration {
             .externalDocs(
                 new ExternalDocumentation()
                     .description("README")
-                    .url("https://github.com/hmcts/service-cp-crime-schedulingandlisting-courtschedule"));
+                    .url("https://github.com/hmcts/service-cp-crime-scheduleandlist-courtschedule"));
     }
 }
