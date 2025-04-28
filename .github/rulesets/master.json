@@ -3,7 +3,7 @@
   "name": "master",
   "target": "branch",
   "source_type": "Repository",
-  "source": "hmcts/service-cp-crime-schedulingandlisting-courtschedule",
+  "source": "hmcts/service-cp-crime-scheduleandlist-courtschedule",
   "enforcement": "active",
   "conditions": {
     "ref_name": {

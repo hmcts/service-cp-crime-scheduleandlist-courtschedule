@@ -31,7 +31,7 @@ class RootControllerIntegrationTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content()
-                        .string(containsString("Welcome to service-cp-crime-schedulingandlisting-courtschedule")));
+                        .string(containsString("Welcome to service-cp-crime-scheduleandlist-courtschedule")));
     }
 
     @DisplayName("Actuator health status should be UP")
