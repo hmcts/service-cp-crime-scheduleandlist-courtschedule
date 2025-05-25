@@ -5,11 +5,7 @@ trigger:
   branches:
     include:
       - master
-      - 'team/*'
-  paths:
-    include:
-      - '*'
-
+      - main
 pr:
   - '*'
 
