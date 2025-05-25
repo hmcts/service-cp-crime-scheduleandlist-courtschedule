@@ -1,5 +1,6 @@
 package uk.gov.hmcts.cp.controllers;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -21,15 +22,21 @@ public class CourtScheduleController implements CourtScheduleApi {
 
     @Override
     public ResponseEntity<CourtScheduleResponse> getCourtScheduleByCaseUrn(String caseUrn) {
+        String sanitizedCaseUrn;
         CourtScheduleResponse courtScheduleResponse;
         try {
-            courtScheduleResponse = courtScheduleService.getCourtScheduleResponse(caseUrn);
+            sanitizedCaseUrn = sanitizeCaseUrn(caseUrn);
+            courtScheduleResponse = courtScheduleService.getCourtScheduleResponse(sanitizedCaseUrn);
         } catch (ResponseStatusException e) {
             log.error(e.getMessage());
             return ResponseEntity.status(e.getStatusCode()).build();
         }
-        log.debug("getCourtScheduleByCaseUrn: {}", caseUrn);
+        log.debug("Found court schedule for caseUrn: {}", sanitizedCaseUrn);
         return new ResponseEntity<>(courtScheduleResponse, HttpStatus.OK);
     }
 
+    private String sanitizeCaseUrn(String urn) {
+        if (urn == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "caseUrn is required");;
+        return StringEscapeUtils.escapeHtml4(urn);
+    }
 }
