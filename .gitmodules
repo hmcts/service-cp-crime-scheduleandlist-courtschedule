@@ -1,4 +1,0 @@
-[submodule "openapi"]
-	path = openapi
-	url = ../api-cp-crime-schedulingandlisting-courtschedule.git
-	branch = master
