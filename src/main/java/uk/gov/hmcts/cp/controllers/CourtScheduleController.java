@@ -4,6 +4,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,17 +27,19 @@ public class CourtScheduleController implements CourtScheduleApi {
         CourtScheduleResponse courtScheduleResponse;
         try {
             sanitizedCaseUrn = sanitizeCaseUrn(caseUrn);
-            courtScheduleResponse = courtScheduleService.getCourtScheduleResponse(sanitizedCaseUrn);
+            courtScheduleResponse = courtScheduleService.getCourtScheduleByCaseUrn(sanitizedCaseUrn);
         } catch (ResponseStatusException e) {
             log.error(e.getMessage());
-            return ResponseEntity.status(e.getStatusCode()).build();
+            throw e;
         }
         log.debug("Found court schedule for caseUrn: {}", sanitizedCaseUrn);
-        return new ResponseEntity<>(courtScheduleResponse, HttpStatus.OK);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(courtScheduleResponse);
     }
 
     private String sanitizeCaseUrn(String urn) {
-        if (urn == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "caseUrn is required");;
+        if (urn == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "caseUrn is required");
         return StringEscapeUtils.escapeHtml4(urn);
     }
 }

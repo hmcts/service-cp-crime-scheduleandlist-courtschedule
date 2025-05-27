@@ -6,29 +6,40 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponseCourtScheduleInner;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponseCourtScheduleInnerHearingsInner;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponseCourtScheduleInnerHearingsInnerCourtSittingsInner;
+import uk.gov.hmcts.cp.repositories.CourtScheduleRepository;
+import uk.gov.hmcts.cp.repositories.InMemoryCourtScheduleRepositoryImpl;
 import uk.gov.hmcts.cp.services.CourtScheduleService;
 
-import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CourtScheduleControllerTest {
 
     private static final Logger log = LoggerFactory.getLogger(CourtScheduleControllerTest.class);
 
+    private CourtScheduleRepository courtScheduleRepository;
+    private CourtScheduleService courtScheduleService;
+    private CourtScheduleController courtScheduleController;
+
     @BeforeEach
     void setUp() {
+        courtScheduleRepository = new InMemoryCourtScheduleRepositoryImpl();
+        courtScheduleService = new CourtScheduleService(courtScheduleRepository);
+        courtScheduleController = new CourtScheduleController(courtScheduleService);
     }
 
     @Test
     void getJudgeById_ShouldReturnJudgesWithOkStatus() {
-        CourtScheduleController courtScheduleController = new CourtScheduleController(new CourtScheduleService());
         UUID caseUrn = UUID.randomUUID();
         log.info("Calling courtScheduleController.getCourtScheduleByCaseUrn with caseUrn: {}", caseUrn);
         ResponseEntity<?> response = courtScheduleController.getCourtScheduleByCaseUrn(caseUrn.toString());
@@ -63,14 +74,24 @@ class CourtScheduleControllerTest {
     }
 
     @Test
-    void getJudgeById_ShouldReturnBadRequestStatus() {
-        CourtScheduleController courtScheduleController = new CourtScheduleController(new CourtScheduleService());
+    void getCourtScheduleByCaseUrn_ShouldSanitizeCaseUrn() {
+        String unsanitizedCaseUrn = "<script>alert('xss')</script>";
+        log.info("Calling courtScheduleController.getCourtScheduleByCaseUrn with unsanitized caseUrn: {}", unsanitizedCaseUrn);
 
-        log.info("Calling courtScheduleController.getCourtScheduleByCaseUrn with null caseUrn");
-        ResponseEntity<?> response = courtScheduleController.getCourtScheduleByCaseUrn(null);
-        log.debug("Received response: {}", response);
-
+        ResponseEntity<?> response = courtScheduleController.getCourtScheduleByCaseUrn(unsanitizedCaseUrn);
         assertNotNull(response);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        log.debug("Received response: {}", response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
+
+    @Test
+    void getJudgeById_ShouldReturnBadRequestStatus() {
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            courtScheduleController.getCourtScheduleByCaseUrn(null);
+        });
+        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(exception.getReason()).isEqualTo("caseUrn is required");
+        assertThat(exception.getMessage()).isEqualTo("400 BAD_REQUEST \"caseUrn is required\"");
+    }
+
 } 
