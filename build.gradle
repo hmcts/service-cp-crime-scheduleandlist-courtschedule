@@ -231,7 +231,7 @@ application {
 }
 
 ext {
-  apiCourtScheduleVersion="0.3.3"
+  apiCourtScheduleVersion = "0.3.3"
   log4JVersion = "2.24.3"
   logbackVersion = "1.5.18"
   lombokVersion = "1.18.38"
