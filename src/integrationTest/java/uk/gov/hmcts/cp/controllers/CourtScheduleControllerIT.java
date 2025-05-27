@@ -10,24 +10,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
-import uk.gov.hmcts.cp.services.CourtScheduleService;
 
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-class CourtScheduleControllerITest {
-    private static final Logger log = LoggerFactory.getLogger(CourtScheduleControllerITest.class);
+class CourtScheduleControllerIT {
+    private static final Logger log = LoggerFactory.getLogger(CourtScheduleControllerIT.class);
 
     @Autowired
     private MockMvc mockMvc;
