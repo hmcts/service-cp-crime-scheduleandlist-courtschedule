@@ -27,7 +27,7 @@ public class CourtScheduleController implements CourtScheduleApi {
         CourtScheduleResponse courtScheduleResponse;
         try {
             sanitizedCaseUrn = sanitizeCaseUrn(caseUrn);
-            courtScheduleResponse = courtScheduleService.getCourtScheduleResponse(sanitizedCaseUrn);
+            courtScheduleResponse = courtScheduleService.getCourtScheduleByCaseUrn(sanitizedCaseUrn);
         } catch (ResponseStatusException e) {
             log.error(e.getMessage());
             throw e;
