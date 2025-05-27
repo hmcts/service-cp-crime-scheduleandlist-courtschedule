@@ -12,7 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 
 import java.util.UUID;
 
@@ -32,8 +31,6 @@ class CourtScheduleControllerIT {
     @Test
     void shouldReturnOkWhenValidUrnIsProvided() throws Exception {
         String caseUrn = "test-case-urn";
-        CourtScheduleResponse expectedResponse = CourtScheduleResponse.builder().build();
-
         mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -69,7 +66,7 @@ class CourtScheduleControllerIT {
                     assertNotNull(sitting.get("sittingStart").asText());
                     assertNotNull(sitting.get("sittingEnd").asText());
                     UUID judiciaryId = UUID.fromString(sitting.get("judiciaryId").asText());
-                    assertNotNull(sitting.get("judiciaryId").asText());
+                    assertNotNull(judiciaryId);
                     log.info("Response Object: {}", jsonBody);
                 });
     }
