@@ -251,7 +251,7 @@ dependencies {
   implementation 'io.micrometer:micrometer-tracing'
   implementation 'io.micrometer:micrometer-tracing-bridge-otel'
   implementation 'io.micrometer:micrometer-registry-azure-monitor'
-  implementation 'com.azure:azure-monitor-opentelemetry-exporter:1.0.0-beta.17'
+  implementation 'com.azure:azure-monitor-opentelemetry-exporter:1.0.0-beta.32'
 
   implementation 'net.logstash.logback:logstash-logback-encoder:8.1'
   implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: log4JVersion
