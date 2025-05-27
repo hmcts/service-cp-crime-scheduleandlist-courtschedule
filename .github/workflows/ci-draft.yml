@@ -143,22 +143,22 @@ jobs:
             BASE_IMAGE=openjdk:21-jdk-slim
             JAR_FILENAME=${{ needs.Build.outputs.artefact_name }}.jar
 
-  # https://github.com/marketplace/actions/azure-pipelines-action   
-  Deploy:
-    needs: [ Build, Artefact-Version ]
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-
-    steps:
-      - name: Trigger ADO pipeline
-        uses: Azure/pipelines@v1.2
-        with:
-          azure-devops-project-url: 'https://dev.azure.com/hmcts-cpp/cpp-apps'
-          azure-pipeline-name: 'cp-gh-artifact-to-acr'
-          azure-devops-token: ${{ secrets.HMCTS_ADO_PAT }}
-          azure-pipeline-variables: >-
-            { 
-              "GROUP_ID" : "uk.gov.hmcts.cp", 
-              "ARTIFACT_ID" : "${{ github.repository }}", 
-              "ARTIFACT_VERSION" : "${{ needs.Artefact-Version.outputs.draft_version}}"
-            }
+#  # https://github.com/marketplace/actions/azure-pipelines-action
+#  Deploy:
+#    needs: [ Build, Artefact-Version ]
+#    runs-on: ubuntu-latest
+#    if: github.event_name == 'push'
+#
+#    steps:
+#      - name: Trigger ADO pipeline
+#        uses: Azure/pipelines@v1.2
+#        with:
+#          azure-devops-project-url: 'https://dev.azure.com/hmcts-cpp/cpp-apps'
+#          azure-pipeline-name: 'cp-gh-artifact-to-acr'
+#          azure-devops-token: ${{ secrets.HMCTS_ADO_PAT }}
+#          azure-pipeline-variables: >-
+#            {
+#              "GROUP_ID" : "uk.gov.hmcts.cp",
+#              "ARTIFACT_ID" : "${{ github.repository }}",
+#              "ARTIFACT_VERSION" : "${{ needs.Artefact-Version.outputs.draft_version}}"
+#            }

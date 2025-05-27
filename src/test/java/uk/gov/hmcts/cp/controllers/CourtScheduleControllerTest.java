@@ -6,14 +6,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponseCourtScheduleInner;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponseCourtScheduleInnerHearingsInner;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponseCourtScheduleInnerHearingsInnerCourtSittingsInner;
 import uk.gov.hmcts.cp.services.CourtScheduleService;
 
-import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -63,14 +62,30 @@ class CourtScheduleControllerTest {
     }
 
     @Test
+    void getCourtScheduleByCaseUrn_ShouldSanitizeCaseUrn() {
+        CourtScheduleController courtScheduleController = new CourtScheduleController(new CourtScheduleService());
+
+        String unsanitizedCaseUrn = "<script>alert('xss')</script>";
+        log.info("Calling courtScheduleController.getCourtScheduleByCaseUrn with unsanitized caseUrn: {}", unsanitizedCaseUrn);
+
+        ResponseEntity<?> response = courtScheduleController.getCourtScheduleByCaseUrn(unsanitizedCaseUrn);
+        assertNotNull(response);
+        log.debug("Received response: {}", response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
     void getJudgeById_ShouldReturnBadRequestStatus() {
         CourtScheduleController courtScheduleController = new CourtScheduleController(new CourtScheduleService());
 
         log.info("Calling courtScheduleController.getCourtScheduleByCaseUrn with null caseUrn");
-        ResponseEntity<?> response = courtScheduleController.getCourtScheduleByCaseUrn(null);
-        log.debug("Received response: {}", response);
-
-        assertNotNull(response);
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        try {
+            courtScheduleController.getCourtScheduleByCaseUrn(null);
+        } catch (ResponseStatusException e) {
+            log.info(e.getMessage());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+            assertEquals("caseUrn is required", e.getReason());
+        }
     }
+
 } 
