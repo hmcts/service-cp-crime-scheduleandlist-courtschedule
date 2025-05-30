@@ -25,7 +25,7 @@ they have to go through a review first.
 Here's what you should do:
 1. [fork](https://help.github.com/articles/fork-a-repo/) this repository and clone it to your machine,
 2. create a new branch for your change:
- * use the latest *master* to branch from,
+ * use the latest *main* to branch from,
 3. implement the change in your branch:
  * if the change is non-trivial it's a good practice to split it into several logically independent units and deliver
    each one as a separate commit,
