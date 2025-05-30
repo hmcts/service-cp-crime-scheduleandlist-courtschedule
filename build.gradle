@@ -265,7 +265,7 @@ dependencies {
   compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
 
-  testImplementation(platform('org.junit:junit-bom:5.12.2'))
+  testImplementation(platform('org.junit:junit-bom:5.13.0'))
   testImplementation 'org.mockito:mockito-core:5.18.0'
   testRuntimeOnly 'org.mockito:mockito-inline:5.2.0'
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
