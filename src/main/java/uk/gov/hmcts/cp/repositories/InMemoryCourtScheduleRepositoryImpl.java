@@ -13,8 +13,8 @@ import java.util.UUID;
 @Component
 public class InMemoryCourtScheduleRepositoryImpl implements CourtScheduleRepository {
 
-    public CourtScheduleResponse getCourtScheduleByCaseUrn(String caseUrn) {
-        CourtScheduleResponseCourtScheduleInnerHearingsInner courtScheduleHearing = CourtScheduleResponseCourtScheduleInnerHearingsInner.builder()
+    public CourtScheduleResponse getCourtScheduleByCaseUrn(final String caseUrn) {
+        final CourtScheduleResponseCourtScheduleInnerHearingsInner courtScheduleHearing = CourtScheduleResponseCourtScheduleInnerHearingsInner.builder()
                 .hearingId(UUID.randomUUID().toString())
                 .listNote("Requires interpreter")
                 .hearingDescription("Sentencing for theft case")

@@ -14,18 +14,18 @@ import uk.gov.hmcts.cp.repositories.CourtScheduleRepository;
 @RequiredArgsConstructor
 public class CourtScheduleService {
 
-    private static final Logger log = LoggerFactory.getLogger(CourtScheduleService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CourtScheduleService.class);
 
     private final CourtScheduleRepository courtScheduleRepository;
 
-    public CourtScheduleResponse getCourtScheduleByCaseUrn(String caseUrn) throws ResponseStatusException {
+    public CourtScheduleResponse getCourtScheduleByCaseUrn(final String caseUrn) throws ResponseStatusException {
         if (StringUtils.isEmpty(caseUrn)) {
-            log.warn("No case urn provided");
+            LOG.atWarn().log("No case urn provided");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "caseUrn is required");
         }
-        log.warn("NOTE: System configured to return stubbed Court Schedule details. Ignoring provided caseUrn : {}", caseUrn);
-        CourtScheduleResponse stubbedCourtScheduleResponse = courtScheduleRepository.getCourtScheduleByCaseUrn(caseUrn);
-        log.debug("Court Schedule response: {}", stubbedCourtScheduleResponse);
+        LOG.atWarn().log("NOTE: System configured to return stubbed Court Schedule details. Ignoring provided caseUrn : {}", caseUrn);
+        final CourtScheduleResponse stubbedCourtScheduleResponse = courtScheduleRepository.getCourtScheduleByCaseUrn(caseUrn);
+        LOG.atDebug().log("Court Schedule response: {}", stubbedCourtScheduleResponse);
         return stubbedCourtScheduleResponse;
     }
 

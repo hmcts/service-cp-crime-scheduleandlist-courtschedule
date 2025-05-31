@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenAPIConfiguration {
 
-    private OpenAPIConfigurationLoader openAPIConfigLoader = new OpenAPIConfigurationLoader();
+    private final OpenAPIConfigurationLoader openAPIConfigLoader = new OpenAPIConfigurationLoader();
 
     @Bean
     public OpenAPI openAPI() {
