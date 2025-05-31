@@ -14,32 +14,34 @@ import uk.gov.hmcts.cp.services.CourtScheduleService;
 
 @RestController
 public class CourtScheduleController implements CourtScheduleApi {
-    private static final Logger log = LoggerFactory.getLogger(CourtScheduleController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CourtScheduleController.class);
     private final CourtScheduleService courtScheduleService;
 
-    public CourtScheduleController(CourtScheduleService courtScheduleService) {
+    public CourtScheduleController(final CourtScheduleService courtScheduleService) {
         this.courtScheduleService = courtScheduleService;
     }
 
     @Override
-    public ResponseEntity<CourtScheduleResponse> getCourtScheduleByCaseUrn(String caseUrn) {
-        String sanitizedCaseUrn;
-        CourtScheduleResponse courtScheduleResponse;
+    public ResponseEntity<CourtScheduleResponse> getCourtScheduleByCaseUrn(final String caseUrn) {
+        final String sanitizedCaseUrn;
+        final CourtScheduleResponse courtScheduleResponse;
         try {
             sanitizedCaseUrn = sanitizeCaseUrn(caseUrn);
             courtScheduleResponse = courtScheduleService.getCourtScheduleByCaseUrn(sanitizedCaseUrn);
         } catch (ResponseStatusException e) {
-            log.error(e.getMessage());
+            LOG.atError().log(e.getMessage());
             throw e;
         }
-        log.debug("Found court schedule for caseUrn: {}", sanitizedCaseUrn);
+        LOG.atDebug().log("Found court schedule for caseUrn: {}", sanitizedCaseUrn);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(courtScheduleResponse);
     }
 
-    private String sanitizeCaseUrn(String urn) {
-        if (urn == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "caseUrn is required");
+    private String sanitizeCaseUrn(final String urn) {
+        if (urn == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "caseUrn is required");
+        }
         return StringEscapeUtils.escapeHtml4(urn);
     }
 }
