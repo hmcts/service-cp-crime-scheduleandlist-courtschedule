@@ -57,7 +57,7 @@ jobs:
               -DGITHUB_REPOSITORY=${{ github.repository }} \
               -DGITHUB_ACTOR=${{ github.actor }} \
               -DGITHUB_TOKEN=$GITHUB_TOKEN \
-              -DAZURE_DEVOPS_ARTIFACT_USERNAME=$HMCTS_ARTEFACT_ACTOR \
+              -DAZURE_DEVOPS_ARTIFACT_USERNAME=$AZURE_DEVOPS_ARTIFACT_USERNAME \
               -DAZURE_DEVOPS_ARTIFACT_TOKEN=$AZURE_DEVOPS_ARTIFACT_TOKEN
 
       - name: Extract repo name
