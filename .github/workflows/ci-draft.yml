@@ -1,4 +1,4 @@
-name: CI Build and Publish Increments Draft
+name: Build and Publish (Non-Release)
 
 on:
   pull_request:
@@ -11,166 +11,14 @@ on:
       - main
 
 jobs:
-  Artefact-Version:
-    runs-on: ubuntu-latest
-    outputs:
-      draft_version: ${{ steps.vars.outputs.draft_version }}
-      latest_tag: ${{ steps.vars.outputs.latest_tag }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+  ci-draft:
+    uses: ./.github/workflows/ci-build-publish.yml
+    secrets:
+      AZURE_DEVOPS_ARTIFACT_USERNAME: ${{ secrets.AZURE_DEVOPS_ARTIFACT_USERNAME }}
+      AZURE_DEVOPS_ARTIFACT_TOKEN: ${{ secrets.AZURE_DEVOPS_ARTIFACT_TOKEN }}
+      HMCTS_ADO_PAT: ${{ secrets.HMCTS_ADO_PAT }}
+    with:
+      is_publish: ${{ github.event_name == 'push' }}
+      trigger_docker: ${{ github.event_name == 'push' }}
+      trigger_deploy: ${{ github.event_name == 'push' }}
 
-      - name: Get short SHA for versioning
-        id: vars
-        run: |
-          if LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null); then
-            :
-          else
-            LATEST_TAG="v0.0.0"
-          fi
-          echo "🏷️ Latest Git tag resolved to: $LATEST_TAG"
-          LATEST_TAG="${LATEST_TAG#v}"
-
-          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
-
-          SHORT_SHA=$(git rev-parse --short HEAD)
-          DRAFT_VERSION="${LATEST_TAG}-${SHORT_SHA}"
-
-          echo "draft_version=$DRAFT_VERSION"
-          echo "draft_version=$DRAFT_VERSION" >> $GITHUB_OUTPUT
-
-  Build:
-    needs: [Artefact-Version]
-    runs-on: ubuntu-latest
-    outputs:
-      repo_name: ${{ steps.repo_vars.outputs.repo_name }}
-      artefact_name: ${{ steps.repo_vars.outputs.artefact_name }}
-
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: current
-
-      - name: Gradle Build and Publish on Push [Merge]
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AZURE_DEVOPS_ARTIFACT_USERNAME: ${{ secrets.AZURE_DEVOPS_ARTIFACT_USERNAME }}
-          AZURE_DEVOPS_ARTIFACT_TOKEN: ${{ secrets.AZURE_DEVOPS_ARTIFACT_TOKEN }}
-        run: |
-          VERSION=${{ needs.Artefact-Version.outputs.draft_version }}
-
-          gradle build -DAPI_SPEC_VERSION=$VERSION
-
-          if [ "${{ github.event_name }}" == "push" ]; then
-            echo "Push event trigger - Publishing artefact"
-            gradle publish \
-              -DAPI_SPEC_VERSION=$VERSION \
-              -DGITHUB_REPOSITORY=${{ github.repository }} \
-              -DGITHUB_ACTOR=${{ github.actor }} \
-              -DGITHUB_TOKEN=$GITHUB_TOKEN \
-              -DAZURE_DEVOPS_ARTIFACT_USERNAME=$AZURE_DEVOPS_ARTIFACT_USERNAME \
-              -DAZURE_DEVOPS_ARTIFACT_TOKEN=$AZURE_DEVOPS_ARTIFACT_TOKEN
-          else
-            echo "Skipping publish because this is a pull_request"
-          fi
-
-      - name: Extract repo name
-        if: github.event_name == 'push'
-        id: repo_vars
-        run: |
-          repo_name=${GITHUB_REPOSITORY##*/}
-          echo "repo_name=${repo_name}" >> $GITHUB_OUTPUT
-          echo "artefact_name=${repo_name}-${{ needs.Artefact-Version.outputs.draft_version }}" >> $GITHUB_OUTPUT
-
-      - name: Upload JAR Artefact
-        uses: actions/upload-artifact@v4
-        if: github.event_name == 'push'
-        with:
-          name: app-jar
-          path: build/libs/${{ steps.repo_vars.outputs.artefact_name }}.jar
-
-  Build-Docker:
-    needs: [ Build, Artefact-Version ]
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Download JAR Artefact
-        uses: actions/download-artifact@v4
-        with:
-          name: app-jar
-          path: build/libs
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to GitHub Packages
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and Push Docker Image to GitHub
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: Dockerfile
-          push: true
-          tags: |
-            ghcr.io/${{ github.repository }}:${{ needs.Artefact-Version.outputs.draft_version }}
-          build-args: |
-            BASE_IMAGE=openjdk:21-jdk-slim
-            JAR_FILENAME=${{ needs.Build.outputs.artefact_name }}.jar
-
-  Deploy:
-    needs: [ Build, Artefact-Version ]
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-
-    steps:
-      - name: Trigger ADO pipeline
-        env:
-          ADO_ORG: 'hmcts-cpp'
-          ADO_PROJECT: 'cpp-apps'
-          PIPELINE_ID: 460 #cp-gh-artifact-to-acr
-          ADO_PAT: ${{ secrets.HMCTS_ADO_PAT }}
-        run: |
-          ARTEFACT_VERSION="${{ needs.Artefact-Version.outputs.draft_version }}"
-          REPO_NAME="${GITHUB_REPOSITORY##*/}"
-          TARGET_REPOSITORY="${GITHUB_REPOSITORY}"
-
-          curl -X POST \
-            -u ":${ADO_PAT}" \
-            -H "Content-Type: application/json" \
-            https://dev.azure.com/${ADO_ORG}/${ADO_PROJECT}/_apis/pipelines/${PIPELINE_ID}/runs?api-version=7.0 \
-            -d "{
-              \"resources\": {
-                \"repositories\": {
-                  \"self\": {
-                    \"refName\": \"refs/heads/main\"
-                  }
-                }
-              },
-              \"templateParameters\": {
-                \"GROUP_ID\": \"uk.gov.hmcts.cp\",
-                \"ARTIFACT_ID\": \"${REPO_NAME}\",
-                \"ARTIFACT_VERSION\": \"${ARTEFACT_VERSION}\",
-                \"TARGET_REPOSITORY\": \"${TARGET_REPOSITORY}\"
-              }
-            }"
