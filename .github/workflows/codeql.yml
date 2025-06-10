@@ -5,10 +5,6 @@ on:
     branches:
       - master
       - main
-  push:
-    branches:
-      - master
-      - main
 
   schedule:
     - cron: '36 5 * * 4'
@@ -40,7 +36,6 @@ jobs:
           languages: ${{ matrix.language }}
           queries: security-extended
 
-
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -51,14 +46,9 @@ jobs:
         with:
           gradle-version: current
 
-      - name: Gradle Build and Publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Gradle Build
         run: |
-          gradle build cyclonedxBom -x test \
-            -DGITHUB_REPOSITORY=${{ github.repository }} \
-            -DGITHUB_ACTOR=${{ github.actor }} \
-            -DGITHUB_TOKEN=$GITHUB_TOKEN
+          gradle build cyclonedxBom -x test
 
       # ℹ️ Command-line programs to run using the OS shell.
       # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
