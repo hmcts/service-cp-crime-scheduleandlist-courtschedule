@@ -1,10 +1,10 @@
 package uk.gov.hmcts.cp.repositories;
 
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
-import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponseCourtScheduleInner;
-import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponseCourtScheduleInnerHearingsInner;
-import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponseCourtScheduleInnerHearingsInnerCourtSittingsInner;
+import uk.gov.hmcts.cp.openapi.model.CourtSitting;
+import uk.gov.hmcts.cp.openapi.model.Hearing;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -14,13 +14,13 @@ import java.util.UUID;
 public class InMemoryCourtScheduleRepositoryImpl implements CourtScheduleRepository {
 
     public CourtScheduleResponse getCourtScheduleByCaseUrn(final String caseUrn) {
-        final CourtScheduleResponseCourtScheduleInnerHearingsInner courtScheduleHearing = CourtScheduleResponseCourtScheduleInnerHearingsInner.builder()
+        final Hearing courtScheduleHearing = Hearing.builder()
                 .hearingId(UUID.randomUUID().toString())
                 .listNote("Requires interpreter")
                 .hearingDescription("Sentencing for theft case")
                 .hearingType("Trial")
                 .courtSittings(List.of(
-                        CourtScheduleResponseCourtScheduleInnerHearingsInnerCourtSittingsInner.builder()
+                        CourtSitting.builder()
                                 .courtHouse("Central Criminal Court")
                                 .sittingStart(OffsetDateTime.now())
                                 .sittingEnd(OffsetDateTime.now().plusMinutes(60))
@@ -30,7 +30,7 @@ public class InMemoryCourtScheduleRepositoryImpl implements CourtScheduleReposit
 
         return CourtScheduleResponse.builder()
                 .courtSchedule(List.of(
-                                CourtScheduleResponseCourtScheduleInner.builder()
+                                CourtSchedule.builder()
                                         .hearings(List.of(courtScheduleHearing)
                                         ).build()
                         )
