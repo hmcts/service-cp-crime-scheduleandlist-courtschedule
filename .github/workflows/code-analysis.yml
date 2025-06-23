@@ -11,49 +11,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install PMD CLI
-        run: |
-          curl -L -o pmd-dist-7.13.0-bin.zip https://github.com/pmd/pmd/releases/download/pmd_releases%2F7.13.0/pmd-dist-7.13.0-bin.zip
-          unzip pmd-dist-7.13.0-bin.zip
-          mv pmd-bin-7.13.0 /opt/pmd
-          echo "/opt/pmd/bin" >> $GITHUB_PATH
-
-      - name: Run PMD CLI analysis
-        run: |
-          mkdir -p build/reports/pmd
-          
-          set +e
-          /opt/pmd/bin/pmd check \
-            --dir src/main/java \
-            --rulesets \
-            .github/pmd-ruleset.xml \
-            --format html \
-            -r build/reports/pmd/pmd-report.html
-          PMD_EXIT_CODE=$?
-          set -e
-          
-          if [[ "$PMD_EXIT_CODE" -eq 1 ]]; then
-            echo "Unexpected internal error during PMD execution"
-            exit 1
-          elif [[ "$PMD_EXIT_CODE" -eq 2 ]]; then
-            echo "PMD CLI usage error"
-            exit 1
-          fi
-          echo "PMD_EXIT_CODE=$PMD_EXIT_CODE" >> $GITHUB_ENV
-
-      - name: Upload static analysis report on failure
-        if: env.PMD_EXIT_CODE != '0'
-        uses: actions/upload-artifact@v4
         with:
-          name: pmd-report
-          path: build/reports/pmd/pmd-report.html
+          fetch-depth: 0
 
-      - name: Check for static code analysis violations
-        run: |
-          if [[ "$PMD_EXIT_CODE" -eq 0 ]]; then
-            echo "No PMD violations"
-          else
-            echo "PMD violations found"
-            exit 1
-          fi
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - uses: pmd/pmd-github-action@v2
+        with:
+          rulesets: '.github/pmd-ruleset.xml'
+          sourcePath: 'src/main/java'
+
+      - name: Fail build if there are violations
+        if: steps.pmd.outputs.violations != 0
+        run: exit 1

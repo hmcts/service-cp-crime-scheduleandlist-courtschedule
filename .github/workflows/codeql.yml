@@ -5,10 +5,6 @@ on:
     branches:
       - master
       - main
-  push:
-    branches:
-      - master
-      - main
 
   schedule:
     - cron: '36 5 * * 4'
