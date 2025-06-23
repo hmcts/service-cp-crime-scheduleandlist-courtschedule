@@ -2,10 +2,10 @@ package uk.gov.hmcts.cp.repositories;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
-import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponseCourtScheduleInner;
-import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponseCourtScheduleInnerHearingsInner;
-import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponseCourtScheduleInnerHearingsInnerCourtSittingsInner;
+import uk.gov.hmcts.cp.openapi.model.CourtSitting;
+import uk.gov.hmcts.cp.openapi.model.Hearing;
 
 import java.util.UUID;
 
@@ -30,11 +30,11 @@ class CourtScheduleRepositoryTest {
         assertNotNull(response.getCourtSchedule());
         assertEquals(1, response.getCourtSchedule().size());
 
-        CourtScheduleResponseCourtScheduleInner schedule = response.getCourtSchedule().get(0);
+        CourtSchedule schedule = response.getCourtSchedule().get(0);
         assertNotNull(schedule.getHearings());
         assertEquals(1, schedule.getHearings().size());
 
-        CourtScheduleResponseCourtScheduleInnerHearingsInner hearing = schedule.getHearings().get(0);
+        Hearing hearing = schedule.getHearings().get(0);
         assertNotNull(hearing.getHearingId());
         assertEquals("Requires interpreter", hearing.getListNote());
         assertEquals("Sentencing for theft case", hearing.getHearingDescription());
@@ -42,7 +42,7 @@ class CourtScheduleRepositoryTest {
         assertNotNull(hearing.getCourtSittings());
         assertEquals(1, hearing.getCourtSittings().size());
 
-        CourtScheduleResponseCourtScheduleInnerHearingsInnerCourtSittingsInner sitting =
+       CourtSitting sitting =
                 hearing.getCourtSittings().get(0);
         assertEquals("Central Criminal Court", sitting.getCourtHouse());
         assertNotNull(sitting.getSittingStart());

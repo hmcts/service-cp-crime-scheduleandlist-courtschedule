@@ -7,6 +7,7 @@ plugins {
   id 'maven-publish'
   id "com.github.ben-manes.versions" version "0.52.0"
   id "org.cyclonedx.bom" version "2.3.1"
+  id "au.com.dius.pact" version "4.6.17"
 }
 
 group = 'uk.gov.hmcts.cp'
@@ -231,7 +232,7 @@ application {
 }
 
 ext {
-  apiCourtScheduleVersion = "0.3.3"
+  apiCourtScheduleVersion = "0.4.1"
   log4JVersion = "2.24.3"
   logbackVersion = "1.5.18"
   lombokVersion = "1.18.38"
@@ -272,5 +273,18 @@ dependencies {
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '3.5.0', {
     exclude group: 'junit', module: 'junit'
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+  }
+
+  testImplementation 'au.com.dius.pact.provider:junit5:4.6.17'
+  testImplementation 'au.com.dius.pact.provider:spring6:4.6.17'
+
+  test{
+    systemProperty 'pact.verifier.publishResults', System.getProperty('pact.verifier.publishResults')
+    systemProperty 'pact.provider.version', System.getProperty('pact.provider.version')
+    systemProperty("pact.provider.branch", "dev/pactTest")
+    systemProperty 'PACT_BROKER_TOKEN', System.getProperty('PACT_BROKER_TOKEN')
+    systemProperty 'PACT_BROKER_HOST', System.getProperty('PACT_BROKER_HOST')
+    //systemProperty 'GIT_BRANCH', System.getProperty('GIT_BRANCH')
+
   }
 }
