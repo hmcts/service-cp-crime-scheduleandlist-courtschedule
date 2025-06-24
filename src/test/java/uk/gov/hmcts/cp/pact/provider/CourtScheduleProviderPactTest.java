@@ -32,7 +32,7 @@ import java.util.UUID;
         scheme = "https",
         host = "hmcts-dts.pactflow.io",
         providerBranch = "dev/pactTest",
-        authentication = @PactBrokerAuth(token = "eOmnLAeYytphFMQZIj7hUg")
+        authentication = @PactBrokerAuth(token = "<token>")
 )
 public class CourtScheduleProviderPactTest {
 
