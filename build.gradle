@@ -295,5 +295,4 @@ dependencies {
     systemProperty 'pact.broker.host', System.getenv('PACT_BROKER_HOST')
     systemProperty 'pact.env', System.getenv('PACT_ENV')
   }
-
 }

@@ -50,11 +50,6 @@ public class CourtScheduleProviderPactTest {
         System.out.println("pact.verifier.publishResults: " + System.getProperty("pact.verifier.publishResults"));
     }
 
-  /*  @BeforeEach
-    public void setupTestTarget(PactVerificationContext context) {
-        context.setTarget(new HttpTestTarget("localhost", 8080));
-    }*/
-
     @State("court schedule for case 456789 exists")
     public void setupCourtSchedule() {
         courtScheduleRepository.clearAll();
