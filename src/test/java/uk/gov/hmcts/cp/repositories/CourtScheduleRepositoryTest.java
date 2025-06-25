@@ -42,7 +42,7 @@ class CourtScheduleRepositoryTest {
         assertNotNull(hearing.getCourtSittings());
         assertEquals(1, hearing.getCourtSittings().size());
 
-        CourtSitting sitting =
+       CourtSitting sitting =
                 hearing.getCourtSittings().get(0);
         assertEquals("Central Criminal Court", sitting.getCourtHouse());
         assertNotNull(sitting.getSittingStart());

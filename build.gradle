@@ -7,6 +7,7 @@ plugins {
   id 'maven-publish'
   id "com.github.ben-manes.versions" version "0.52.0"
   id "org.cyclonedx.bom" version "2.3.1"
+  id "au.com.dius.pact" version "4.6.17"
 }
 
 group = 'uk.gov.hmcts.cp'
@@ -85,7 +86,7 @@ tasks.named('test') {
   // Mockito must be added as an agent, see:
   // https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
   jvmArgs += [
-    "-javaagent:${configurations.testRuntimeClasspath.find { it.name.contains('mockito-core') }}", '-Xshare:off'
+          "-javaagent:${configurations.testRuntimeClasspath.find { it.name.contains('mockito-core') }}", '-Xshare:off'
   ]
   testLogging {
     events "passed", "skipped", "failed"
@@ -272,4 +273,27 @@ dependencies {
     exclude group: 'junit', module: 'junit'
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
+
+  testImplementation 'au.com.dius.pact.provider:junit5:4.6.17'
+  testImplementation 'au.com.dius.pact.provider:spring6:4.6.17'
+
+  test{
+    useJUnitPlatform {
+      excludeTags 'pact'
+    }
+  }
+
+  tasks.register('pactVerificationTest', Test) {
+    useJUnitPlatform {
+      includeTags 'pact'
+    }
+    systemProperty 'pact.broker.url', System.getenv('PACT_BROKER_URL')
+    systemProperty 'pact.broker.token', System.getenv('PACT_BROKER_TOKEN')
+    systemProperty 'pact.provider.version', System.getenv('GIT_COMMIT') ?: 'dev'
+    systemProperty 'pact.provider.branch', System.getenv('PACT_PROVIDER_BRANCH')
+    systemProperty 'pact.verifier.publishResults', System.getenv('PACT_VERIFIER_PUBLISH_RESULTS')
+    systemProperty 'pact.broker.host', System.getenv('PACT_BROKER_HOST')
+    systemProperty 'pact.env', System.getenv('PACT_ENV')
+  }
+
 }
