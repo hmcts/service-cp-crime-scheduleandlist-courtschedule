@@ -1,4 +1,4 @@
-name: Run Provider Pact Publish Script
+name: Run pact provider test and publish verification report to pact broker
 
 on:
   push:

@@ -1,6 +1,5 @@
 package uk.gov.hmcts.cp.repositories;
 
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
@@ -16,13 +15,12 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-//@Profile("test")
 public class InMemoryCourtScheduleRepositoryImpl implements CourtScheduleRepository {
 
     private final Map<String, CourtScheduleResponse> courtScheduleResponseMap = new ConcurrentHashMap<>();
 
-    public void saveCourtSchedule(final String caseUrn, final CourtScheduleResponse CourtScheduleResponse) {
-        courtScheduleResponseMap.put(caseUrn, CourtScheduleResponse);
+    public void saveCourtSchedule(final String caseUrn, final CourtScheduleResponse courtScheduleResponse) {
+        courtScheduleResponseMap.put(caseUrn, courtScheduleResponse);
     }
 
     public CourtScheduleResponse getCourtScheduleByCaseUrn(final String caseUrn) {
@@ -38,7 +36,7 @@ public class InMemoryCourtScheduleRepositoryImpl implements CourtScheduleReposit
 
     private CourtScheduleResponse createCourtScheduleResponse() {
 
-        OffsetDateTime sittingStartTime = OffsetDateTime.now(ZoneOffset.UTC)
+        final OffsetDateTime sittingStartTime = OffsetDateTime.now(ZoneOffset.UTC)
                 .truncatedTo(ChronoUnit.SECONDS);
 
         final Hearing hearing = Hearing.builder()
