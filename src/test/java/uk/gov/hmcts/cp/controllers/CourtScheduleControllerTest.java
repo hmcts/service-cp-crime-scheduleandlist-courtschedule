@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
+
 import uk.gov.hmcts.cp.openapi.model.CourtSitting;
 import uk.gov.hmcts.cp.openapi.model.Hearing;
 import uk.gov.hmcts.cp.repositories.CourtScheduleRepository;
@@ -52,11 +53,11 @@ class CourtScheduleControllerTest {
         assertNotNull(responseBody.getCourtSchedule());
         assertEquals(1, responseBody.getCourtSchedule().size());
 
-        CourtSchedule schedule = responseBody.getCourtSchedule().get(0);
-        assertNotNull(schedule.getHearings());
-        assertEquals(1, schedule.getHearings().size());
+        CourtSchedule courtSchedule = responseBody.getCourtSchedule().get(0);
+        assertNotNull(courtSchedule.getHearings());
+        assertEquals(1, courtSchedule.getHearings().size());
 
-        Hearing hearing = schedule.getHearings().get(0);
+        Hearing hearing = courtSchedule.getHearings().get(0);
         assertNotNull(hearing.getHearingId());
         assertEquals("Requires interpreter", hearing.getListNote());
         assertEquals("Sentencing for theft case", hearing.getHearingDescription());
@@ -64,12 +65,12 @@ class CourtScheduleControllerTest {
         assertNotNull(hearing.getCourtSittings());
         assertEquals(1, hearing.getCourtSittings().size());
 
-        CourtSitting sitting =
+        CourtSitting courtSitting =
                 hearing.getCourtSittings().get(0);
-        assertEquals("Central Criminal Court", sitting.getCourtHouse());
-        assertNotNull(sitting.getSittingStart());
-        assertTrue(sitting.getSittingEnd().isAfter(sitting.getSittingStart()));
-        assertNotNull(sitting.getJudiciaryId());
+        assertEquals("Central Criminal Court", courtSitting.getCourtHouse());
+        assertNotNull(courtSitting.getSittingStart());
+        assertTrue(courtSitting.getSittingEnd().isAfter(courtSitting.getSittingStart()));
+        assertNotNull(courtSitting.getJudiciaryId());
 
     }
 
