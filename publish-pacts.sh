@@ -33,3 +33,22 @@ pact-broker create-version-tag \
   --tag "$PACT_ENV" \
   --broker-base-url "$PACT_BROKER_URL" \
   --broker-token "$PACT_BROKER_TOKEN"
+
+# Can-I-Deploy check
+echo "Running can-i-deploy check for provider compatibility..."
+pact-broker can-i-deploy \
+  --pacticipant "VPCourtScheduleProvider" \
+  --version "$GIT_COMMIT" \
+  --to-environment "$PACT_ENV" \
+  --broker-base-url "$PACT_BROKER_URL" \
+  --broker-token "$PACT_BROKER_TOKEN" \
+  --output table
+
+CAN_I_DEPLOY_STATUS=$?
+
+if [ "$CAN_I_DEPLOY_STATUS" -ne 0 ]; then
+  echo "❌ Can-I-Deploy failed — this version is NOT safe to deploy to $PACT_ENV."
+  exit 1
+else
+  echo "✅ Can-I-Deploy succeeded — this version is safe to deploy to $PACT_ENV."
+fi
