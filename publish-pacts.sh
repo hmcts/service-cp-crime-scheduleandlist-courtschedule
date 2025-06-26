@@ -26,7 +26,7 @@ gradle pactVerificationTest \
   -DPACT_BROKER_TOKEN="$PACT_BROKER_TOKEN" \
   -DPACT_BROKER_HOST="$PACT_BROKER_URL"
 
-# Optional: tag provider in the broker
+# Tag provider in the broker
 pact-broker create-version-tag \
   --pacticipant "VPCourtScheduleProvider" \
   --version "$GIT_COMMIT" \
