@@ -28,7 +28,7 @@ gradle pactVerificationTest \
 
 # Tag provider in the broker
 pact-broker create-version-tag \
-  --pacticipant "VPCourtScheduleProvider" \
+  --pacticipant "CPCourtScheduleProvider" \
   --version "$GIT_COMMIT" \
   --tag "$PACT_ENV" \
   --broker-base-url "$PACT_BROKER_URL" \
@@ -37,7 +37,7 @@ pact-broker create-version-tag \
 # Can-I-Deploy check
 echo "Running can-i-deploy check for provider compatibility..."
 pact-broker can-i-deploy \
-  --pacticipant "VPCourtScheduleProvider" \
+  --pacticipant "CPCourtScheduleProvider" \
   --version "$GIT_COMMIT" \
   --to-environment "$PACT_ENV" \
   --broker-base-url "$PACT_BROKER_URL" \

@@ -39,5 +39,5 @@ jobs:
       - name: Make provider script executable
         run: chmod +x publish-pacts.sh
 
-      - name: Run provider publish script
+      - name: Run Pact verification Test and publish verification report
         run: ./publish-pacts.sh
