@@ -54,6 +54,13 @@ sourceSets {
     }
     resources.srcDir file('src/integrationTest/resources')
   }
+  pactVerificationTest {
+    java {
+      compileClasspath += sourceSets.main.output
+      runtimeClasspath += sourceSets.main.output
+    }
+    resources.srcDir file('src/pactVerificationTest/resources')
+  }
 }
 
 configurations {
@@ -62,6 +69,9 @@ configurations {
 
   integrationTestImplementation.extendsFrom testImplementation
   integrationTestRuntimeOnly.extendsFrom runtimeOnly
+
+  pactVerificationTestImplementation.extendsFrom testImplementation
+  pactVerificationTestRuntimeOnly.extendsFrom runtimeOnly
 
   // Ensure testRuntimeClasspath can be resolved for agent injection
   testRuntimeClasspath {
@@ -284,9 +294,14 @@ dependencies {
   }
 
   tasks.register('pactVerificationTest', Test) {
+    description = "Runs Pact provider verification tests"
+    group = "Verification"
+    testClassesDirs = sourceSets.pactVerificationTest.output.classesDirs
+    classpath = sourceSets.pactVerificationTest.runtimeClasspath
     useJUnitPlatform {
       includeTags 'pact'
     }
+    failFast = true
     systemProperty 'pact.broker.url', System.getenv('PACT_BROKER_URL')
     systemProperty 'pact.broker.token', System.getenv('PACT_BROKER_TOKEN')
     systemProperty 'pact.provider.version', System.getenv('GIT_COMMIT') ?: 'dev'
@@ -294,5 +309,9 @@ dependencies {
     systemProperty 'pact.verifier.publishResults', System.getenv('PACT_VERIFIER_PUBLISH_RESULTS')
     systemProperty 'pact.broker.host', System.getenv('PACT_BROKER_HOST')
     systemProperty 'pact.env', System.getenv('PACT_ENV')
+    reports {
+      junitXml.required.set(true)
+      html.required.set(true)
+    }
   }
 }
