@@ -1,7 +1,9 @@
-version: '2.1'
+version: '3.8'
 
 services:
-  service-cp-refdata-courthearing-judges:
+  service-cp-crime-schedulingandlisting-courtschedule:
+    env_file:
+      - .env
     build:
       context: .
       dockerfile: Dockerfile
@@ -10,11 +12,22 @@ services:
         https_proxy: ${https_proxy}
         no_proxy: ${no_proxy}
         BASE_IMAGE: ${BASE_IMAGE}
+        SERVER_PORT: ${SERVER_PORT}
+        JAR_FILENAME: ${JAR_FILENAME}
+        JAR_FILE_PATH: ${JAR_FILE_PATH}
+    environment:
+      - SERVER_PORT=${SERVER_PORT:-4550}
     ports:
-      - $SERVER_PORT:$SERVER_PORT
+      - "${SERVER_PORT:-4550}:${SERVER_PORT:-4550}"
+    networks:
+      - service-network
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:${SERVER_PORT}/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 5s
+
+networks:
+  service-network:
+    name: service-cp-crime-schedulingandlisting-courtschedule-network
