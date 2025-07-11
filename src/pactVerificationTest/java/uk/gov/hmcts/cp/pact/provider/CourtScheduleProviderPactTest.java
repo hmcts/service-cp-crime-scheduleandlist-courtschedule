@@ -23,12 +23,13 @@ import uk.gov.hmcts.cp.repositories.CourtScheduleRepository;
 @ExtendWith({SpringExtension.class, PactVerificationInvocationContextProvider.class})
 @Provider("CPCourtScheduleProvider")
 @PactBroker(
-        scheme = "https",
-        host = "${pact.broker.host}",
+        url = "${pact.broker.url}",
         authentication = @PactBrokerAuth(token = "${pact.broker.token}")
 )
 @Tag("pact")
 public class CourtScheduleProviderPactTest {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CourtScheduleProviderPactTest.class);
 
     @Autowired
     private CourtScheduleRepository courtScheduleRepository;
@@ -38,9 +39,9 @@ public class CourtScheduleProviderPactTest {
 
     @BeforeEach
     void setupTarget(PactVerificationContext context) {
-        System.out.println("Running test on port: " + port);
+        LOG.atDebug().log("Running test on port: " + port);
         context.setTarget(new HttpTestTarget("localhost", port));
-        System.out.println("pact.verifier.publishResults: " + System.getProperty("pact.verifier.publishResults"));
+        LOG.atDebug().log("pact.verifier.publishResults: " + System.getProperty("pact.verifier.publishResults"));
     }
 
     @State("court schedule for case 456789 exists")
