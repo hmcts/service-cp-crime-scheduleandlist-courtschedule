@@ -11,8 +11,10 @@ services:
         http_proxy: ${http_proxy}
         https_proxy: ${https_proxy}
         no_proxy: ${no_proxy}
-        BASE_IMAGE: ${BASE_IMAGE:-openjdk:21-jdk-slim}
-        SERVER_PORT: ${SERVER_PORT:-4550}
+        BASE_IMAGE: ${BASE_IMAGE}
+        SERVER_PORT: ${SERVER_PORT}
+        JAR_FILENAME: ${JAR_FILENAME}
+        JAR_FILE_PATH: ${JAR_FILE_PATH}
     environment:
       - SERVER_PORT=${SERVER_PORT:-4550}
     ports:

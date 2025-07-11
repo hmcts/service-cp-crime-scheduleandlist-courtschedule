@@ -2,6 +2,14 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE:-openjdk:21-jdk-slim}
 
+# ---- Runtime arguments ----
+ARG JAR_FILENAME
+ARG JAR_FILE_PATH
+
+ENV JAR_FILENAME=${JAR_FILENAME:-app.jar}
+ENV JAR_FILE_PATH=${JAR_FILE_PATH:-build/libs}
+ENV JAR_FULL_PATH=$JAR_FILE_PATH/$JAR_FILENAME
+
 # ---- Set runtime ENV for Spring Boot to bind port
 ARG SERVER_PORT
 ENV SERVER_PORT=${SERVER_PORT:-4550}
@@ -12,7 +20,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # ---- Application files ----
-COPY build/libs/*.jar /opt/app/app.jar
+COPY $JAR_FULL_PATH /opt/app/app.jar
 COPY lib/applicationinsights.json /opt/app/
 
 # ---- Permissions ----
