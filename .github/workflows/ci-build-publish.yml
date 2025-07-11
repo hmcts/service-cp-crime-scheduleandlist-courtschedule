@@ -93,7 +93,7 @@ jobs:
       - name: Upload JAR Artefact
         uses: actions/upload-artifact@v4
         with:
-          name: app-jar
+          name: app.jar
           path: build/libs/${{ steps.repo_vars.outputs.artefact_name }}.jar
 
   Provider-Deploy:
@@ -186,7 +186,7 @@ jobs:
       - name: Download JAR Artefact
         uses: actions/download-artifact@v4
         with:
-          name: app-jar
+          name: app.jar
           path: build/libs
 
       - name: Set up Docker Buildx
