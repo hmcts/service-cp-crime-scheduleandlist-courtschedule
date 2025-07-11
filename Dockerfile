@@ -12,7 +12,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # ---- Application files ----
-COPY build/libs/service-cp-crime-schedulingandlisting-courtschedule-*.jar /opt/app/app.jar
+COPY build/libs/*.jar /opt/app/app.jar
 COPY lib/applicationinsights.json /opt/app/
 
 # ---- Permissions ----
