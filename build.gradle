@@ -2,7 +2,7 @@ plugins {
   id 'application'
   id 'java'
   id 'io.spring.dependency-management' version '1.1.7'
-  id 'org.springframework.boot' version '3.5.0'
+  id 'org.springframework.boot' version '3.5.3'
   id 'jacoco'
   id 'maven-publish'
   id "com.github.ben-manes.versions" version "0.52.0"
@@ -21,32 +21,12 @@ def azureADOArtifactRepository = 'https://pkgs.dev.azure.com/hmcts/Artifacts/_pa
 def azureADOArtifactActor = System.getenv("AZURE_DEVOPS_ARTIFACT_USERNAME")
 def azureADOArtifactToken = System.getenv("AZURE_DEVOPS_ARTIFACT_TOKEN")
 
-//debugging
-//    if (githubActor != null) {
-//      println "🔐 Configuring GitHub Packages publishing to: https://maven.pkg.github.com/$githubRepo"
-//    }
-//    println "GitHub Packages publishing required environment variables:"
-//    println " - GITHUB_ACTOR=${githubActor != null ? ' ✔ FOUND' : '❌'}"
-//    println " - GITHUB_TOKEN=${githubToken != null ? ' ✔ FOUND' : '❌'}"
-//    println " - GITHUB_REPOSITORY=${githubRepo != null ? ' ✔ FOUND' : '❌'}"
-
-//println "Azure ADO publishing required environment variables:"
-//println " - AZURE_DEVOPS_ARTIFACT_USERNAME=${!azureADOArtifactActor || azureADOArtifactActor.isBlank() ? '❌NULL or EMPTY' : ' ✔ FOUND'}"
-//println " - AZURE_DEVOPS_ARTIFACT_USERNAME=${!azureADOArtifactToken || azureADOArtifactToken.isBlank() ? '❌NULL or EMPTY' : ' ✔ FOUND'}"
-
 java {
   sourceCompatibility = JavaVersion.VERSION_21
   targetCompatibility = JavaVersion.VERSION_21
 }
 
 sourceSets {
-  functionalTest {
-    java {
-      compileClasspath += sourceSets.main.output
-      runtimeClasspath += sourceSets.main.output
-    }
-    resources.srcDir file('src/functionalTest/resources')
-  }
   integrationTest {
     java {
       compileClasspath += sourceSets.main.output
@@ -64,9 +44,6 @@ sourceSets {
 }
 
 configurations {
-  functionalTestImplementation.extendsFrom testImplementation
-  functionalTestRuntimeOnly.extendsFrom runtimeOnly
-
   integrationTestImplementation.extendsFrom testImplementation
   integrationTestRuntimeOnly.extendsFrom runtimeOnly
 
@@ -90,7 +67,9 @@ tasks.withType(JavaExec).configureEach {
 }
 
 tasks.named('test') {
-  useJUnitPlatform()
+  useJUnitPlatform{
+    excludeTags 'pact'
+  }
   systemProperty 'API_SPEC_VERSION', project.version
   failFast = true
   // Mockito must be added as an agent, see:
@@ -104,28 +83,11 @@ tasks.named('test') {
     showStandardStreams = true
   }
   reports {
-    junitXml.required.set(true) // For CI tools (e.g. Jenkins, GitHub Actions)
-    html.required.set(true)     // Human-readable browser report
+    junitXml.required.set(true)
+    html.required.set(true)
   }
 }
 
-tasks.register('functional', Test) {
-  description = "Runs functional tests"
-  group = "Verification"
-  testClassesDirs = sourceSets.functionalTest.output.classesDirs
-  classpath = sourceSets.functionalTest.runtimeClasspath
-  useJUnitPlatform()
-  failFast = true
-  testLogging {
-    events "passed", "skipped", "failed"
-    exceptionFormat = 'full'
-    showStandardStreams = true
-  }
-  reports {
-    junitXml.required.set(true) // For CI tools (e.g. Jenkins, GitHub Actions)
-    html.required.set(true)     // Human-readable browser report
-  }
-}
 tasks.register('integration', Test) {
   description = "Runs integration tests"
   group = "Verification"
@@ -139,15 +101,39 @@ tasks.register('integration', Test) {
     showStandardStreams = true
   }
   reports {
-    junitXml.required.set(true) // For CI tools (e.g. Jenkins, GitHub Actions)
-    html.required.set(true)     // Human-readable browser report
+    junitXml.required.set(true)
+    html.required.set(true)
+  }
+}
+
+tasks.register('pactVerificationTest', Test) {
+  description = "Runs Pact provider verification tests"
+  group = "Verification"
+  testClassesDirs = sourceSets.pactVerificationTest.output.classesDirs
+  classpath = sourceSets.pactVerificationTest.runtimeClasspath
+  useJUnitPlatform {
+    includeTags 'pact'
+  }
+  failFast = true
+
+  def sysOrEnv = { String key ->
+    System.getProperty(key) ?: System.getenv(key.toUpperCase().replace('.', '_'))
+  }
+  systemProperty 'pact.broker.url', sysOrEnv('pact.broker.url')
+  systemProperty 'pact.broker.token', sysOrEnv('pact.broker.token')
+  systemProperty 'pact.provider.version', sysOrEnv('pact.provider.version')
+  systemProperty 'pact.provider.branch', sysOrEnv('pact.provider.branch')
+  systemProperty 'pact.verifier.publishResults', sysOrEnv('pact.verifier.publishResults')
+  systemProperty 'pact.env', sysOrEnv( 'pact.env') ?: 'local'
+  reports {
+    junitXml.required.set(true)
+    html.required.set(true)
   }
 }
 
 tasks.named('build') {
   dependsOn tasks.named('test')
   dependsOn tasks.named('integration')
-//  dependsOn tasks.named('functional') disabling until functional tests are implemented
 }
 
 tasks.named('jacocoTestReport') {
@@ -157,6 +143,10 @@ tasks.named('jacocoTestReport') {
     csv.required.set(false)
     html.required.set(true)
   }
+}
+
+tasks.named('check') {
+  dependsOn tasks.named('integration')
 }
 
 // check dependencies upon release ONLY
@@ -251,10 +241,12 @@ tasks.named('processPactVerificationTestResources') {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
+
 dependencies {
   implementation "uk.gov.hmcts.cp:api-cp-crime-schedulingandlisting-courtschedule:$apiCourtScheduleVersion"
   implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
-  implementation 'io.swagger.core.v3:swagger-core:2.2.33'
+  implementation 'io.swagger.core.v3:swagger-core:2.2.34'
+  implementation 'javax.xml.bind:jaxb-api:2.3.1'
 
   implementation 'org.springframework.boot:spring-boot-starter-web'
   implementation 'org.springframework.boot:spring-boot-starter-actuator'
@@ -276,49 +268,19 @@ dependencies {
   implementation 'org.hibernate.validator:hibernate-validator:9.0.1.Final'
   implementation 'org.apache.commons:commons-text:1.13.1'
 
-  implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
-  implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2'
+  implementation 'com.fasterxml.jackson.core:jackson-databind:2.19.1'
+//  implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2'
 
   compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
 
-  testImplementation(platform('org.junit:junit-bom:5.13.1'))
-  testImplementation 'org.mockito:mockito-core:5.18.0'
-  testRuntimeOnly 'org.mockito:mockito-inline:5.2.0'
+  testImplementation(platform('org.junit:junit-bom:5.13.3'))
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-  testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '3.5.0', {
+  testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '3.5.3', {
     exclude group: 'junit', module: 'junit'
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
 
   testImplementation 'au.com.dius.pact.provider:junit5:4.6.17'
   testImplementation 'au.com.dius.pact.provider:spring6:4.6.17'
-
-  test{
-    useJUnitPlatform {
-      excludeTags 'pact'
-    }
-  }
-
-  tasks.register('pactVerificationTest', Test) {
-    description = "Runs Pact provider verification tests"
-    group = "Verification"
-    testClassesDirs = sourceSets.pactVerificationTest.output.classesDirs
-    classpath = sourceSets.pactVerificationTest.runtimeClasspath
-    useJUnitPlatform {
-      includeTags 'pact'
-    }
-    failFast = true
-    systemProperty 'pact.broker.url', System.getenv('PACT_BROKER_URL')
-    systemProperty 'pact.broker.token', System.getenv('PACT_BROKER_TOKEN')
-    systemProperty 'pact.provider.version', System.getenv('GIT_COMMIT') ?: 'dev'
-    systemProperty 'pact.provider.branch', System.getenv('GIT_BRANCH')
-    systemProperty 'pact.verifier.publishResults', System.getenv('PACT_VERIFIER_PUBLISH_RESULTS')
-    systemProperty 'pact.broker.host', System.getenv('PACT_BROKER_HOST')
-    systemProperty 'pact.env', System.getenv('PACT_ENV')
-    reports {
-      junitXml.required.set(true)
-      html.required.set(true)
-    }
-  }
 }

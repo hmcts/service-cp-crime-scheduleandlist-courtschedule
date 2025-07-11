@@ -28,14 +28,11 @@ class CourtScheduleControllerTest {
 
     private static final Logger log = LoggerFactory.getLogger(CourtScheduleControllerTest.class);
 
-    private CourtScheduleRepository courtScheduleRepository;
-    private CourtScheduleService courtScheduleService;
     private CourtScheduleController courtScheduleController;
 
     @BeforeEach
     void setUp() {
-        courtScheduleRepository = new InMemoryCourtScheduleRepositoryImpl();
-        courtScheduleService = new CourtScheduleService(courtScheduleRepository);
+        CourtScheduleService courtScheduleService = new CourtScheduleService(new InMemoryCourtScheduleRepositoryImpl());
         courtScheduleController = new CourtScheduleController(courtScheduleService);
     }
 
