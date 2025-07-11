@@ -1,25 +1,17 @@
 package uk.gov.hmcts.cp.pact.helper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.File;
-import java.util.Objects;
 
 public class JsonFileToObject {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JsonFileToObject.class);
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule());
 
     public static <T> T readJsonFromResources(String fileName, Class<T> clazz) throws Exception {
-        File file;
-        try{
-            file = new File(Objects.requireNonNull(JsonFileToObject.class.getClassLoader().getResource(fileName)).toURI());
-        } catch (Exception e) {
-            LOG.atError().log("Error loading file: {}", fileName, e);
-            throw e;
-        }
+        File file = new File(JsonFileToObject.class.getClassLoader().getResource(fileName).toURI());
         return mapper.readValue(file, clazz);
     }
 }
