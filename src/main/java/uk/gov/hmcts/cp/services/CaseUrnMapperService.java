@@ -17,45 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
-@Service
-@RequiredArgsConstructor
-public class CaseUrnMapperServiceImpl {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CaseUrnMapperServiceImpl.class);
-
-    private final RestTemplate restTemplate;
-
-    @Value("${service.case-mapper-service.url}")
-    private String caseMapperServiceUrl;
-
-    private static final String CASEURN_ID = "caseurn/{caseurn}";
-
-    public String getCaseId(final String caseUrn) {
-        try {
-            ResponseEntity<String> responseEntity = restTemplate.exchange(
-                    getCaseIdUrl(caseUrn),
-                    HttpMethod.GET,
-                    getRequestEntity(),
-                    String.class
-            );
-            return responseEntity.hasBody() ? responseEntity.getBody(): Strings.EMPTY;
-        } catch (Exception e) {
-            LOG.atError().log("Error while getting case id from case urn", e);
-        }
-        return null;
-    }
-
-    private String getCaseIdUrl(String caseUrn) {
-        return UriComponentsBuilder
-                .fromUri(URI.create(caseMapperServiceUrl))
-                .pathSegment(caseUrn)
-                .buildAndExpand(caseUrn)
-                .toUriString();
-    }
-
-    private HttpEntity<String> getRequestEntity() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
-        return new HttpEntity<>(headers);
-    }
+public interface CaseUrnMapperService {
+    public String getCaseId(final String caseUrn) ;
 }

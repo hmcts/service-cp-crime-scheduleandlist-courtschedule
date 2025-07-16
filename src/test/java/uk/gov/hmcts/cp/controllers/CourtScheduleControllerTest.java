@@ -6,15 +6,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 
 import uk.gov.hmcts.cp.openapi.model.CourtSitting;
 import uk.gov.hmcts.cp.openapi.model.Hearing;
-import uk.gov.hmcts.cp.repositories.CourtScheduleRepository;
 import uk.gov.hmcts.cp.repositories.InMemoryCourtScheduleRepositoryImpl;
+import uk.gov.hmcts.cp.services.CaseUrnMapperService;
+import uk.gov.hmcts.cp.services.CaseUrnMapperServiceImpl;
 import uk.gov.hmcts.cp.services.CourtScheduleService;
+import uk.gov.hmcts.cp.services.InMemoryCaseUrnMapper;
 
 import java.util.UUID;
 
@@ -33,7 +36,8 @@ class CourtScheduleControllerTest {
     @BeforeEach
     void setUp() {
         CourtScheduleService courtScheduleService = new CourtScheduleService(new InMemoryCourtScheduleRepositoryImpl());
-        courtScheduleController = new CourtScheduleController(courtScheduleService);
+        CaseUrnMapperService caseUrnMapperService  = new InMemoryCaseUrnMapper();
+        courtScheduleController = new CourtScheduleController(courtScheduleService, caseUrnMapperService);
     }
 
     @Test

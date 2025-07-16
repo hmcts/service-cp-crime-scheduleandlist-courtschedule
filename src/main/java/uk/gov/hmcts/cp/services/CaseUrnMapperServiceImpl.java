@@ -19,9 +19,9 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class CaseUrnMapperService {
+public class CaseUrnMapperServiceImpl implements CaseUrnMapperService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CaseUrnMapperService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CaseUrnMapperServiceImpl.class);
 
     private final RestTemplate restTemplate;
 
@@ -30,6 +30,7 @@ public class CaseUrnMapperService {
 
     private static final String CASEURN_ID = "caseurn/{caseurn}";
 
+    @Override
     public String getCaseId(final String caseUrn) {
         try {
             ResponseEntity<String> responseEntity = restTemplate.exchange(
@@ -45,7 +46,7 @@ public class CaseUrnMapperService {
         return null;
     }
 
-    protected String getCaseIdUrl(String caseUrn) {
+    private String getCaseIdUrl(String caseUrn) {
         return UriComponentsBuilder
                 .fromUri(URI.create(caseMapperServiceUrl))
                 .pathSegment(caseUrn)
@@ -53,7 +54,7 @@ public class CaseUrnMapperService {
                 .toUriString();
     }
 
-    protected HttpEntity<String> getRequestEntity() {
+    private HttpEntity<String> getRequestEntity() {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         return new HttpEntity<>(headers);

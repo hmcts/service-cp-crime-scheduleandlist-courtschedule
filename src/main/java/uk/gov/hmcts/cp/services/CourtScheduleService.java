@@ -10,6 +10,8 @@ import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.repositories.CourtScheduleRepository;
 
+import static uk.gov.hmcts.cp.utils.Utils.sanitizeString;
+
 @Service
 @RequiredArgsConstructor
 public class CourtScheduleService {
@@ -18,13 +20,13 @@ public class CourtScheduleService {
 
     private final CourtScheduleRepository courtScheduleRepository;
 
-    public CourtScheduleResponse getCourtScheduleByCaseUrn(final String caseUrn) throws ResponseStatusException {
-        if (StringUtils.isEmpty(caseUrn)) {
-            LOG.atWarn().log("No case urn provided");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "caseUrn is required");
+    public CourtScheduleResponse getCourtScheduleByCaseId(final String caseId) throws ResponseStatusException {
+        if (StringUtils.isEmpty(caseId)) {
+            LOG.atWarn().log("No case Id provided");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "caseId is required");
         }
-        LOG.atWarn().log("NOTE: System configured to return stubbed Court Schedule details. Ignoring provided caseUrn : {}", caseUrn);
-        final CourtScheduleResponse stubbedCourtScheduleResponse = courtScheduleRepository.getCourtScheduleByCaseUrn(caseUrn);
+        LOG.atWarn().log("NOTE: System configured to return stubbed Court Schedule details. Ignoring provided caseId : {}", sanitizeString(caseId));
+        final CourtScheduleResponse stubbedCourtScheduleResponse = courtScheduleRepository.getCourtScheduleByCaseId(caseId);
         LOG.atDebug().log("Court Schedule response: {}", stubbedCourtScheduleResponse);
         return stubbedCourtScheduleResponse;
     }

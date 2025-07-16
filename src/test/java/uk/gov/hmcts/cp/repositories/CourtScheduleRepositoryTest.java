@@ -25,7 +25,7 @@ class CourtScheduleRepositoryTest {
     @Test
     void getCourtScheduleByCaseUrn_shouldReturnCourtScheduleResponse() {
         UUID caseUrn = UUID.randomUUID();
-        CourtScheduleResponse response = courtScheduleRepository.getCourtScheduleByCaseUrn(caseUrn.toString());
+        CourtScheduleResponse response = courtScheduleRepository.getCourtScheduleByCaseId(caseUrn.toString());
 
         assertNotNull(response.getCourtSchedule());
         assertEquals(1, response.getCourtSchedule().size());

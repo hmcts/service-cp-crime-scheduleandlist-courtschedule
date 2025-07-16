@@ -20,7 +20,7 @@ class CourtScheduleServiceTest {
         String validCaseUrn = "123-ABC-456";
 
         // Act
-        CourtScheduleResponse response = courtScheduleService.getCourtScheduleByCaseUrn(validCaseUrn);
+        CourtScheduleResponse response = courtScheduleService.getCourtScheduleByCaseId(validCaseUrn);
 
         // Assert
         assertThat(response).isNotNull();
@@ -37,10 +37,10 @@ class CourtScheduleServiceTest {
         String nullCaseUrn = null;
 
         // Act & Assert
-        assertThatThrownBy(() -> courtScheduleService.getCourtScheduleByCaseUrn(nullCaseUrn))
+        assertThatThrownBy(() -> courtScheduleService.getCourtScheduleByCaseId(nullCaseUrn))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("400 BAD_REQUEST")
-                .hasMessageContaining("caseUrn is required");
+                .hasMessageContaining("caseId is required");
     }
 
     @Test
@@ -49,9 +49,9 @@ class CourtScheduleServiceTest {
         String emptyCaseUrn = "";
 
         // Act & Assert
-        assertThatThrownBy(() -> courtScheduleService.getCourtScheduleByCaseUrn(emptyCaseUrn))
+        assertThatThrownBy(() -> courtScheduleService.getCourtScheduleByCaseId(emptyCaseUrn))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("400 BAD_REQUEST")
-                .hasMessageContaining("caseUrn is required");
+                .hasMessageContaining("caseId is required");
     }
 }
