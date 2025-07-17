@@ -15,9 +15,7 @@ import uk.gov.hmcts.cp.openapi.model.CourtSitting;
 import uk.gov.hmcts.cp.openapi.model.Hearing;
 import uk.gov.hmcts.cp.repositories.InMemoryCourtScheduleRepositoryImpl;
 import uk.gov.hmcts.cp.services.CaseUrnMapperService;
-import uk.gov.hmcts.cp.services.CaseUrnMapperServiceImpl;
 import uk.gov.hmcts.cp.services.CourtScheduleService;
-import uk.gov.hmcts.cp.services.InMemoryCaseUrnMapper;
 
 import java.util.UUID;
 
@@ -36,7 +34,7 @@ class CourtScheduleControllerTest {
     @BeforeEach
     void setUp() {
         CourtScheduleService courtScheduleService = new CourtScheduleService(new InMemoryCourtScheduleRepositoryImpl());
-        CaseUrnMapperService caseUrnMapperService  = new InMemoryCaseUrnMapper();
+        CaseUrnMapperService caseUrnMapperService  = new CaseUrnMapperService(new RestTemplate());
         courtScheduleController = new CourtScheduleController(courtScheduleService, caseUrnMapperService);
     }
 

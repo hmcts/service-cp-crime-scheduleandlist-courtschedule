@@ -2,7 +2,6 @@ package uk.gov.hmcts.cp.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
@@ -10,37 +9,26 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import uk.gov.hmcts.cp.config.TestConfig;
-import uk.gov.hmcts.cp.services.InMemoryCaseUrnMapper;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-@Import(TestConfig.class)
 class CourtScheduleControllerIT {
     private static final Logger log = LoggerFactory.getLogger(CourtScheduleControllerIT.class);
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private InMemoryCaseUrnMapper inMemoryCaseUrnMapper;
-
-    @BeforeEach
-    void setUp() {
-        inMemoryCaseUrnMapper.clearAllMappings();
-        inMemoryCaseUrnMapper.saveCaseUrnMapping("test-case-urn", "test-case-id");
-    }
 
     @Test
     void shouldReturnOkWhenValidUrnIsProvided() throws Exception {
