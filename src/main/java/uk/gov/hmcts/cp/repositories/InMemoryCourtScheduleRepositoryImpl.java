@@ -23,7 +23,7 @@ public class InMemoryCourtScheduleRepositoryImpl implements CourtScheduleReposit
         courtScheduleResponseMap.put(caseUrn, courtScheduleResponse);
     }
 
-    public CourtScheduleResponse getCourtScheduleByCaseUrn(final String caseUrn) {
+    public CourtScheduleResponse getCourtScheduleByCaseId(final String caseUrn) {
         if (!courtScheduleResponseMap.containsKey(caseUrn)) {
             saveCourtSchedule(caseUrn, createCourtScheduleResponse());
         }
