@@ -11,12 +11,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+
+import static uk.gov.hmcts.cp.utils.Utils.ignoreCertificates;
 
 import static uk.gov.hmcts.cp.utils.Utils.ignoreCertificates;
 
@@ -60,6 +63,7 @@ public class CaseUrnMapperService {
 
     private String getCaseIdUrl(String caseUrn) {
         LOG.atDebug().log("Fetching case id for case urn: {}", caseUrn);
+        //return URI.create(getCaseMapperServiceUrl() + "/" + caseUrn).toString();
         return UriComponentsBuilder
                 .fromUri(URI.create(getCaseMapperServiceUrl()))
                 .pathSegment(caseUrn)
