@@ -1,60 +1,67 @@
 package uk.gov.hmcts.cp.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
 public class CaseUrnMapperService {
-
     private static final Logger LOG = LoggerFactory.getLogger(CaseUrnMapperService.class);
-
     private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
 
     @Value("${service.case-mapper-service.url}")
     private String caseMapperServiceUrl;
 
-    private static final String CASEURN_ID = "caseurn/{caseurn}";
-
-    private final Map<String, String> caseUrnToCaseIdMap = new ConcurrentHashMap<>();
-
-
-
     public String getCaseId(final String caseUrn) {
-        return UUID.randomUUID().toString();
-        // This below code is commented out as it is will be used when the case mapper service is available.
+        return "f552dee6-f092-415b-839c-5e5b5f46635e";
+//        try {
+//            ignoreCertificates();
+//            ResponseEntity<String> responseEntity = restTemplate.exchange(
+//                    getCaseIdUrl(caseUrn),
+//                    HttpMethod.GET,
+//                    getRequestEntity(),
+//                    String.class
+//            );
+//            return getCaseId(responseEntity);
+//        } catch (Exception e) {
+//            LOG.atError().log("Error while getting case id from case urn", e);
+//        }
+//        return null;
+    }
 
-/*        try {
-            ResponseEntity<String> responseEntity = restTemplate.exchange(
-                    getCaseIdUrl(caseUrn),
-                    HttpMethod.GET,
-                    getRequestEntity(),
-                    String.class
-            );
-            return responseEntity.hasBody() ? responseEntity.getBody(): Strings.EMPTY;
-        } catch (Exception e) {
-            LOG.atError().log("Error while getting case id from case urn", e);
+    public String getCaseMapperServiceUrl() {
+        return this.caseMapperServiceUrl;
+    }
+
+    public String getCaseId(ResponseEntity<String> responseEntity) throws JsonProcessingException {
+        if (responseEntity != null || !responseEntity.hasBody()) {
+            JsonNode root = objectMapper.readTree(responseEntity.getBody());
+            return root.get("caseId").asText();
         }
-        return null;*/
+        return Strings.EMPTY;
     }
 
     private String getCaseIdUrl(String caseUrn) {
+        LOG.atDebug().log("Fetching case id for case urn: {}", caseUrn);
         return UriComponentsBuilder
-                .fromUri(URI.create(caseMapperServiceUrl))
+                .fromUri(URI.create(getCaseMapperServiceUrl()))
                 .pathSegment(caseUrn)
                 .buildAndExpand(caseUrn)
                 .toUriString();

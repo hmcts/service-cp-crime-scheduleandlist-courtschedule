@@ -79,9 +79,24 @@ jobs:
       - name: Gradle Build
         env:
           ARTEFACT_VERSION: ${{ needs.Artefact-Version.outputs.artefact_version }}
+          CASE_MAPPER_SERVICE_URL: ${{ vars.CASE_MAPPER_SERVICE_URL }}
+          COURT_SCHEDULE_CLIENT_URL: ${{ vars.COURT_SCHEDULE_CLIENT_URL }}
+          CJSCPPUID: ${{ vars.CJSCPPUID }}
         run: |
           echo "Building with ARTEFACT_VERSION=$ARTEFACT_VERSION"
           gradle build -DARTEFACT_VERSION=$ARTEFACT_VERSION
+          
+          if [ -z "$CASE_MAPPER_SERVICE_URL" ]; then
+            echo "::warning::CASE_MAPPER_SERVICE_URL is null or not set"
+          fi
+
+          if [ -z "$COURT_SCHEDULE_CLIENT_URL" ]; then
+            echo "::warning::COURT_SCHEDULE_CLIENT_URL is null or not set"
+          fi
+          
+          if [ -z "$CJSCPPUID" ]; then
+            echo "::warning::CJSCPPUID is null or not set"
+          fi
 
       - name: Extract repo name
         id: repo_vars
@@ -173,7 +188,10 @@ jobs:
             -DGITHUB_ACTOR=${{ github.actor }} \
             -DGITHUB_TOKEN=$GITHUB_TOKEN \
             -DAZURE_DEVOPS_ARTIFACT_USERNAME=$AZURE_DEVOPS_ARTIFACT_USERNAME \
-            -DAZURE_DEVOPS_ARTIFACT_TOKEN=$AZURE_DEVOPS_ARTIFACT_TOKEN
+            -DAZURE_DEVOPS_ARTIFACT_TOKEN=$AZURE_DEVOPS_ARTIFACT_TOKEN \
+            -DCASE_MAPPER_SERVICE_URL=$CASE_MAPPER_SERVICE_URL \
+            -DCOURT_SCHEDULE_CLIENT_URL=$COURT_SCHEDULE_CLIENT_URL \
+            -DCJSCPPUID=$CJSCPPUID
 
   Build-Docker:
     needs: [ Provider-Deploy, Build, Artefact-Version ]
@@ -210,6 +228,9 @@ jobs:
           build-args: |
             BASE_IMAGE=openjdk:21-jdk-slim
             JAR_FILENAME=${{ needs.Build.outputs.artefact_name }}.jar
+            CASE_MAPPER_SERVICE_URL=${{ vars.CASE_MAPPER_SERVICE_URL }}
+            COURT_SCHEDULE_CLIENT_URL=${{ vars.COURT_SCHEDULE_CLIENT_URL }}
+            CJSCPPUID=${{ vars.CJSCPPUID }}
 
   Deploy:
     needs: [ Provider-Deploy, Build, Artefact-Version ]
