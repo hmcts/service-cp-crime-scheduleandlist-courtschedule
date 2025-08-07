@@ -5,10 +5,18 @@ FROM ${BASE_IMAGE:-openjdk:21-jdk-slim}
 # ---- Runtime arguments ----
 ARG JAR_FILENAME
 ARG JAR_FILE_PATH
+ARG CASE_MAPPER_SERVICE_URL
+ARG COURT_SCHEDULE_CLIENT_URL
+ARG CJSCPPUID
 
 ENV JAR_FILENAME=${JAR_FILENAME:-app.jar}
 ENV JAR_FILE_PATH=${JAR_FILE_PATH:-build/libs}
 ENV JAR_FULL_PATH=$JAR_FILE_PATH/$JAR_FILENAME
+
+ENV CASE_MAPPER_SERVICE_URL=$CASE_MAPPER_SERVICE_URL
+ENV COURT_SCHEDULE_CLIENT_URL=$COURT_SCHEDULE_CLIENT_URL
+ENV CJSCPPUID=$CJSCPPUID
+
 
 # ---- Set runtime ENV for Spring Boot to bind port
 ARG SERVER_PORT
@@ -29,4 +37,4 @@ RUN chmod 755 /opt/app/app.jar
 # ---- Runtime ----
 EXPOSE 4550
 
-CMD ["java", "-jar", "/opt/app/app.jar"]
+CMD ["java", "-Dcom.sun.net.ssl.checkRevocation=false", "-jar", "/opt/app/app.jar"]

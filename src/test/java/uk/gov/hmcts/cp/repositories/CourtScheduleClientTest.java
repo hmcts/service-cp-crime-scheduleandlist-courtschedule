@@ -13,19 +13,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class CourtScheduleRepositoryTest {
+class CourtScheduleClientTest {
 
-    private CourtScheduleRepository courtScheduleRepository;
+    private CourtScheduleClient courtScheduleClient;
 
     @BeforeEach
     void setUp() {
-        courtScheduleRepository = new InMemoryCourtScheduleRepositoryImpl();
+        courtScheduleClient = new InMemoryCourtScheduleClientImpl();
     }
 
     @Test
     void getCourtScheduleByCaseUrn_shouldReturnCourtScheduleResponse() {
         UUID caseUrn = UUID.randomUUID();
-        CourtScheduleResponse response = courtScheduleRepository.getCourtScheduleByCaseId(caseUrn.toString());
+        CourtScheduleResponse response = courtScheduleClient.getCourtScheduleByCaseId(caseUrn.toString());
 
         assertNotNull(response.getCourtSchedule());
         assertEquals(1, response.getCourtSchedule().size());
@@ -49,5 +49,4 @@ class CourtScheduleRepositoryTest {
         assertTrue(sitting.getSittingEnd().isAfter(sitting.getSittingStart()));
         assertNotNull(sitting.getJudiciaryId());
     }
-
 }

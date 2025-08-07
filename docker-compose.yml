@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  service-cp-crime-schedulingandlisting-courtschedule:
+  service-cp-crime-scheduleandlist-courtschedule:
     env_file:
       - .env
     build:
@@ -15,6 +15,10 @@ services:
         SERVER_PORT: ${SERVER_PORT}
         JAR_FILENAME: ${JAR_FILENAME}
         JAR_FILE_PATH: ${JAR_FILE_PATH}
+        CASE_MAPPER_SERVICE_URL: ${CASE_MAPPER_SERVICE_URL}
+        COURT_SCHEDULE_CLIENT_URL: ${COURT_SCHEDULE_CLIENT_URL}
+        CJSCPPUID: ${CJSCPPUID}
+
     environment:
       - SERVER_PORT=${SERVER_PORT:-4550}
     ports:
@@ -30,4 +34,4 @@ services:
 
 networks:
   service-network:
-    name: service-cp-crime-schedulingandlisting-courtschedule-network
+    name: service-cp-crime-scheduleandlist-courtschedule-network
