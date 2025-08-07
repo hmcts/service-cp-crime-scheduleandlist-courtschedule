@@ -73,7 +73,8 @@ public class CaseUrnMapperService {
 
     private HttpEntity<String> getRequestEntity() {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Accept", "application/json, application/*+json");
+        headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
+        //headers.set("Accept", "application/json, application/*+json");
         return new HttpEntity<>(headers);
     }
 }
