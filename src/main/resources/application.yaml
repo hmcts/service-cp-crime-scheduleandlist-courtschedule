@@ -32,7 +32,7 @@ spring:
 
 service:
   case-mapper-service:
-    url: ${CASE_MAPPER_SERVICE_URL:https://devcp01.ingress01.dev.nl.cjscp.org.uk/caseurnmapper}
+    url: ${CASE_MAPPER_SERVICE_URL:https://devcp01.ingress01.dev.nl.cjscp.org.uk/urnmapper}
 
   court-schedule-client:
     url: ${COURT_SCHEDULE_CLIENT_URL:https://steccm64.ingress01.dev.nl.cjscp.org.uk/listing-query-api/query/api/rest/listing/hearings/allocated-and-unallocated}

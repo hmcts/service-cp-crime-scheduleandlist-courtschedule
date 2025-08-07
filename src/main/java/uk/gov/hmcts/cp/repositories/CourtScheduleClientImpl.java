@@ -79,18 +79,14 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
         try {
             //ignoreCertificates();
             HttpRequest request = HttpRequest.newBuilder()
-                    //.uri(new URI("https://steccm64.ingress01.dev.nl.cjscp.org.uk/listing-query-api/query/api/rest/listing/hearings/allocated-and-unallocated?caseId=f552dee6-f092-415b-839c-5e5b5f46635e"))
                     .uri(new URI(buildUrl(caseId)))
                     .GET()
                     .header("Accept", "application/vnd.listing.search.hearings+json")
-                    //.header("CJSCPPUID", "d7c91866-646a-462c-9203-46678e8cddef")
                     .header("CJSCPPUID", getCjscppuid())
                     .build();
 
-            // Send the request
             response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-            // Check response status
             if (response.statusCode() != HttpStatus.OK.value()) {
                 LOG.error("Failed to fetch hearing data. HTTP Status: {}", response.statusCode());
                 return null;
@@ -107,7 +103,6 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
 
     private String buildUrl(String caseId) {
         return UriComponentsBuilder
-                //.fromUri(URI.create("https://steccm64.ingress01.dev.nl.cjscp.org.uk/listing-query-api/query/api/rest/listing/hearings/allocated-and-unallocated"))
                 .fromUri(URI.create(getCourtScheduleClientUrl()))
                 .queryParam("caseId", caseId)
                 .toUriString();
@@ -160,5 +155,4 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
         }
         return courtSittings;
     }
-
 }

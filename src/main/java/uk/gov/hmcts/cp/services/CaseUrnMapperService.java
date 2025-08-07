@@ -10,14 +10,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
+
+import static uk.gov.hmcts.cp.utils.Utils.ignoreCertificates;
 
 @Service
 @RequiredArgsConstructor
@@ -30,20 +31,19 @@ public class CaseUrnMapperService {
     private String caseMapperServiceUrl;
 
     public String getCaseId(final String caseUrn) {
-        return "f552dee6-f092-415b-839c-5e5b5f46635e";
-//        try {
-//            ignoreCertificates();
-//            ResponseEntity<String> responseEntity = restTemplate.exchange(
-//                    getCaseIdUrl(caseUrn),
-//                    HttpMethod.GET,
-//                    getRequestEntity(),
-//                    String.class
-//            );
-//            return getCaseId(responseEntity);
-//        } catch (Exception e) {
-//            LOG.atError().log("Error while getting case id from case urn", e);
-//        }
-//        return null;
+        try {
+            ignoreCertificates();
+            ResponseEntity<String> responseEntity = restTemplate.exchange(
+                    getCaseIdUrl(caseUrn),
+                    HttpMethod.GET,
+                    getRequestEntity(),
+                    String.class
+            );
+            return getCaseId(responseEntity);
+        } catch (Exception e) {
+            LOG.atError().log("Error while getting case id from case urn", e);
+        }
+        return null;
     }
 
     public String getCaseMapperServiceUrl() {
@@ -51,7 +51,7 @@ public class CaseUrnMapperService {
     }
 
     public String getCaseId(ResponseEntity<String> responseEntity) throws JsonProcessingException {
-        if (responseEntity != null || !responseEntity.hasBody()) {
+        if (responseEntity != null || responseEntity.hasBody()) {
             JsonNode root = objectMapper.readTree(responseEntity.getBody());
             return root.get("caseId").asText();
         }
@@ -69,7 +69,7 @@ public class CaseUrnMapperService {
 
     private HttpEntity<String> getRequestEntity() {
         HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        headers.set("Accept", "application/json, application/*+json");
         return new HttpEntity<>(headers);
     }
 }
