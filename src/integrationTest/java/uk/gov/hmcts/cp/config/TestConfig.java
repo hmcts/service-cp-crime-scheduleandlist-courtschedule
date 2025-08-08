@@ -21,8 +21,7 @@ public class TestConfig {
     @Bean("testCaseUrnMapperService")
     public CaseUrnMapperService testCaseUrnMapperService() {
         RestTemplate restTemplate = new RestTemplate();
-        ObjectMapper objectMapper = new ObjectMapper();
-        return new CaseUrnMapperService(restTemplate, objectMapper) {
+        return new CaseUrnMapperService(restTemplate) {
             @Override
             public String getCaseMapperServiceUrl() {
                 return "http://mock-server/test-mapper";

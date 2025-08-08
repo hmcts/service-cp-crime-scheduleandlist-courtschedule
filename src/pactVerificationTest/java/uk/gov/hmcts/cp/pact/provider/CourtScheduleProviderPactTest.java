@@ -48,9 +48,9 @@ public class CourtScheduleProviderPactTest {
 
     @State("court schedule for case 456789 exists")
     public void setupCourtSchedule() throws Exception{
-        courtScheduleClient.clearAll();
-        CourtScheduleResponse courtScheduleResponse = JsonFileToObject.readJsonFromResources("courtSchedule.json", CourtScheduleResponse.class);
-        courtScheduleClient.saveCourtSchedule("456789", courtScheduleResponse);
+//        courtScheduleClient.clearAll();
+//        CourtScheduleResponse courtScheduleResponse = JsonFileToObject.readJsonFromResources("courtSchedule.json", CourtScheduleResponse.class);
+//        courtScheduleClient.saveCourtSchedule("456789", courtScheduleResponse);
     }
 
     @TestTemplate

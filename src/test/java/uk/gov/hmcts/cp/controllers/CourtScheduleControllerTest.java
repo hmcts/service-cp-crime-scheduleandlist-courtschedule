@@ -1,6 +1,5 @@
 package uk.gov.hmcts.cp.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -34,7 +33,7 @@ class CourtScheduleControllerTest {
     @BeforeEach
     void setUp() {
         CourtScheduleService courtScheduleService = new CourtScheduleService(new InMemoryCourtScheduleClientImpl());
-         CaseUrnMapperService testCaseUrnMapperService = new CaseUrnMapperService(new RestTemplate(), new ObjectMapper()) {
+         CaseUrnMapperService testCaseUrnMapperService = new CaseUrnMapperService(new RestTemplate()) {
                 @Override
                 public String getCaseMapperServiceUrl() {
                     return "http://mock-server/test-mapper";
