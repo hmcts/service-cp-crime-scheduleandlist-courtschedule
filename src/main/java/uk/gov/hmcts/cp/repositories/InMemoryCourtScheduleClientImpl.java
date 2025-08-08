@@ -10,16 +10,32 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component("inMemoryCourtScheduleClientImpl")
 public class InMemoryCourtScheduleClientImpl implements CourtScheduleClient {
+    private final Map<String, CourtScheduleResponse> courtScheduleResponseMap = new ConcurrentHashMap<>();
+
+    public void saveCourtSchedule(final String caseUrn, final CourtScheduleResponse courtScheduleResponse) {
+        courtScheduleResponseMap.put(caseUrn, courtScheduleResponse);
+    }
 
     public CourtScheduleResponse getCourtScheduleByCaseId(final String caseId) {
+        if (!courtScheduleResponseMap.containsKey(caseId)) {
+            saveCourtSchedule(caseId, createCourtScheduleResponse());
+        }
+        return courtScheduleResponseMap.get(caseId);
+    }
 
+    public void clearAll() {
+        courtScheduleResponseMap.clear();
+    }
+
+    private CourtScheduleResponse createCourtScheduleResponse() {
         final OffsetDateTime sittingStartTime = OffsetDateTime.now(ZoneOffset.UTC)
                 .truncatedTo(ChronoUnit.SECONDS);
-
         final Hearing hearing = Hearing.builder()
                 .hearingId(UUID.randomUUID().toString())
                 .listNote("Requires interpreter")

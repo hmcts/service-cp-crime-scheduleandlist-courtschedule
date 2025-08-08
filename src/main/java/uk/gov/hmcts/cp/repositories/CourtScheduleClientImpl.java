@@ -1,7 +1,5 @@
 package uk.gov.hmcts.cp.repositories;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -11,6 +9,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
+import uk.gov.hmcts.cp.domain.HearingResponse;
 import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.openapi.model.CourtSitting;
@@ -25,6 +24,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static uk.gov.hmcts.cp.utils.Utils.getHttpClient;
 
@@ -63,7 +63,7 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
 
     public CourtScheduleResponse getCourtScheduleByCaseId(final String caseId) {
         List<Hearing> hearingList = getHearings(caseId);
-        LOG.info("infunction createCourtScheduleResponse Response Body: {} " + hearingList);
+        LOG.info("In function createCourtScheduleResponse Response Body: {} " + hearingList);
 
         return CourtScheduleResponse.builder()
                 .courtSchedule(List.of(
@@ -92,7 +92,13 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
                 return null;
             }
 
-            List<Hearing> hearingResult = getHearingData(response.body());
+            ObjectMapper objectMapper = new ObjectMapper();
+            HearingResponse hearingResponse = objectMapper.readValue(
+                    response.body(),
+                    HearingResponse.class
+            );
+
+            List<Hearing> hearingResult = getHearingData(hearingResponse);
             LOG.info("Response Code: {}, Response Body: {}", response.statusCode(), response.body());
             return hearingResult;
         } catch (Exception e) {
@@ -108,51 +114,34 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
                 .toUriString();
     }
 
-    private List<Hearing> getHearingData(String body) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = mapper.readTree(body);
-
+    private List<Hearing> getHearingData(HearingResponse hearingResponse)  {
         List<Hearing> hearings = new ArrayList<>();
-
-        for (JsonNode hearingNode : root.path("hearings")) {
-            String hearingId = hearingNode.path("id").asText();
-            JsonNode typeNode = hearingNode.path("type");
-            String typeDescription = typeNode.path("description").asText();
-
-            String judiciaryId = getJudiciaryIdString(hearingNode);
+        hearingResponse.getHearings().forEach( hr -> {
             Hearing hearing = new Hearing();
-            hearing.setHearingId(hearingId);
-            hearing.setHearingType(typeDescription);
-            hearing.setHearingDescription(typeDescription);
+            hearing.setHearingId(hr.getId());
+            hearing.setHearingType(hr.getType().getDescription());
+            hearing.setHearingDescription(hr.getType().getDescription());
             hearing.setListNote("sample list note");
+            List<CourtSitting> courtSittings = new ArrayList<>();
+            String judiciaryId = hr.getJudiciary().stream().map(a -> a.getJudicialId()).collect(Collectors.joining(","));
 
-            List<CourtSitting> courtSittings = getCourtSittings(hearingNode, judiciaryId);
+            for (HearingResponse.HearingResult.HearingDay hearingDay : hr.getHearingDays()) {
+                CourtSitting cs = getCourtSitting(hearingDay, judiciaryId);
+                courtSittings.add(cs);
+            }
             hearing.setCourtSittings(courtSittings);
             hearings.add(hearing);
-        }
-        return hearings ;
-    }
-
-    private static String getJudiciaryIdString(JsonNode hearingNode) {
-        StringBuilder sb = new StringBuilder();
-        hearingNode.path("judiciary").forEach(jd -> {
-            sb.append(jd.path("judicialId").asText());
-            sb.append(",");
         });
-        return sb.length() > 0 ? sb.substring(0, sb.length() - 1) : sb.toString();
+        return hearings;
     }
 
-    private List<CourtSitting> getCourtSittings(JsonNode hearingNode, String judiciaryId) {
-        List<CourtSitting> courtSittings = new ArrayList<>();
-        for (JsonNode hearingDay : hearingNode.path("hearingDays")) {
-            CourtSitting cs = new CourtSitting();
-            cs.setSittingStart(OffsetDateTime.parse(hearingDay.path("startTime").asText()));
-            cs.setSittingEnd(OffsetDateTime.parse(hearingDay.path("endTime").asText()));
-            cs.setJudiciaryId(judiciaryId);
+    private static CourtSitting getCourtSitting(HearingResponse.HearingResult.HearingDay hearingDay, String judiciaryId) {
+        CourtSitting courtSitting = new CourtSitting();
+        courtSitting.setSittingStart(OffsetDateTime.parse(hearingDay.getStartTime()));
+        courtSitting.setSittingEnd(OffsetDateTime.parse(hearingDay.getEndTime()));
+        courtSitting.setJudiciaryId(judiciaryId);
 
-            cs.setCourtHouse(hearingDay.path("courtCentreId").asText());
-            courtSittings.add(cs);
-        }
-        return courtSittings;
+        courtSitting.setCourtHouse(hearingDay.getCourtCentreId());
+        return courtSitting;
     }
 }

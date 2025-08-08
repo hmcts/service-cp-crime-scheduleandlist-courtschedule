@@ -19,7 +19,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.pact.helper.JsonFileToObject;
-import uk.gov.hmcts.cp.repositories.CourtScheduleClient;
+import uk.gov.hmcts.cp.repositories.InMemoryCourtScheduleClientImpl;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith({SpringExtension.class, PactVerificationInvocationContextProvider.class})
@@ -34,7 +34,7 @@ public class CourtScheduleProviderPactTest {
     private static final Logger LOG = LoggerFactory.getLogger(CourtScheduleProviderPactTest.class);
 
     @Autowired
-    private CourtScheduleClient courtScheduleClient;
+    private InMemoryCourtScheduleClientImpl inMemoryCourtScheduleClient;
 
     @LocalServerPort
     private int port;
@@ -48,9 +48,9 @@ public class CourtScheduleProviderPactTest {
 
     @State("court schedule for case 456789 exists")
     public void setupCourtSchedule() throws Exception{
-//        courtScheduleClient.clearAll();
-//        CourtScheduleResponse courtScheduleResponse = JsonFileToObject.readJsonFromResources("courtSchedule.json", CourtScheduleResponse.class);
-//        courtScheduleClient.saveCourtSchedule("456789", courtScheduleResponse);
+        inMemoryCourtScheduleClient.clearAll();
+        CourtScheduleResponse courtScheduleResponse = JsonFileToObject.readJsonFromResources("courtSchedule.json", CourtScheduleResponse.class);
+        inMemoryCourtScheduleClient.saveCourtSchedule("456789", courtScheduleResponse);
     }
 
     @TestTemplate

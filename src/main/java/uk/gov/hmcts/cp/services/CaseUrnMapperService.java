@@ -16,6 +16,8 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.cp.domain.CaseMapperResponse;
 
+import java.util.UUID;
+
 import static uk.gov.hmcts.cp.utils.Utils.ignoreCertificates;
 
 @Service
@@ -28,6 +30,7 @@ public class CaseUrnMapperService {
     private String caseMapperServiceUrl;
 
     public String getCaseId(final String caseUrn) {
+        //return UUID.randomUUID().toString();
         try {
             ignoreCertificates();
             ResponseEntity<CaseMapperResponse> responseEntity = restTemplate.exchange(
