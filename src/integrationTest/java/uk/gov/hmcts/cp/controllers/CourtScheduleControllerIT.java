@@ -12,10 +12,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.cp.config.TestConfig;
-import uk.gov.hmcts.cp.repositories.CourtScheduleRepository;
+import uk.gov.hmcts.cp.repositories.CourtScheduleClient;
+import uk.gov.hmcts.cp.services.CaseUrnMapperService;
 
 import java.util.UUID;
 
@@ -28,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("pact-test")
 @Import(TestConfig.class)
 class CourtScheduleControllerIT {
     private static final Logger log = LoggerFactory.getLogger(CourtScheduleControllerIT.class);
@@ -36,15 +39,21 @@ class CourtScheduleControllerIT {
     private MockMvc mockMvc;
 
     @Autowired
-    @Qualifier("inMemoryCourtScheduleRepositoryImpl")
-    private CourtScheduleRepository courtScheduleRepository;
+    @Qualifier("inMemoryCourtScheduleClientImpl")
+    private CourtScheduleClient courtScheduleClient;
 
-    /*@BeforeEach
-    void setUp() {
-        inMemoryCaseUrnMapper.clearAllMappings();
-        inMemoryCaseUrnMapper.saveCaseUrnMapping("test-case-urn", "test-case-id");
+    @Autowired
+    @Qualifier("testCaseUrnMapperService")
+    private CaseUrnMapperService caseUrnMapperService;
+
+    @Test
+    void shouldReturnOkWhenValidUrnIsProvided1() throws Exception {
+        String caseUrn = "test-case-urn";
+        mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
-    */
+
     @Test
     void shouldReturnOkWhenValidUrnIsProvided() throws Exception {
         String caseUrn = "test-case-urn";

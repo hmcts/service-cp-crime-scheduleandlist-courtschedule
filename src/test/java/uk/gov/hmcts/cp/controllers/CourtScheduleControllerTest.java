@@ -10,10 +10,9 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
-
 import uk.gov.hmcts.cp.openapi.model.CourtSitting;
 import uk.gov.hmcts.cp.openapi.model.Hearing;
-import uk.gov.hmcts.cp.repositories.InMemoryCourtScheduleRepositoryImpl;
+import uk.gov.hmcts.cp.repositories.InMemoryCourtScheduleClientImpl;
 import uk.gov.hmcts.cp.services.CaseUrnMapperService;
 import uk.gov.hmcts.cp.services.CourtScheduleService;
 
@@ -33,9 +32,18 @@ class CourtScheduleControllerTest {
 
     @BeforeEach
     void setUp() {
-        CourtScheduleService courtScheduleService = new CourtScheduleService(new InMemoryCourtScheduleRepositoryImpl());
-        CaseUrnMapperService caseUrnMapperService  = new CaseUrnMapperService(new RestTemplate());
-        courtScheduleController = new CourtScheduleController(courtScheduleService, caseUrnMapperService);
+        CourtScheduleService courtScheduleService = new CourtScheduleService(new InMemoryCourtScheduleClientImpl());
+         CaseUrnMapperService testCaseUrnMapperService = new CaseUrnMapperService(new RestTemplate()) {
+                @Override
+                public String getCaseMapperServiceUrl() {
+                    return "http://mock-server/test-mapper";
+                }
+
+                public String getCaseId(final String caseUrn) {
+                    return UUID.randomUUID().toString();
+                }
+            };
+        courtScheduleController = new CourtScheduleController(courtScheduleService, testCaseUrnMapperService);
     }
 
     @Test
@@ -70,7 +78,6 @@ class CourtScheduleControllerTest {
         assertNotNull(courtSitting.getSittingStart());
         assertTrue(courtSitting.getSittingEnd().isAfter(courtSitting.getSittingStart()));
         assertNotNull(courtSitting.getJudiciaryId());
-
     }
 
     @Test
@@ -93,5 +100,4 @@ class CourtScheduleControllerTest {
         assertThat(exception.getReason()).isEqualTo("caseUrn is required");
         assertThat(exception.getMessage()).isEqualTo("400 BAD_REQUEST \"caseUrn is required\"");
     }
-
-} 
+}
