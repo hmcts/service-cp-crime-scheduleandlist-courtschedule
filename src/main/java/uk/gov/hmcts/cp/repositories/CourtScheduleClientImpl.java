@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -31,6 +32,7 @@ import static uk.gov.hmcts.cp.utils.Utils.getHttpClient;
 @Component
 @Primary
 @RequiredArgsConstructor
+@Profile("!pact-test")
 public class CourtScheduleClientImpl implements CourtScheduleClient {
     private static final Logger LOG = LoggerFactory.getLogger(CourtScheduleClientImpl.class);
     private final HttpClient httpClient;
@@ -64,7 +66,6 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
     public CourtScheduleResponse getCourtScheduleByCaseId(final String caseId) {
         List<Hearing> hearingList = getHearings(caseId);
         LOG.info("In function createCourtScheduleResponse Response Body: {} " + hearingList);
-
         return CourtScheduleResponse.builder()
                 .courtSchedule(List.of(
                                 CourtSchedule.builder()
@@ -77,7 +78,6 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
     private List<Hearing> getHearings(String caseId){
         HttpResponse<String> response = null;
         try {
-            //ignoreCertificates();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(buildUrl(caseId)))
                     .GET()
@@ -86,7 +86,6 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
                     .build();
 
             response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
             if (response.statusCode() != HttpStatus.OK.value()) {
                 LOG.error("Failed to fetch hearing data. HTTP Status: {}", response.statusCode());
                 return null;

@@ -63,7 +63,6 @@ public class Utils {
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(null, trustAllCerts, new SecureRandom());
 
-
         HttpClient httpClient = HttpClient.newBuilder()
                 .sslContext(sslContext)
                 .version(HttpClient.Version.HTTP_2)
