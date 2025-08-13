@@ -223,6 +223,20 @@ jobs:
             -DCASE_MAPPER_SERVICE_URL=$CASE_MAPPER_SERVICE_URL \
             -DCOURT_SCHEDULE_CLIENT_URL=$COURT_SCHEDULE_CLIENT_URL \
             -DCJSCPPUID=$CJSCPPUID
+          fi
+
+      - name: Extract repo name
+        id: repo_vars
+        run: |
+          repo_name=${GITHUB_REPOSITORY##*/}
+          echo "repo_name=${repo_name}" >> $GITHUB_OUTPUT
+          echo "artefact_name=${repo_name}-${{ needs.Artefact-Version.outputs.artefact_version }}" >> $GITHUB_OUTPUT
+
+      - name: Upload JAR Artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app.jar
+          path: build/libs/${{ steps.repo_vars.outputs.artefact_name }}.jar
 
   Build-Docker:
     needs: [ Provider-Deploy, Build, Artefact-Version ]
