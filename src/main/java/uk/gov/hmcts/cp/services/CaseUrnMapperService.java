@@ -36,7 +36,7 @@ public class CaseUrnMapperService {
                     getRequestEntity(),
                     CaseMapperResponse.class
             );
-            LOG.info("CaseMapperResponse is : {} and body : {} caseurn : {} ", responseEntity.getStatusCode(), responseEntity.getBody(), caseUrn);
+            LOG.info(" CaseMapperResponse is : {} and body : {} caseurn : {} ", responseEntity.getStatusCode(), responseEntity.getBody(), caseUrn);
 
             if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
                 CaseMapperResponse body = responseEntity.getBody();
@@ -50,7 +50,7 @@ public class CaseUrnMapperService {
 
     public String getCaseMapperServiceUrl() {
         if (this.caseMapperServiceUrl != null) {
-            LOG.info("caseMapperServiceUrl is : {}", this.caseMapperServiceUrl);
+            LOG.info(" caseMapperServiceUrl is : {}", this.caseMapperServiceUrl);
             return this.caseMapperServiceUrl;
         }
         LOG.atError().log("caseMapperServiceUrl is empty");
