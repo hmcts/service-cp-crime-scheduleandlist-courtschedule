@@ -211,7 +211,6 @@ jobs:
             echo "::warning::CJSCPPUID is null or not set"
           fi
 
-          if [ "${{ inputs.is_publish }}" == "true" ]; then
           echo "Publishing artefact for version: $ARTEFACT_VERSION"
           
           gradle publish \
