@@ -1,0 +1,149 @@
+{
+  "hearings": [
+    {
+      "id": "8bc27f20-89b2-4102-92b8-be1aa32437be",
+      "type": {
+        "id": "4a0e892d-c0c5-3c51-95b8-704d8c781776",
+        "description": "First hearing"
+      },
+      "endDate": "2025-07-31",
+      "allocated": true,
+      "judiciary": [],
+      "startDate": "2025-07-31",
+      "courtRoomId": "9e4932f7-97b2-3010-b942-ddd2624e4dd8",
+      "hearingDays": [
+        {
+          "endTime": "2025-07-31T22:50:00.000Z",
+          "sequence": 0,
+          "startTime": "2025-07-31T22:30:00.000Z",
+          "courtRoomId": "9e4932f7-97b2-3010-b942-ddd2624e4dd8",
+          "hearingDate": "2025-07-31",
+          "courtCentreId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+          "durationMinutes": 20
+        }
+      ],
+      "listedCases": [
+        {
+          "id": "7a2e94c4-38af-43dd-906b-40d632d159b0",
+          "markers": [],
+          "defendants": [
+            {
+              "id": "0fc52b27-e775-439c-aff7-28e6726cb464",
+              "address": {
+                "address1": "9999A9999AAAA",
+                "address2": "Woodlane",
+                "address3": "addressline 3",
+                "address4": "Bristol",
+                "address5": "Avon",
+                "postcode": "YO43 3DE"
+              },
+              "isYouth": false,
+              "lastName": "Jody",
+              "offences": [
+                {
+                  "id": "9cc94830-60d2-4f29-b46c-4f07722909c0",
+                  "count": 0,
+                  "startDate": "2019-11-28",
+                  "orderIndex": 1,
+                  "offenceCode": "CA03012",
+                  "shadowListed": false,
+                  "offenceWording": "Theft of pedal cycle.",
+                  "statementOfOffence": {
+                    "title": "Possess / control TV set with intent another use install without a licence",
+                    "welshTitle": "Meddu ar/mewn rheolaeth set deledu gan fwriadu i unigolyn arall ei ddefnyddio/osod heb drwydded",
+                    "legislation": "Contrary to section 363(3)(b) and (4) of the Communications Act 2003.",
+                    "welshLegislation": "Yn groes i adran 363(3)(b) a (4) Deddf Cyfathrebu 2003."
+                  },
+                  "restrictFromCourtList": false
+                }
+              ],
+              "firstName": "Gabriel",
+              "bailStatus": {
+                "id": "12e69486-4d01-3403-a50a-7419ca040635",
+                "code": "C",
+                "description": "Custody"
+              },
+              "dateOfBirth": "1990-06-26",
+              "masterDefendantId": "0fc52b27-e775-439c-aff7-28e6726cb464",
+              "hearingLanguageNeeds": "ENGLISH",
+              "restrictFromCourtList": false,
+              "courtProceedingsInitiated": "2025-07-31T10:07:51.144Z"
+            },
+            {
+              "id": "6c069ee4-d338-488d-9da5-b8f31aad3a70",
+              "address": {
+                "address1": "9999A9999AAAA",
+                "address2": "Woodlane",
+                "address3": "addressline 3",
+                "address4": "Bristol",
+                "address5": "Avon",
+                "postcode": "YO43 3DE"
+              },
+              "isYouth": false,
+              "lastName": "Karli",
+              "offences": [
+                {
+                  "id": "577cc785-336b-47d2-a1a2-ab026635929d",
+                  "count": 0,
+                  "startDate": "2019-11-28",
+                  "orderIndex": 1,
+                  "offenceCode": "CA03012",
+                  "shadowListed": false,
+                  "offenceWording": "Theft of pedal cycle.",
+                  "statementOfOffence": {
+                    "title": "Possess / control TV set with intent another use install without a licence",
+                    "welshTitle": "Meddu ar/mewn rheolaeth set deledu gan fwriadu i unigolyn arall ei ddefnyddio/osod heb drwydded",
+                    "legislation": "Contrary to section 363(3)(b) and (4) of the Communications Act 2003.",
+                    "welshLegislation": "Yn groes i adran 363(3)(b) a (4) Deddf Cyfathrebu 2003."
+                  },
+                  "restrictFromCourtList": false
+                }
+              ],
+              "firstName": "Santiago",
+              "bailStatus": {
+                "id": "12e69486-4d01-3403-a50a-7419ca040635",
+                "code": "C",
+                "description": "Custody"
+              },
+              "dateOfBirth": "1990-06-26",
+              "masterDefendantId": "6c069ee4-d338-488d-9da5-b8f31aad3a70",
+              "hearingLanguageNeeds": "ENGLISH",
+              "restrictFromCourtList": false,
+              "courtProceedingsInitiated": "2025-07-31T10:07:51.148Z"
+            }
+          ],
+          "shadowListed": false,
+          "caseIdentifier": {
+            "authorityId": "bdc190e7-c939-37ca-be4b-9f615d6ef40e",
+            "authorityCode": "DERPF",
+            "caseReference": "28DI1953715"
+          },
+          "restrictFromCourtList": false
+        }
+      ],
+      "courtCentreId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+      "isSlotsBooked": false,
+      "nonDefaultDays": [
+        {
+          "roomId": "9e4932f7-97b2-3010-b942-ddd2624e4dd8",
+          "duration": 20,
+          "startTime": "2025-07-31T22:30:00.000Z",
+          "courtCentreId": "f8254db1-1683-483e-afb3-b87fde5a0a26"
+        }
+      ],
+      "nonSittingDays": [],
+      "hearingLanguage": "ENGLISH",
+      "estimatedMinutes": 20,
+      "jurisdictionType": "MAGISTRATES",
+      "courtApplications": [],
+      "courtCentreDetails": {
+        "id": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+        "defaultDuration": 420,
+        "defaultStartTime": "10:00:00"
+      },
+      "isGroupProceedings": false,
+      "numberOfGroupCases": 1,
+      "sendNotificationToParties": false
+    }
+  ]
+}%
