@@ -223,7 +223,6 @@ jobs:
             -DCASE_MAPPER_SERVICE_URL=$CASE_MAPPER_SERVICE_URL \
             -DCOURT_SCHEDULE_CLIENT_URL=$COURT_SCHEDULE_CLIENT_URL \
             -DCJSCPPUID=$CJSCPPUID
-          fi
 
       - name: Extract repo name
         id: repo_vars
