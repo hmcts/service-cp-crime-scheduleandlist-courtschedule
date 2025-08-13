@@ -76,15 +76,30 @@ jobs:
         with:
           gradle-version: current
 
-      - name: Gradle Build
+      - name: Gradle Build and Publish
         env:
           ARTEFACT_VERSION: ${{ needs.Artefact-Version.outputs.artefact_version }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AZURE_DEVOPS_ARTIFACT_USERNAME: ${{ secrets.AZURE_DEVOPS_ARTIFACT_USERNAME }}
+          AZURE_DEVOPS_ARTIFACT_TOKEN: ${{ secrets.AZURE_DEVOPS_ARTIFACT_TOKEN }}
           CASE_MAPPER_SERVICE_URL: ${{ vars.CASE_MAPPER_SERVICE_URL }}
           COURT_SCHEDULE_CLIENT_URL: ${{ vars.COURT_SCHEDULE_CLIENT_URL }}
           CJSCPPUID: ${{ vars.CJSCPPUID }}
         run: |
           echo "Building with ARTEFACT_VERSION=$ARTEFACT_VERSION"
+          echo "Repository variables CASE_MAPPER_SERVICE_URL=CASE_MAPPER_SERVICE_URL"
+          echo "Repository variables COURT_SCHEDULE_CLIENT_URL=COURT_SCHEDULE_CLIENT_URL"
+          echo "Repository variables CJSCPPUID=$CJSCPPUID"
+
           gradle build -DARTEFACT_VERSION=$ARTEFACT_VERSION
+          
+          if [ -z "AZURE_DEVOPS_ARTIFACT_USERNAME" ]; then
+            echo "::warning::AZURE_DEVOPS_ARTIFACT_USERNAME is null or not set"
+          fi
+
+          if [ -z "$AZURE_DEVOPS_ARTIFACT_TOKEN" ]; then
+            echo "::warning::AZURE_DEVOPS_ARTIFACT_TOKEN is null or not set"
+          fi
           
           if [ -z "$CASE_MAPPER_SERVICE_URL" ]; then
             echo "::warning::CASE_MAPPER_SERVICE_URL is null or not set"
@@ -171,6 +186,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AZURE_DEVOPS_ARTIFACT_USERNAME: ${{ secrets.AZURE_DEVOPS_ARTIFACT_USERNAME }}
           AZURE_DEVOPS_ARTIFACT_TOKEN: ${{ secrets.AZURE_DEVOPS_ARTIFACT_TOKEN }}
+          CASE_MAPPER_SERVICE_URL: ${{ vars.CASE_MAPPER_SERVICE_URL }}
+          COURT_SCHEDULE_CLIENT_URL: ${{ vars.COURT_SCHEDULE_CLIENT_URL }}
+          CJSCPPUID: ${{ vars.CJSCPPUID }}
+
         run: |
           if [ -z "AZURE_DEVOPS_ARTIFACT_USERNAME" ]; then
             echo "::warning::AZURE_DEVOPS_ARTIFACT_USERNAME is null or not set"
@@ -180,6 +199,19 @@ jobs:
             echo "::warning::AZURE_DEVOPS_ARTIFACT_TOKEN is null or not set"
           fi
 
+          if [ -z "$CASE_MAPPER_SERVICE_URL" ]; then
+            echo "::warning::CASE_MAPPER_SERVICE_URL is null or not set"
+          fi
+
+          if [ -z "$COURT_SCHEDULE_CLIENT_URL" ]; then
+            echo "::warning::COURT_SCHEDULE_CLIENT_URL is null or not set"
+          fi
+          
+          if [ -z "$CJSCPPUID" ]; then
+            echo "::warning::CJSCPPUID is null or not set"
+          fi
+
+          if [ "${{ inputs.is_publish }}" == "true" ]; then
           echo "Publishing artefact for version: $ARTEFACT_VERSION"
           
           gradle publish \
@@ -192,6 +224,20 @@ jobs:
             -DCASE_MAPPER_SERVICE_URL=$CASE_MAPPER_SERVICE_URL \
             -DCOURT_SCHEDULE_CLIENT_URL=$COURT_SCHEDULE_CLIENT_URL \
             -DCJSCPPUID=$CJSCPPUID
+          fi
+
+      - name: Extract repo name
+        id: repo_vars
+        run: |
+          repo_name=${GITHUB_REPOSITORY##*/}
+          echo "repo_name=${repo_name}" >> $GITHUB_OUTPUT
+          echo "artefact_name=${repo_name}-${{ needs.Artefact-Version.outputs.artefact_version }}" >> $GITHUB_OUTPUT
+
+      - name: Upload JAR Artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app.jar
+          path: build/libs/${{ steps.repo_vars.outputs.artefact_name }}.jar
 
   Build-Docker:
     needs: [ Provider-Deploy, Build, Artefact-Version ]
