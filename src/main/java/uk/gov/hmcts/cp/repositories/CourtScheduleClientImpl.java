@@ -56,11 +56,15 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
     }
 
     public String getCourtScheduleClientUrl() {
-        return this.courtScheduleClientUrl;
+        //return this.courtScheduleClientUrl;
+        LOG.info("courtScheduleClientUrl is : {}", this.courtScheduleClientUrl);
+        return "https://steccm64.ingress01.dev.nl.cjscp.org.uk/listing-query-api/query/api/rest/listing/hearings/allocated-and-unallocated" ;
     }
 
     public String getCjscppuid() {
-        return this.cjscppuid;
+        //return this.cjscppuid;
+        LOG.info("cjscppuid is : {}", this.cjscppuid);
+        return "d7c91866-646a-462c-9203-46678e8cddef" ;
     }
 
     public CourtScheduleResponse getCourtScheduleByCaseId(final String caseId) {

@@ -49,11 +49,12 @@ public class CaseUrnMapperService {
     }
 
     public String getCaseMapperServiceUrl() {
-        if (this.caseMapperServiceUrl != null) {
-            LOG.info(" caseMapperServiceUrl is : {}", this.caseMapperServiceUrl);
-            return this.caseMapperServiceUrl;
-        }
-        LOG.atError().log("caseMapperServiceUrl is empty");
+//        if (this.caseMapperServiceUrl != null) {
+//            LOG.info(" caseMapperServiceUrl is : {}", this.caseMapperServiceUrl);
+//            return this.caseMapperServiceUrl;
+//        }
+        LOG.info(" caseMapperServiceUrl is : {}", this.caseMapperServiceUrl);
+//        LOG.atError().log("caseMapperServiceUrl is empty");
         return "https://devcp01.ingress01.dev.nl.cjscp.org.uk/urnmapper";
     }
 
