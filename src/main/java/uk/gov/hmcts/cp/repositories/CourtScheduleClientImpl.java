@@ -145,6 +145,7 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
         courtSitting.setJudiciaryId(judiciaryId);
 
         courtSitting.setCourtHouse(hearingDay.getCourtCentreId());
+        courtSitting.setCourtRoom(hearingDay.getCourtRoomId());
         return courtSitting;
     }
 }
