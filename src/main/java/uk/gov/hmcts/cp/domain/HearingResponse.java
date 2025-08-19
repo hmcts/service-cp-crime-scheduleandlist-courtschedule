@@ -25,9 +25,6 @@ public class HearingResponse implements Serializable {
     @NoArgsConstructor
     @Getter
     public static class HearingResult implements Serializable {
-
-//    private static final long serialVersionUID = 1L;
-
         private String id;
         private Type type;
         private List<Judiciary> judiciary;
