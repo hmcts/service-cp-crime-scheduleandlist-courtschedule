@@ -1,10 +1,11 @@
 package uk.gov.hmcts.cp.repositories;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
-import uk.gov.hmcts.cp.openapi.model.Hearing;
+import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.openapi.model.CourtSitting;
+import uk.gov.hmcts.cp.openapi.model.Hearing;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -14,20 +15,20 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component
-public class InMemoryCourtScheduleRepositoryImpl implements CourtScheduleRepository {
-
+@Component("inMemoryCourtScheduleClientImpl")
+@Profile("pact-test")
+public class InMemoryCourtScheduleClientImpl implements CourtScheduleClient {
     private final Map<String, CourtScheduleResponse> courtScheduleResponseMap = new ConcurrentHashMap<>();
 
     public void saveCourtSchedule(final String caseUrn, final CourtScheduleResponse courtScheduleResponse) {
         courtScheduleResponseMap.put(caseUrn, courtScheduleResponse);
     }
 
-    public CourtScheduleResponse getCourtScheduleByCaseId(final String caseUrn) {
-        if (!courtScheduleResponseMap.containsKey(caseUrn)) {
-            saveCourtSchedule(caseUrn, createCourtScheduleResponse());
+    public CourtScheduleResponse getCourtScheduleByCaseId(final String caseId) {
+        if (!courtScheduleResponseMap.containsKey(caseId)) {
+            saveCourtSchedule(caseId, createCourtScheduleResponse());
         }
-        return courtScheduleResponseMap.get(caseUrn);
+        return courtScheduleResponseMap.get(caseId);
     }
 
     public void clearAll() {
@@ -35,10 +36,8 @@ public class InMemoryCourtScheduleRepositoryImpl implements CourtScheduleReposit
     }
 
     private CourtScheduleResponse createCourtScheduleResponse() {
-
         final OffsetDateTime sittingStartTime = OffsetDateTime.now(ZoneOffset.UTC)
                 .truncatedTo(ChronoUnit.SECONDS);
-
         final Hearing hearing = Hearing.builder()
                 .hearingId(UUID.randomUUID().toString())
                 .listNote("Requires interpreter")
