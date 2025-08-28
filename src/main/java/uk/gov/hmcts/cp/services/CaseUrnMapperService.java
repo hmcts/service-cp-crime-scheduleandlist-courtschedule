@@ -6,55 +6,62 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
+import uk.gov.hmcts.cp.domain.CaseMapperResponse;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import static uk.gov.hmcts.cp.utils.Utils.ignoreCertificates;
 
 @Service
 @RequiredArgsConstructor
 public class CaseUrnMapperService {
-
     private static final Logger LOG = LoggerFactory.getLogger(CaseUrnMapperService.class);
-
     private final RestTemplate restTemplate;
 
     @Value("${service.case-mapper-service.url}")
     private String caseMapperServiceUrl;
 
-    private static final String CASEURN_ID = "caseurn/{caseurn}";
-
-    private final Map<String, String> caseUrnToCaseIdMap = new ConcurrentHashMap<>();
-
-
-
     public String getCaseId(final String caseUrn) {
-        return UUID.randomUUID().toString();
-        // This below code is commented out as it is will be used when the case mapper service is available.
-
-/*        try {
-            ResponseEntity<String> responseEntity = restTemplate.exchange(
+        try {
+            ignoreCertificates();
+            ResponseEntity<CaseMapperResponse> responseEntity = restTemplate.exchange(
                     getCaseIdUrl(caseUrn),
                     HttpMethod.GET,
                     getRequestEntity(),
-                    String.class
+                    CaseMapperResponse.class
             );
-            return responseEntity.hasBody() ? responseEntity.getBody(): Strings.EMPTY;
+            LOG.info(" CaseMapperResponse is : {} and body : {} caseurn : {} ", responseEntity.getStatusCode(), responseEntity.getBody(), caseUrn);
+
+            if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
+                CaseMapperResponse body = responseEntity.getBody();
+                return body.getCaseId();
+            }
         } catch (Exception e) {
             LOG.atError().log("Error while getting case id from case urn", e);
         }
-        return null;*/
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Case not found by urn: " + caseUrn);
+    }
+
+    public String getCaseMapperServiceUrl() {
+//        if (this.caseMapperServiceUrl != null) {
+//            LOG.info(" caseMapperServiceUrl is : {}", this.caseMapperServiceUrl);
+//            return this.caseMapperServiceUrl;
+//        }
+        LOG.info(" caseMapperServiceUrl is : {}", this.caseMapperServiceUrl);
+//        LOG.atError().log("caseMapperServiceUrl is empty");
+        return "https://devcp01.ingress01.dev.nl.cjscp.org.uk/urnmapper";
     }
 
     private String getCaseIdUrl(String caseUrn) {
+        LOG.atDebug().log("Fetching case id for case urn: {}", caseUrn);
         return UriComponentsBuilder
-                .fromUri(URI.create(caseMapperServiceUrl))
+                .fromUriString(getCaseMapperServiceUrl())
                 .pathSegment(caseUrn)
                 .buildAndExpand(caseUrn)
                 .toUriString();
@@ -62,7 +69,7 @@ public class CaseUrnMapperService {
 
     private HttpEntity<String> getRequestEntity() {
         HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
         return new HttpEntity<>(headers);
     }
 }

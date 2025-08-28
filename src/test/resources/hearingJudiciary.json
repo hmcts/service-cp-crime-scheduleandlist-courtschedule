@@ -1,0 +1,115 @@
+{
+  "hearings": [
+    {
+      "id": "348a288e-6e0d-479c-bd14-f363580d2181",
+      "type": {
+        "id": "4a0e892d-c0c5-3c51-95b8-704d8c781776",
+        "description": "First hearing"
+      },
+      "endDate": "2025-07-21",
+      "allocated": true,
+      "judiciary": [
+        {
+          "judicialId": "3f4d8f64-778f-497e-9f92-544bae115805",
+          "judicialRoleType": {
+            "judiciaryType": "CIRCUIT_JUDGE"
+          }
+        }
+      ],
+      "startDate": "2025-07-21",
+      "courtRoomId": "9e4932f7-97b2-3010-b942-ddd2624e4dd8",
+      "hearingDays": [
+        {
+          "endTime": "2025-07-21T15:20:00.000Z",
+          "sequence": 1,
+          "startTime": "2025-07-21T15:00:00.000Z",
+          "courtRoomId": "9e4932f7-97b2-3010-b942-ddd2624e4dd8",
+          "hearingDate": "2025-07-21",
+          "courtCentreId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+          "durationMinutes": 20
+        }
+      ],
+      "listedCases": [
+        {
+          "id": "f552dee6-f092-415b-839c-5e5b5f46635e",
+          "markers": [],
+          "defendants": [
+            {
+              "id": "4e7853ab-67f8-4ebe-9a31-dc1ed271ebb9",
+              "address": {
+                "address1": "Add1",
+                "postcode": "CB3 0GU"
+              },
+              "isYouth": false,
+              "lastName": "Test2",
+              "offences": [
+                {
+                  "id": "922cf1fd-9ef1-415d-809f-5a871ec24ec8",
+                  "count": 0,
+                  "startDate": "2025-07-10",
+                  "orderIndex": 1,
+                  "offenceCode": "TH68023A",
+                  "shadowListed": false,
+                  "offenceWording": "Before 10 Jul 2025 at df attempted to rob dfd of dfdf  to the value of sds .",
+                  "statementOfOffence": {
+                    "title": "Attempt robbery",
+                    "welshTitle": "Ymgais i ysbeilio (robbery)",
+                    "legislation": "Contrary to section 1(1) of the Criminal Attempts Act 1981.",
+                    "welshLegislation": "Yn groes i adran 1(1) Deddf Ymgeisiau i Droseddu 1981."
+                  },
+                  "restrictFromCourtList": false
+                }
+              ],
+              "firstName": "Teat1",
+              "bailStatus": {
+                "id": "86009c70-759d-3308-8de4-194886ff9a77",
+                "code": "A",
+                "description": "Not applicable"
+              },
+              "dateOfBirth": "1984-01-12",
+              "masterDefendantId": "4e7853ab-67f8-4ebe-9a31-dc1ed271ebb9",
+              "hearingLanguageNeeds": "ENGLISH",
+              "restrictFromCourtList": false,
+              "nationalityDescription": "British",
+              "courtProceedingsInitiated": "2025-07-21T13:19:54.727Z"
+            }
+          ],
+          "shadowListed": false,
+          "caseIdentifier": {
+            "authorityId": "31af405e-7b60-4dd8-a244-c24c2d3fa595",
+            "authorityCode": "TFL",
+            "caseReference": "CIK2JQKECS"
+          },
+          "restrictFromCourtList": false
+        }
+      ],
+      "courtCentreId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+      "isSlotsBooked": false,
+      "nonDefaultDays": [
+        {
+          "oucode": "B01LY00",
+          "roomId": "9e4932f7-97b2-3010-b942-ddd2624e4dd8",
+          "session": "PM",
+          "duration": 20,
+          "startTime": "2025-07-21T15:00:00.000Z",
+          "courtRoomId": 2330,
+          "courtCentreId": "f8254db1-1683-483e-afb3-b87fde5a0a26"
+        }
+      ],
+      "nonSittingDays": [],
+      "publicListNote": "",
+      "hearingLanguage": "ENGLISH",
+      "estimatedMinutes": 20,
+      "jurisdictionType": "MAGISTRATES",
+      "courtApplications": [],
+      "courtCentreDetails": {
+        "id": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+        "defaultDuration": 420,
+        "defaultStartTime": "10:00:00"
+      },
+      "isGroupProceedings": false,
+      "numberOfGroupCases": 1,
+      "sendNotificationToParties": false
+    }
+  ]
+}
