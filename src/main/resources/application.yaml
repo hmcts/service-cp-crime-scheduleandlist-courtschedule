@@ -24,11 +24,6 @@ spring:
     import: "optional:configtree:/mnt/secrets/rpe/"
   application:
     name: service-cp-crime-scheduleandlist-courtschedule
-#  azure:
-#    cosmos:
-#      endpoint: ${COSMOSDB_ENDPOINT}
-#      key: ${COSMOSDB_KEY}
-#      database: ${COSMOSDB_DATABASE}
 
 service:
   case-mapper-service:
