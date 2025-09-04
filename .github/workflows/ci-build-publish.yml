@@ -7,7 +7,7 @@ on:
         required: true
       AZURE_DEVOPS_ARTIFACT_TOKEN:
         required: true
-      HMCTS_ADO_PAT:
+      HMCTS_CP_ADO_PAT:
         required: true
       PACT_BROKER_TOKEN:
         required: true
@@ -223,7 +223,7 @@ jobs:
         uses: hmcts/trigger-ado-pipeline@v1
         with:
           pipeline_id: 460
-          ado_pat: ${{ secrets.HMCTS_ADO_PAT }}
+          ado_pat: ${{ secrets.HMCTS_CP_ADO_PAT }}
           template_parameters: >
             {
               "GROUP_ID": "uk.gov.hmcts.cp",
