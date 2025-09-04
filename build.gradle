@@ -231,10 +231,10 @@ application {
 }
 
 ext {
-    apiCourtScheduleVersion = "0.4.2-188dae3"
-    log4JVersion = "2.24.3"
-    logbackVersion = "1.5.18"
-    lombokVersion = "1.18.38"
+  apiCourtScheduleVersion = "0.4.8"
+  log4JVersion = "2.24.3"
+  logbackVersion = "1.5.18"
+  lombokVersion = "1.18.38"
 }
 
 tasks.named('processPactVerificationTestResources') {
