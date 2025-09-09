@@ -32,11 +32,12 @@ spring:
 
 service:
   case-mapper-service:
-    url: ${CASE_MAPPER_SERVICE_URL:https://TEST}
+    url: ${CASE_MAPPER_SERVICE_URL}
 
   court-schedule-client:
-    url: ${COURT_SCHEDULE_CLIENT_URL:https://TEST}
-    cjscppuid: ${CJSCPPUID:https://TEST}
+    url: ${CP_BACKEND_URL}
+    path: /listing-query-api/query/api/rest/listing/hearings/allocated-and-unallocated
+    cjscppuid: ${CJSCPPUID}
 
 azure:
   application-insights:

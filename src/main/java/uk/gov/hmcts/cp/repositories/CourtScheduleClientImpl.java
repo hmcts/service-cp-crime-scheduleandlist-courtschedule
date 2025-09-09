@@ -40,6 +40,9 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
     @Value("${service.court-schedule-client.url}")
     private String courtScheduleClientUrl;
 
+    @Value("${service.court-schedule-client.path}")
+    private String courtScheduleClientPath;
+
     @Value("${service.court-schedule-client.cjscppuid}")
     private String cjscppuid;
 
@@ -47,17 +50,14 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
         this.httpClient = getHttpClient();
     }
 
-    public CourtScheduleClientImpl(HttpClient httpClient,
-                                   @Value("${service.court-schedule-client.url}") String courtScheduleClientUrl,
-                                   @Value("${service.court-schedule-client.cjscppuid}") String cjscppuid) {
-        this.httpClient = httpClient;
-        this.courtScheduleClientUrl = courtScheduleClientUrl;
-        this.cjscppuid = cjscppuid;
-    }
-
     public String getCourtScheduleClientUrl() {
         LOG.info("courtScheduleClientUrl is : {}", this.courtScheduleClientUrl);
         return this.courtScheduleClientUrl;
+    }
+
+    public String getCourtScheduleClientPath() {
+        LOG.info("courtScheduleClientPath is : {}", this.courtScheduleClientPath);
+        return this.courtScheduleClientPath;
     }
 
     public String getCjscppuid() {
@@ -67,7 +67,7 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
 
     public CourtScheduleResponse getCourtScheduleByCaseId(final String caseId) {
         List<Hearing> hearingList = getHearings(caseId);
-        LOG.info("In function createCourtScheduleResponse Response Body: {} " + hearingList);
+        LOG.info("In function createCourtScheduleResponse Response Body: {} ", hearingList);
         return CourtScheduleResponse.builder()
                 .courtSchedule(List.of(
                                 CourtSchedule.builder()
@@ -111,6 +111,7 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
     private String buildUrl(String caseId) {
         return UriComponentsBuilder
                 .fromUri(URI.create(getCourtScheduleClientUrl()))
+                .path(getCourtScheduleClientPath())
                 .queryParam("caseId", caseId)
                 .toUriString();
     }
