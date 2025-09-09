@@ -54,8 +54,7 @@ public class CaseUrnMapperService {
 //            return this.caseMapperServiceUrl;
 //        }
         LOG.info(" caseMapperServiceUrl is : {}", this.caseMapperServiceUrl);
-//        LOG.atError().log("caseMapperServiceUrl is empty");
-        return "https://devcp01.ingress01.dev.nl.cjscp.org.uk/urnmapper";
+        return this.caseMapperServiceUrl;
     }
 
     private String getCaseIdUrl(String caseUrn) {
