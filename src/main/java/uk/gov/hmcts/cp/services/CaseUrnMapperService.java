@@ -36,7 +36,7 @@ public class CaseUrnMapperService {
                     getRequestEntity(),
                     CaseMapperResponse.class
             );
-            LOG.info(" CaseMapperResponse is : {} and body : {} caseurn : {} ", responseEntity.getStatusCode(), responseEntity.getBody(), caseUrn);
+            LOG.atInfo().log(" CaseMapperResponse is : {} and body : {} caseurn : {} ", responseEntity.getStatusCode(), responseEntity.getBody(), caseUrn);
 
             if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
                 CaseMapperResponse body = responseEntity.getBody();

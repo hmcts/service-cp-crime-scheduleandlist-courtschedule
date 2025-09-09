@@ -24,6 +24,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,7 +67,7 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
     }
 
     public CourtScheduleResponse getCourtScheduleByCaseId(final String caseId) {
-        List<Hearing> hearingList = getHearings(caseId);
+        final List<Hearing> hearingList = getHearings(caseId);
         LOG.info("In function createCourtScheduleResponse Response Body: {} ", hearingList);
         return CourtScheduleResponse.builder()
                 .courtSchedule(List.of(
@@ -77,38 +78,37 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
                 ).build();
     }
 
-    private List<Hearing> getHearings(String caseId){
-        HttpResponse<String> response = null;
+    private List<Hearing> getHearings(final String caseId) {
+        List<Hearing> hearingResult = Collections.emptyList();
         try {
-            HttpRequest request = HttpRequest.newBuilder()
+            final HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(buildUrl(caseId)))
                     .GET()
                     .header("Accept", "application/vnd.listing.search.hearings+json")
                     .header("CJSCPPUID", getCjscppuid())
                     .build();
 
-            response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != HttpStatus.OK.value()) {
                 LOG.error("Failed to fetch hearing data. HTTP Status: {}", response.statusCode());
-                return null;
+            } else {
+                final ObjectMapper objectMapper = new ObjectMapper();
+                final HearingResponse hearingResponse = objectMapper.readValue(
+                        response.body(),
+                        HearingResponse.class
+                );
+
+                hearingResult = getHearingData(hearingResponse);
+                LOG.atInfo().log("Response Code: {}, Response Body: {}", response.statusCode(), response.body());
             }
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            HearingResponse hearingResponse = objectMapper.readValue(
-                    response.body(),
-                    HearingResponse.class
-            );
-
-            List<Hearing> hearingResult = getHearingData(hearingResponse);
-            LOG.info("Response Code: {}, Response Body: {}", response.statusCode(), response.body());
-            return hearingResult;
         } catch (Exception e) {
-            LOG.error("Exception occurred while fetching hearing data: {}", e.getMessage(), e);
+            LOG.atError().log("Exception occurred while fetching hearing data: {}", e.getMessage(), e);
         }
-        return null;
+        return hearingResult;
     }
 
-    private String buildUrl(String caseId) {
+
+    private String buildUrl(final String caseId) {
         return UriComponentsBuilder
                 .fromUri(URI.create(getCourtScheduleClientUrl()))
                 .path(getCourtScheduleClientPath())
