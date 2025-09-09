@@ -189,7 +189,7 @@ jobs:
             -DGITHUB_TOKEN=$GITHUB_TOKEN \
             -DAZURE_DEVOPS_ARTIFACT_USERNAME=$AZURE_DEVOPS_ARTIFACT_USERNAME \
             -DAZURE_DEVOPS_ARTIFACT_TOKEN=$AZURE_DEVOPS_ARTIFACT_TOKEN \
-            -DCASE_MAPPER_SERVICE_URL=$CASE_MAPPER_SERVICE_URLN \
+            -DCASE_MAPPER_SERVICE_URL=$CASE_MAPPER_SERVICE_URL \
             -DCOURT_SCHEDULE_CLIENT_URL=$COURT_SCHEDULE_CLIENT_URL \
             -DCJSCPPUID=$CJSCPPUID 
 
@@ -230,7 +230,7 @@ jobs:
           build-args: |
             BASE_IMAGE=openjdk:21-jdk-slim
             JAR_FILENAME=${{ needs.Build.outputs.artefact_name }}.jar
-            CASE_URN_MAPPER_URL=${{ secrets.CASE_URN_MAPPER_URL }}
+            CASE_MAPPER_SERVICE_URL=${{ secrets.CASE_MAPPER_SERVICE_URL }}
             COURT_SCHEDULE_CLIENT_URL=${{ secrets.COURT_SCHEDULE_CLIENT_URL }}
             CJSCPPUID=${{ secrets.CJSCPPUID }}
 
