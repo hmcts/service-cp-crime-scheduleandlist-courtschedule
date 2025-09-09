@@ -35,8 +35,8 @@ service:
     url: ${CASE_MAPPER_SERVICE_URL:https://TEST}
 
   court-schedule-client:
-    url: ${COURT_SCHEDULE_CLIENT_URL}
-    cjscppuid: ${CJSCPPUID}
+    url: ${COURT_SCHEDULE_CLIENT_URL:https://TEST}
+    cjscppuid: ${CJSCPPUID:https://TEST}
 
 azure:
   application-insights:
