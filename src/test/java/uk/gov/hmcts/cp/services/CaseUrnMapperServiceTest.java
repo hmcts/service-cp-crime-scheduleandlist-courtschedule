@@ -1,7 +1,6 @@
 package uk.gov.hmcts.cp.services;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -25,6 +24,7 @@ class CaseUrnMapperServiceTest {
     private RestTemplate restTemplate;
 
     private final String mockUrl = "http://mock-server/mapper";
+    private final String mockPath = "/urnmapper";
 
     @BeforeEach
     void setUp() {
@@ -33,6 +33,11 @@ class CaseUrnMapperServiceTest {
             @Override
             public String getCaseMapperServiceUrl() {
                 return mockUrl ;
+            }
+
+            @Override
+            public String getCaseMapperServicePath() {
+                return mockPath;
             }
         };
     }

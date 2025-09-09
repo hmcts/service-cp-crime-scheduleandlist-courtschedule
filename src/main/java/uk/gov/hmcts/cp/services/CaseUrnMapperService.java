@@ -27,6 +27,10 @@ public class CaseUrnMapperService {
     @Value("${service.case-mapper-service.url}")
     private String caseMapperServiceUrl;
 
+    @Value("${service.case-mapper-service.path}")
+    private String caseMapperServicePath;
+
+
     public String getCaseId(final String caseUrn) {
         try {
             ignoreCertificates();
@@ -57,10 +61,16 @@ public class CaseUrnMapperService {
         return this.caseMapperServiceUrl;
     }
 
+    public String getCaseMapperServicePath() {
+        LOG.info(" caseMapperServicePath is : {}", this.caseMapperServicePath);
+        return this.caseMapperServicePath;
+    }
+
     private String getCaseIdUrl(String caseUrn) {
         LOG.atDebug().log("Fetching case id for case urn: {}", caseUrn);
         return UriComponentsBuilder
                 .fromUriString(getCaseMapperServiceUrl())
+                .pathSegment(getCaseMapperServicePath())
                 .pathSegment(caseUrn)
                 .buildAndExpand(caseUrn)
                 .toUriString();

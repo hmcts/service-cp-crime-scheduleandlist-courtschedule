@@ -33,6 +33,7 @@ spring:
 service:
   case-mapper-service:
     url: ${CASE_MAPPER_SERVICE_URL}
+    path: /urnmapper
 
   court-schedule-client:
     url: ${CP_BACKEND_URL}
