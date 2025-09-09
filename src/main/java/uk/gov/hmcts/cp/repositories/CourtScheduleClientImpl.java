@@ -88,9 +88,9 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
                     .header("CJSCPPUID", getCjscppuid())
                     .build();
 
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            final HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != HttpStatus.OK.value()) {
-                LOG.error("Failed to fetch hearing data. HTTP Status: {}", response.statusCode());
+                LOG.atError().log("Failed to fetch hearing data. HTTP Status: {}", response.statusCode());
             } else {
                 final ObjectMapper objectMapper = new ObjectMapper();
                 final HearingResponse hearingResponse = objectMapper.readValue(
@@ -116,20 +116,20 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
                 .toUriString();
     }
 
-    private List<Hearing> getHearingData(HearingResponse hearingResponse)  {
-        List<Hearing> hearings = new ArrayList<>();
+    private List<Hearing> getHearingData(final HearingResponse hearingResponse)  {
+        final List<Hearing> hearings = new ArrayList<>();
         hearingResponse.getHearings().forEach( hr -> {
-            Hearing hearing = new Hearing();
+            final Hearing hearing = new Hearing();
             hearing.setHearingId(hr.getId());
             hearing.setHearingType(hr.getType().getDescription());
             hearing.setHearingDescription(hr.getType().getDescription());
             hearing.setListNote("sample list note");
-            List<CourtSitting> courtSittings = new ArrayList<>();
-            String judiciaryId = hr.getJudiciary().stream().map(a -> a.getJudicialId()).collect(Collectors.joining(","));
+            final List<CourtSitting> courtSittings = new ArrayList<>();
+            final String judiciaryId = hr.getJudiciary().stream().map(a -> a.getJudicialId()).collect(Collectors.joining(","));
 
-            for (HearingResponse.HearingResult.HearingDay hearingDay : hr.getHearingDays()) {
-                CourtSitting cs = getCourtSitting(hearingDay, judiciaryId);
-                courtSittings.add(cs);
+            for (final HearingResponse.HearingResult.HearingDay hearingDay : hr.getHearingDays()) {
+                final CourtSitting courtSitting = getCourtSitting(hearingDay, judiciaryId);
+                courtSittings.add(courtSitting);
             }
             hearing.setCourtSittings(courtSittings);
             hearings.add(hearing);
