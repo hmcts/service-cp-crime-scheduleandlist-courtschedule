@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.cp.config.TestConfig;
@@ -32,6 +33,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("pact-test")
 @Import(TestConfig.class)
+@TestPropertySource(properties = {
+        "service.case-mapper-service.url=https://CASE-MAPPER.org.uk",
+        "service.court-schedule-client.url=https://COURT-SCHEDULE.org.uk",
+        "service.court-schedule-client.cjscppuid=MOCK-CJSCPPUID"
+})
 class CourtScheduleControllerIT {
     private static final Logger log = LoggerFactory.getLogger(CourtScheduleControllerIT.class);
 

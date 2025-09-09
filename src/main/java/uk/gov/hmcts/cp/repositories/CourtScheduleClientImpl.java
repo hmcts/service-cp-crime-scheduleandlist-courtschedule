@@ -24,6 +24,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,6 +41,9 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
     @Value("${service.court-schedule-client.url}")
     private String courtScheduleClientUrl;
 
+    @Value("${service.court-schedule-client.path}")
+    private String courtScheduleClientPath;
+
     @Value("${service.court-schedule-client.cjscppuid}")
     private String cjscppuid;
 
@@ -47,29 +51,24 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
         this.httpClient = getHttpClient();
     }
 
-    public CourtScheduleClientImpl(HttpClient httpClient,
-                                   @Value("${service.court-schedule-client.url}") String courtScheduleClientUrl,
-                                   @Value("${service.court-schedule-client.cjscppuid}") String cjscppuid) {
-        this.httpClient = httpClient;
-        this.courtScheduleClientUrl = courtScheduleClientUrl;
-        this.cjscppuid = cjscppuid;
+    public String getCourtScheduleClientUrl() {
+        LOG.info("courtScheduleClientUrl is : {}", this.courtScheduleClientUrl);
+        return this.courtScheduleClientUrl;
     }
 
-    public String getCourtScheduleClientUrl() {
-        //return this.courtScheduleClientUrl;
-        LOG.info("courtScheduleClientUrl is : {}", this.courtScheduleClientUrl);
-        return "https://steccm64.ingress01.dev.nl.cjscp.org.uk/listing-query-api/query/api/rest/listing/hearings/allocated-and-unallocated" ;
+    public String getCourtScheduleClientPath() {
+        LOG.info("courtScheduleClientPath is : {}", this.courtScheduleClientPath);
+        return this.courtScheduleClientPath;
     }
 
     public String getCjscppuid() {
-        //return this.cjscppuid;
         LOG.info("cjscppuid is : {}", this.cjscppuid);
-        return "d7c91866-646a-462c-9203-46678e8cddef" ;
+        return this.cjscppuid;
     }
 
     public CourtScheduleResponse getCourtScheduleByCaseId(final String caseId) {
-        List<Hearing> hearingList = getHearings(caseId);
-        LOG.info("In function createCourtScheduleResponse Response Body: {} " + hearingList);
+        final List<Hearing> hearingList = getHearings(caseId);
+        LOG.info("In function createCourtScheduleResponse Response Body: {} ", hearingList);
         return CourtScheduleResponse.builder()
                 .courtSchedule(List.of(
                                 CourtSchedule.builder()
@@ -79,58 +78,58 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
                 ).build();
     }
 
-    private List<Hearing> getHearings(String caseId){
-        HttpResponse<String> response = null;
+    private List<Hearing> getHearings(final String caseId) {
+        List<Hearing> hearingResult = Collections.emptyList();
         try {
-            HttpRequest request = HttpRequest.newBuilder()
+            final HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(buildUrl(caseId)))
                     .GET()
                     .header("Accept", "application/vnd.listing.search.hearings+json")
                     .header("CJSCPPUID", getCjscppuid())
                     .build();
 
-            response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            final HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != HttpStatus.OK.value()) {
-                LOG.error("Failed to fetch hearing data. HTTP Status: {}", response.statusCode());
-                return null;
+                LOG.atError().log("Failed to fetch hearing data. HTTP Status: {}", response.statusCode());
+            } else {
+                final ObjectMapper objectMapper = new ObjectMapper();
+                final HearingResponse hearingResponse = objectMapper.readValue(
+                        response.body(),
+                        HearingResponse.class
+                );
+
+                hearingResult = getHearingData(hearingResponse);
+                LOG.atInfo().log("Response Code: {}, Response Body: {}", response.statusCode(), response.body());
             }
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            HearingResponse hearingResponse = objectMapper.readValue(
-                    response.body(),
-                    HearingResponse.class
-            );
-
-            List<Hearing> hearingResult = getHearingData(hearingResponse);
-            LOG.info("Response Code: {}, Response Body: {}", response.statusCode(), response.body());
-            return hearingResult;
         } catch (Exception e) {
-            LOG.error("Exception occurred while fetching hearing data: {}", e.getMessage(), e);
+            LOG.atError().log("Exception occurred while fetching hearing data: {}", e.getMessage(), e);
         }
-        return null;
+        return hearingResult;
     }
 
-    private String buildUrl(String caseId) {
+
+    private String buildUrl(final String caseId) {
         return UriComponentsBuilder
                 .fromUri(URI.create(getCourtScheduleClientUrl()))
+                .path(getCourtScheduleClientPath())
                 .queryParam("caseId", caseId)
                 .toUriString();
     }
 
-    private List<Hearing> getHearingData(HearingResponse hearingResponse)  {
-        List<Hearing> hearings = new ArrayList<>();
+    private List<Hearing> getHearingData(final HearingResponse hearingResponse)  {
+        final List<Hearing> hearings = new ArrayList<>();
         hearingResponse.getHearings().forEach( hr -> {
-            Hearing hearing = new Hearing();
+            final Hearing hearing = new Hearing();
             hearing.setHearingId(hr.getId());
             hearing.setHearingType(hr.getType().getDescription());
             hearing.setHearingDescription(hr.getType().getDescription());
             hearing.setListNote("sample list note");
-            List<CourtSitting> courtSittings = new ArrayList<>();
-            String judiciaryId = hr.getJudiciary().stream().map(a -> a.getJudicialId()).collect(Collectors.joining(","));
+            final List<CourtSitting> courtSittings = new ArrayList<>();
+            final String judiciaryId = hr.getJudiciary().stream().map(a -> a.getJudicialId()).collect(Collectors.joining(","));
 
-            for (HearingResponse.HearingResult.HearingDay hearingDay : hr.getHearingDays()) {
-                CourtSitting cs = getCourtSitting(hearingDay, judiciaryId);
-                courtSittings.add(cs);
+            for (final HearingResponse.HearingResult.HearingDay hearingDay : hr.getHearingDays()) {
+                final CourtSitting courtSitting = getCourtSitting(hearingDay, judiciaryId);
+                courtSittings.add(courtSitting);
             }
             hearing.setCourtSittings(courtSittings);
             hearings.add(hearing);

@@ -36,7 +36,7 @@ public class CaseUrnMapperService {
                     getRequestEntity(),
                     CaseMapperResponse.class
             );
-            LOG.info(" CaseMapperResponse is : {} and body : {} caseurn : {} ", responseEntity.getStatusCode(), responseEntity.getBody(), caseUrn);
+            LOG.atInfo().log(" CaseMapperResponse is : {} and body : {} caseurn : {} ", responseEntity.getStatusCode(), responseEntity.getBody(), caseUrn);
 
             if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
                 CaseMapperResponse body = responseEntity.getBody();
@@ -54,8 +54,7 @@ public class CaseUrnMapperService {
 //            return this.caseMapperServiceUrl;
 //        }
         LOG.info(" caseMapperServiceUrl is : {}", this.caseMapperServiceUrl);
-//        LOG.atError().log("caseMapperServiceUrl is empty");
-        return "https://devcp01.ingress01.dev.nl.cjscp.org.uk/urnmapper";
+        return this.caseMapperServiceUrl;
     }
 
     private String getCaseIdUrl(String caseUrn) {

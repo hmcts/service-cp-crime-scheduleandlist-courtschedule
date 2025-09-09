@@ -32,12 +32,17 @@ spring:
 
 service:
   case-mapper-service:
-    url: ${CASE_MAPPER_SERVICE_URL:https://devcp01.ingress01.dev.nl.cjscp.org.uk/urnmapper}
+    url: ${CASE_MAPPER_SERVICE_URL}
 
   court-schedule-client:
-    url: ${COURT_SCHEDULE_CLIENT_URL:https://steccm64.ingress01.dev.nl.cjscp.org.uk/listing-query-api/query/api/rest/listing/hearings/allocated-and-unallocated}
-    cjscppuid: ${CJSCPPUID:d7c91866-646a-462c-9203-46678e8cddef}
+    url: ${CP_BACKEND_URL}
+    path: /listing-query-api/query/api/rest/listing/hearings/allocated-and-unallocated
+    cjscppuid: ${CJSCPPUID}
 
 azure:
   application-insights:
     instrumentation-key: ${rpe.AppInsightsInstrumentationKey:00000000-0000-0000-0000-000000000000}
+
+logging:
+  level:
+    uk.gov.hmcts.cp: DEBUG

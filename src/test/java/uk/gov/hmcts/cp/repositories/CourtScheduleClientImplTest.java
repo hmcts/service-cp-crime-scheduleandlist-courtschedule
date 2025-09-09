@@ -46,7 +46,8 @@ class CourtScheduleClientImplTest {
           ]
         }
         """;
-    private final String mockUrl = "http://mock-server/mapper";
+    private final String mockUrl = "http://mock-server";
+    private final String mockPath = "/some/mapper";
     private final String cjscppuid = "mock-cjscppuid";
 
     @BeforeEach
@@ -57,10 +58,15 @@ class CourtScheduleClientImplTest {
                 ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()
         )).thenReturn(mockResponse);
 
-        client = new CourtScheduleClientImpl(mockHttpClient, mockUrl, cjscppuid) {;
+        client = new CourtScheduleClientImpl(mockHttpClient) {;
             @Override
             public String getCourtScheduleClientUrl() {
                 return mockUrl;
+            }
+
+            @Override
+            public String getCourtScheduleClientPath() {
+                return mockPath;
             }
 
             @Override
@@ -68,7 +74,6 @@ class CourtScheduleClientImplTest {
                 return cjscppuid;
             }
         };
-
     }
 
     @Test

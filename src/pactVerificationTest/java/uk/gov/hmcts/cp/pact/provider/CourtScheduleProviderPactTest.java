@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.pact.helper.JsonFileToObject;
@@ -38,6 +39,11 @@ import static org.mockito.Mockito.when;
         url = "${pact.broker.url}",
         authentication = @PactBrokerAuth(token = "${pact.broker.token}")
 )
+@TestPropertySource(properties = {
+        "service.case-mapper-service.url=https://CASE-MAPPER.org.uk",
+        "service.court-schedule-client.url=https://COURT-SCHEDULE.org.uk",
+        "service.court-schedule-client.cjscppuid=MOCK-CJSCPPUID"
+})
 @ActiveProfiles("pact-test")
 @Tag("pact")
 public class CourtScheduleProviderPactTest {

@@ -12,6 +12,10 @@ on:
       PACT_BROKER_TOKEN:
         required: true
     inputs:
+      environment:
+        required: true
+        type: string
+        default: dev
       is_release:
         required: false
         type: boolean
@@ -35,6 +39,8 @@ on:
 jobs:
   Artefact-Version:
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
     outputs:
       artefact_version: ${{ inputs.is_release && steps.artefact.outputs.release_version || steps.artefact.outputs.draft_version }}
     steps:
@@ -54,6 +60,8 @@ jobs:
   Build:
     needs: [Artefact-Version]
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
     outputs:
       repo_name: ${{ steps.repo_vars.outputs.repo_name }}
       artefact_name: ${{ steps.repo_vars.outputs.artefact_name }}
@@ -99,6 +107,8 @@ jobs:
   Provider-Deploy:
     needs: [ Artefact-Version, Build ]
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
     env:
       PACT_PROVIDER_VERSION: ${{ needs.Artefact-Version.outputs.artefact_version }}
       PACT_BROKER_URL: "https://hmcts-dts.pactflow.io"
@@ -156,7 +166,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AZURE_DEVOPS_ARTIFACT_USERNAME: ${{ secrets.AZURE_DEVOPS_ARTIFACT_USERNAME }}
           AZURE_DEVOPS_ARTIFACT_TOKEN: ${{ secrets.AZURE_DEVOPS_ARTIFACT_TOKEN }}
+          CASE_MAPPER_SERVICE_URL: ${{ secrets.CASE_MAPPER_SERVICE_URL }}
+          CP_BACKEND_URL: ${{ secrets.CP_BACKEND_URL }}
+          CJSCPPUID: ${{ secrets.CJSCPPUID }}
+          ENVIRONMENT: ${{ inputs.environment }}
         run: |
+          echo "Active environment=$ENVIRONMENT"
           if [ -z "AZURE_DEVOPS_ARTIFACT_USERNAME" ]; then
             echo "::warning::AZURE_DEVOPS_ARTIFACT_USERNAME is null or not set"
           fi
@@ -173,12 +188,17 @@ jobs:
             -DGITHUB_ACTOR=${{ github.actor }} \
             -DGITHUB_TOKEN=$GITHUB_TOKEN \
             -DAZURE_DEVOPS_ARTIFACT_USERNAME=$AZURE_DEVOPS_ARTIFACT_USERNAME \
-            -DAZURE_DEVOPS_ARTIFACT_TOKEN=$AZURE_DEVOPS_ARTIFACT_TOKEN
+            -DAZURE_DEVOPS_ARTIFACT_TOKEN=$AZURE_DEVOPS_ARTIFACT_TOKEN \
+            -DCASE_MAPPER_SERVICE_URL=$CASE_MAPPER_SERVICE_URL \
+            -DCP_BACKEND_URL=$CP_BACKEND_URL \
+            -DCJSCPPUID=$CJSCPPUID 
 
   Build-Docker:
     needs: [ Provider-Deploy, Build, Artefact-Version ]
     if: ${{ inputs.trigger_docker }}
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v5
@@ -210,6 +230,9 @@ jobs:
           build-args: |
             BASE_IMAGE=openjdk:21-jdk-slim
             JAR_FILENAME=${{ needs.Build.outputs.artefact_name }}.jar
+            CASE_MAPPER_SERVICE_URL=${{ secrets.CASE_MAPPER_SERVICE_URL }}
+            CP_BACKEND_URL=${{ secrets.CP_BACKEND_URL }}
+            CJSCPPUID=${{ secrets.CJSCPPUID }}
 
   Deploy:
     needs: [ Provider-Deploy, Build, Artefact-Version ]
