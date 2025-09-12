@@ -2,7 +2,6 @@
 
 
 # Example Tests
-See JunitLoggingTest.java
 See SpringLoggingIntegrationTest.java
 These tests illustrates the fields that we add to our logging 
 
@@ -31,7 +30,7 @@ Once we work closer with Azure ops teams we expect to implement an spring boot a
 
 
 # Fields
-See logback.xml for master list. Or better still, run the unit test or integration to see the actual logged entries.
+See logback.xml for master list. Or better still, run the unit test or integration test to see the actual logged entries.
 mdc - Logs any objects added to MDC e.g. io.micrometer adds traceId and spanId to MDC. We can add any custom fields to this.
 
 
