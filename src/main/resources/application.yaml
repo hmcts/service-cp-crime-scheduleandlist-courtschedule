@@ -46,4 +46,4 @@ azure:
 
 logging:
   level:
-    uk.gov.hmcts.cp: DEBUG
+    uk.gov.hmcts.cp: INFO
