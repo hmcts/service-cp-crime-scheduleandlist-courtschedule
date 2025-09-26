@@ -26,9 +26,7 @@ public class CourtScheduleService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "caseId is required");
         }
         LOG.atWarn().log("NOTE: System configured to return stubbed Court Schedule details. Ignoring provided caseId : {}", sanitizeString(caseId));
-        final CourtScheduleResponse stubbedCourtScheduleResponse = courtScheduleClient.getCourtScheduleByCaseId(caseId);
-        LOG.atDebug().log("Court Schedule response: {}", stubbedCourtScheduleResponse);
-        return stubbedCourtScheduleResponse;
+        return courtScheduleClient.getCourtScheduleByCaseId(caseId);
     }
 
 }

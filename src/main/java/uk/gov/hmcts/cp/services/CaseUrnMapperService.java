@@ -34,7 +34,7 @@ public class CaseUrnMapperService {
     public String getCaseId(final String caseUrn) {
         try {
             ignoreCertificates();
-            ResponseEntity<CaseMapperResponse> responseEntity = restTemplate.exchange(
+            final ResponseEntity<CaseMapperResponse> responseEntity = restTemplate.exchange(
                     getCaseIdUrl(caseUrn),
                     HttpMethod.GET,
                     getRequestEntity(),
@@ -43,31 +43,24 @@ public class CaseUrnMapperService {
             LOG.atInfo().log(" CaseMapperResponse is : {} and body : {} caseurn : {} ", responseEntity.getStatusCode(), responseEntity.getBody(), caseUrn);
 
             if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
-                CaseMapperResponse body = responseEntity.getBody();
+                final CaseMapperResponse body = responseEntity.getBody();
                 return body.getCaseId();
             }
         } catch (Exception e) {
-            LOG.atError().log("Error while getting case id from case urn", e);
+            LOG.atError().log("Error while getting case id from case urn: {}", caseUrn, e);
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Case not found by urn: " + caseUrn);
     }
 
     public String getCaseMapperServiceUrl() {
-//        if (this.caseMapperServiceUrl != null) {
-//            LOG.info(" caseMapperServiceUrl is : {}", this.caseMapperServiceUrl);
-//            return this.caseMapperServiceUrl;
-//        }
-        LOG.info(" caseMapperServiceUrl is : {}", this.caseMapperServiceUrl);
         return this.caseMapperServiceUrl;
     }
 
     public String getCaseMapperServicePath() {
-        LOG.info(" caseMapperServicePath is : {}", this.caseMapperServicePath);
         return this.caseMapperServicePath;
     }
 
-    private String getCaseIdUrl(String caseUrn) {
-        LOG.atDebug().log("Fetching case id for case urn: {}", caseUrn);
+    private String getCaseIdUrl(final String caseUrn) {
         return UriComponentsBuilder
                 .fromUriString(getCaseMapperServiceUrl())
                 .pathSegment(getCaseMapperServicePath())
@@ -77,7 +70,7 @@ public class CaseUrnMapperService {
     }
 
     private HttpEntity<String> getRequestEntity() {
-        HttpHeaders headers = new HttpHeaders();
+        final HttpHeaders headers = new HttpHeaders();
         headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
         return new HttpEntity<>(headers);
     }

@@ -52,23 +52,19 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
     }
 
     public String getCourtScheduleClientUrl() {
-        LOG.info("courtScheduleClientUrl is : {}", this.courtScheduleClientUrl);
         return this.courtScheduleClientUrl;
     }
 
     public String getCourtScheduleClientPath() {
-        LOG.info("courtScheduleClientPath is : {}", this.courtScheduleClientPath);
         return this.courtScheduleClientPath;
     }
 
     public String getCjscppuid() {
-        LOG.info("cjscppuid is : {}", this.cjscppuid);
         return this.cjscppuid;
     }
 
     public CourtScheduleResponse getCourtScheduleByCaseId(final String caseId) {
         final List<Hearing> hearingList = getHearings(caseId);
-        LOG.info("In function createCourtScheduleResponse Response Body: {} ", hearingList);
         return CourtScheduleResponse.builder()
                 .courtSchedule(List.of(
                                 CourtSchedule.builder()
@@ -137,8 +133,8 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
         return hearings;
     }
 
-    private static CourtSitting getCourtSitting(HearingResponse.HearingResult.HearingDay hearingDay, String judiciaryId) {
-        CourtSitting courtSitting = new CourtSitting();
+    private static CourtSitting getCourtSitting(final HearingResponse.HearingResult.HearingDay hearingDay, final String judiciaryId) {
+        final CourtSitting courtSitting = new CourtSitting();
         courtSitting.setSittingStart(OffsetDateTime.parse(hearingDay.getStartTime()));
         courtSitting.setSittingEnd(OffsetDateTime.parse(hearingDay.getEndTime()));
         courtSitting.setJudiciaryId(judiciaryId);
