@@ -95,7 +95,7 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
                 );
 
                 hearingResult = getHearingData(hearingResponse);
-                LOG.atInfo().log("Response Code: {}, Response Body: {}", response.statusCode(), response.body());
+                LOG.atInfo().log("Response Code: {}", response.statusCode());
             }
         } catch (Exception e) {
             LOG.atError().log("Exception occurred while fetching hearing data: {}", e.getMessage(), e);
