@@ -38,7 +38,6 @@ public class CourtScheduleController implements CourtScheduleApi {
             LOG.atError().log(e.getMessage());
             throw e;
         }
-        LOG.atDebug().log("Found court schedule for caseUrn: {}", sanitizedCaseUrn);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(courtScheduleResponse);
