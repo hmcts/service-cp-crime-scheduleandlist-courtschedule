@@ -47,27 +47,20 @@ public class CaseUrnMapperService {
                 return body.getCaseId();
             }
         } catch (Exception e) {
-            LOG.atError().log("Error while getting case id from case urn", e);
+            LOG.atError().log("Error while getting case id from case urn: {}", caseUrn, e);
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Case not found by urn: " + caseUrn);
     }
 
     public String getCaseMapperServiceUrl() {
-//        if (this.caseMapperServiceUrl != null) {
-//            LOG.info(" caseMapperServiceUrl is : {}", this.caseMapperServiceUrl);
-//            return this.caseMapperServiceUrl;
-//        }
-        LOG.info(" caseMapperServiceUrl is : {}", this.caseMapperServiceUrl);
         return this.caseMapperServiceUrl;
     }
 
     public String getCaseMapperServicePath() {
-        LOG.info(" caseMapperServicePath is : {}", this.caseMapperServicePath);
         return this.caseMapperServicePath;
     }
 
     private String getCaseIdUrl(String caseUrn) {
-        LOG.atDebug().log("Fetching case id for case urn: {}", caseUrn);
         return UriComponentsBuilder
                 .fromUriString(getCaseMapperServiceUrl())
                 .pathSegment(getCaseMapperServicePath())
