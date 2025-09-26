@@ -34,7 +34,7 @@ public class CourtScheduleController implements CourtScheduleApi {
         try {
             sanitizedCaseUrn = sanitizeString(caseUrn);
             LOG.atInfo().log("Received request to get court schedule for caseUrn: {}", sanitizedCaseUrn);
-            String caseId = caseUrnMapperService.getCaseId(sanitizedCaseUrn);
+            final String caseId = caseUrnMapperService.getCaseId(sanitizedCaseUrn);
             courtScheduleResponse = courtScheduleService.getCourtScheduleByCaseId(caseId);
             LOG.atInfo().log("caseUrn : {} -> Court Schedule response: {}", caseUrn, courtScheduleResponse.getCourtSchedule().stream()
                     .flatMap(a -> a.getHearings().stream().map(b -> b.getHearingId())).collect(Collectors.joining(",")));

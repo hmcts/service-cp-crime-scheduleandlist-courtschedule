@@ -34,7 +34,7 @@ public class CaseUrnMapperService {
     public String getCaseId(final String caseUrn) {
         try {
             ignoreCertificates();
-            ResponseEntity<CaseMapperResponse> responseEntity = restTemplate.exchange(
+            final ResponseEntity<CaseMapperResponse> responseEntity = restTemplate.exchange(
                     getCaseIdUrl(caseUrn),
                     HttpMethod.GET,
                     getRequestEntity(),
@@ -43,7 +43,7 @@ public class CaseUrnMapperService {
             LOG.atInfo().log(" CaseMapperResponse is : {} and body : {} caseurn : {} ", responseEntity.getStatusCode(), responseEntity.getBody(), caseUrn);
 
             if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
-                CaseMapperResponse body = responseEntity.getBody();
+                final CaseMapperResponse body = responseEntity.getBody();
                 return body.getCaseId();
             }
         } catch (Exception e) {
@@ -60,7 +60,7 @@ public class CaseUrnMapperService {
         return this.caseMapperServicePath;
     }
 
-    private String getCaseIdUrl(String caseUrn) {
+    private String getCaseIdUrl(final String caseUrn) {
         return UriComponentsBuilder
                 .fromUriString(getCaseMapperServiceUrl())
                 .pathSegment(getCaseMapperServicePath())
@@ -70,7 +70,7 @@ public class CaseUrnMapperService {
     }
 
     private HttpEntity<String> getRequestEntity() {
-        HttpHeaders headers = new HttpHeaders();
+        final HttpHeaders headers = new HttpHeaders();
         headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
         return new HttpEntity<>(headers);
     }

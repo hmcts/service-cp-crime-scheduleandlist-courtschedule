@@ -133,8 +133,8 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
         return hearings;
     }
 
-    private static CourtSitting getCourtSitting(HearingResponse.HearingResult.HearingDay hearingDay, String judiciaryId) {
-        CourtSitting courtSitting = new CourtSitting();
+    private static CourtSitting getCourtSitting(final HearingResponse.HearingResult.HearingDay hearingDay, final String judiciaryId) {
+        final CourtSitting courtSitting = new CourtSitting();
         courtSitting.setSittingStart(OffsetDateTime.parse(hearingDay.getStartTime()));
         courtSitting.setSittingEnd(OffsetDateTime.parse(hearingDay.getEndTime()));
         courtSitting.setJudiciaryId(judiciaryId);
