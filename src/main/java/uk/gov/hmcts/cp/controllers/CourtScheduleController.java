@@ -11,6 +11,8 @@ import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.services.CaseUrnMapperService;
 import uk.gov.hmcts.cp.services.CourtScheduleService;
 
+import java.util.stream.Collectors;
+
 import static uk.gov.hmcts.cp.utils.Utils.sanitizeString;
 
 @RestController
@@ -34,6 +36,8 @@ public class CourtScheduleController implements CourtScheduleApi {
             LOG.atInfo().log("Received request to get court schedule for caseUrn: {}", sanitizedCaseUrn);
             String caseId = caseUrnMapperService.getCaseId(sanitizedCaseUrn);
             courtScheduleResponse = courtScheduleService.getCourtScheduleByCaseId(caseId);
+            LOG.atInfo().log("caseUrn : {} -> Court Schedule response: {}", caseUrn, courtScheduleResponse.getCourtSchedule().stream()
+                    .flatMap(a -> a.getHearings().stream().map(b -> b.getHearingId())).collect(Collectors.joining(",")));
         } catch (ResponseStatusException e) {
             LOG.atError().log(e.getMessage());
             throw e;

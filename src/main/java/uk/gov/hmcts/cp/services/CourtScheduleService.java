@@ -10,8 +10,6 @@ import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.repositories.CourtScheduleClient;
 
-import java.util.stream.Collectors;
-
 import static uk.gov.hmcts.cp.utils.Utils.sanitizeString;
 
 @Service
@@ -29,8 +27,6 @@ public class CourtScheduleService {
         }
         LOG.atWarn().log("NOTE: System configured to return stubbed Court Schedule details. Ignoring provided caseId : {}", sanitizeString(caseId));
         final CourtScheduleResponse courtScheduleResponse = courtScheduleClient.getCourtScheduleByCaseId(caseId);
-        LOG.atInfo().log("Court Schedule response: {}", courtScheduleResponse.getCourtSchedule().stream()
-                .flatMap(a -> a.getHearings().stream().map(b -> b.getHearingId())).collect(Collectors.joining(",")));
         return courtScheduleResponse;
     }
 
