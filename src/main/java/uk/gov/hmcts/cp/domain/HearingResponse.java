@@ -17,16 +17,17 @@ import java.util.List;
 public class HearingResponse implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private List<HearingResult> hearings;
+    private List<HearingSchedule> hearings;
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
-    public static class HearingResult implements Serializable {
+    public static class HearingSchedule implements Serializable {
         private String id;
         private Type type;
+        private boolean allocated;
         private List<Judiciary> judiciary;
         private List<HearingDay> hearingDays;
 

@@ -34,6 +34,7 @@ class CourtScheduleClientImplTest {
             {
               "id": "hearing-1",
               "type": { "description": "First hearing" },
+              "allocated": true,
               "judiciary": [{ "judicialId": "judge-1" }],
               "hearingDays": [
                 {
