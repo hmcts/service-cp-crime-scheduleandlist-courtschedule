@@ -38,7 +38,7 @@ public class HearingResponse implements Serializable {
         @AllArgsConstructor
         @NoArgsConstructor
         @Getter
-        public static class HearingType {
+        public static class HearingType implements Serializable {
             private static final long serialVersionUID = 3L;
 
             private String description;
@@ -49,7 +49,9 @@ public class HearingResponse implements Serializable {
         @AllArgsConstructor
         @NoArgsConstructor
         @Getter
-        public static class Judiciary {
+        public static class Judiciary implements Serializable {
+            private static final long serialVersionUID = 4L;
+
             private String judicialId;
         }
 
@@ -58,7 +60,9 @@ public class HearingResponse implements Serializable {
         @AllArgsConstructor
         @NoArgsConstructor
         @Getter
-        public static class HearingDay {
+        public static class HearingDay implements Serializable {
+            private static final long serialVersionUID = 5L;
+
             private String endTime;
             private int sequence;
             private String startTime;
