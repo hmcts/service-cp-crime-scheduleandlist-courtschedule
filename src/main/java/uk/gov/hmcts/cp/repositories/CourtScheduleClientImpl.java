@@ -85,9 +85,7 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
                     .build();
 
             final HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() != HttpStatus.OK.value()) {
-                LOG.atError().log("Failed to fetch hearing data. HTTP Status: {}", response.statusCode());
-            } else {
+            if (response.statusCode() == HttpStatus.OK.value()){
                 final ObjectMapper objectMapper = new ObjectMapper();
                 final HearingResponse hearingResponse = objectMapper.readValue(
                         response.body(),
@@ -96,6 +94,8 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
 
                 hearingSchedule = getHearingData(hearingResponse);
                 LOG.atInfo().log("Response Code: {}", response.statusCode());
+            } else {
+                LOG.atError().log("Failed to fetch hearing data. HTTP Status: {}", response.statusCode());
             }
         } catch (Exception e) {
             LOG.atError().log("Exception occurred while fetching hearing data: {}", e.getMessage(), e);
