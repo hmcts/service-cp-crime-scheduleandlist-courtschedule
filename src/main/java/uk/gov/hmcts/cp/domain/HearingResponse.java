@@ -25,8 +25,10 @@ public class HearingResponse implements Serializable {
     @NoArgsConstructor
     @Getter
     public static class HearingSchedule implements Serializable {
+        private static final long serialVersionUID = 2L;
+
         private String id;
-        private Type type;
+        private HearingType type;
         private boolean allocated;
         private List<Judiciary> judiciary;
         private List<HearingDay> hearingDays;
@@ -36,7 +38,9 @@ public class HearingResponse implements Serializable {
         @AllArgsConstructor
         @NoArgsConstructor
         @Getter
-        public static class Type {
+        public static class HearingType {
+            private static final long serialVersionUID = 3L;
+
             private String description;
         }
 
