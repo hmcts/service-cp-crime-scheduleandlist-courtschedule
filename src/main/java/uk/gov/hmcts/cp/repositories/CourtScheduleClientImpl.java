@@ -75,7 +75,7 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
     }
 
     private List<Hearing> getHearings(final String caseId) {
-        List<Hearing> hearingResult = Collections.emptyList();
+        List<Hearing> hearingSchedule = Collections.emptyList();
         try {
             final HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(buildUrl(caseId)))
@@ -85,22 +85,22 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
                     .build();
 
             final HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() != HttpStatus.OK.value()) {
-                LOG.atError().log("Failed to fetch hearing data. HTTP Status: {}", response.statusCode());
-            } else {
+            if (response.statusCode() == HttpStatus.OK.value()){
                 final ObjectMapper objectMapper = new ObjectMapper();
                 final HearingResponse hearingResponse = objectMapper.readValue(
                         response.body(),
                         HearingResponse.class
                 );
 
-                hearingResult = getHearingData(hearingResponse);
+                hearingSchedule = getHearingData(hearingResponse);
                 LOG.atInfo().log("Response Code: {}", response.statusCode());
+            } else {
+                LOG.atError().log("Failed to fetch hearing data. HTTP Status: {}", response.statusCode());
             }
         } catch (Exception e) {
             LOG.atError().log("Exception occurred while fetching hearing data: {}", e.getMessage(), e);
         }
-        return hearingResult;
+        return hearingSchedule;
     }
 
 
@@ -114,7 +114,7 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
 
     private List<Hearing> getHearingData(final HearingResponse hearingResponse)  {
         final List<Hearing> hearings = new ArrayList<>();
-        hearingResponse.getHearings().forEach( hr -> {
+        hearingResponse.getHearings().stream().filter(HearingResponse.HearingSchedule::isAllocated).forEach(hr -> {
             final Hearing hearing = new Hearing();
             hearing.setHearingId(hr.getId());
             hearing.setHearingType(hr.getType().getDescription());
@@ -123,7 +123,7 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
             final List<CourtSitting> courtSittings = new ArrayList<>();
             final String judiciaryId = hr.getJudiciary().stream().map(a -> a.getJudicialId()).collect(Collectors.joining(","));
 
-            for (final HearingResponse.HearingResult.HearingDay hearingDay : hr.getHearingDays()) {
+            for (final HearingResponse.HearingSchedule.HearingDay hearingDay : hr.getHearingDays()) {
                 final CourtSitting courtSitting = getCourtSitting(hearingDay, judiciaryId);
                 courtSittings.add(courtSitting);
             }
@@ -133,7 +133,7 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
         return hearings;
     }
 
-    private static CourtSitting getCourtSitting(final HearingResponse.HearingResult.HearingDay hearingDay, final String judiciaryId) {
+    private static CourtSitting getCourtSitting(final HearingResponse.HearingSchedule.HearingDay hearingDay, final String judiciaryId) {
         final CourtSitting courtSitting = new CourtSitting();
         courtSitting.setSittingStart(OffsetDateTime.parse(hearingDay.getStartTime()));
         courtSitting.setSittingEnd(OffsetDateTime.parse(hearingDay.getEndTime()));
