@@ -1,5 +1,6 @@
 package uk.gov.hmcts.cp.filters.tracing;
 
+import io.micrometer.tracing.Tracer;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
