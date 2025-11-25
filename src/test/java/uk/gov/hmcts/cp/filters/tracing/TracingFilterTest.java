@@ -28,8 +28,10 @@ class TracingFilterTest {
     private HttpServletResponse response;
     @Mock
     private FilterChain filterChain;
+    @Mock
+    private Tracer tracer;
 
-    TracingFilter tracingFilter = new TracingFilter("myAppName");
+    TracingFilter tracingFilter = new TracingFilter("myAppName", tracer);
 
     @Test
     void filter_should_use_incoming_traceId() throws ServletException, IOException {
