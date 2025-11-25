@@ -3,7 +3,7 @@
          xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0
-         https://pmd.github.io/pmd-7.0.0/pmd-7.0.0.xsd">
+         https://pmd.github.io/pmd-7.17.0/pmd-7.17.0.xsd">
 
     <description>Custom ruleset including exclusions</description>
 
@@ -11,6 +11,17 @@
     <rule ref="category/java/codestyle.xml">
         <exclude name="AtLeastOneConstructor"/>
         <exclude name="LongVariable"/>
+    </rule>
+    <rule ref="category/java/codestyle.xml/ShortVariable">
+        <properties>
+            <property name="xpath">
+                <value>
+                    //VariableDeclaratorId[(string-length(@Image) &lt; 3) and (not (@Image='id'))]
+                    [not(ancestor::ForInit)]
+                    [not((ancestor::FormalParameter) and (ancestor::TryStatement))]
+                </value>
+            </property>
+        </properties>
     </rule>
     <rule ref="category/java/errorprone.xml"/>
     <rule ref="category/java/performance.xml"/>

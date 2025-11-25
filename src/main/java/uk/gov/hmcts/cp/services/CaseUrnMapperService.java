@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -46,7 +47,7 @@ public class CaseUrnMapperService {
                 final CaseMapperResponse body = responseEntity.getBody();
                 return body.getCaseId();
             }
-        } catch (Exception e) {
+        } catch (RestClientException e) {
             LOG.atError().log("Error while getting case id from case urn: {}", caseUrn, e);
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Case not found by urn: " + caseUrn);

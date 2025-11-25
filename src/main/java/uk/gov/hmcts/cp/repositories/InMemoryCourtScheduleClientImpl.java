@@ -24,6 +24,7 @@ public class InMemoryCourtScheduleClientImpl implements CourtScheduleClient {
         courtScheduleResponseMap.put(caseUrn, courtScheduleResponse);
     }
 
+    @Override
     public CourtScheduleResponse getCourtScheduleByCaseId(final String caseId) {
         if (!courtScheduleResponseMap.containsKey(caseId)) {
             saveCourtSchedule(caseId, createCourtScheduleResponse());
