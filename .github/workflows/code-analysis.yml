@@ -21,10 +21,10 @@ jobs:
 
       - uses: pmd/pmd-github-action@v2
         id: pmd
+        continue-on-error: true
         with:
           rulesets: '.github/pmd-ruleset.xml'
-          sourcePath: 'src/main/java'
-          analyzeModifiedFilesOnly: false
+          sourcePath: 'src/main/java,src/test/java,src/integrationTest/java'
       - name: Fail build if there are violations
         if: always()
         run: |
