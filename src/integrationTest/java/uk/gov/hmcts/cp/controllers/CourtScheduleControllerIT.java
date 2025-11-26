@@ -29,7 +29,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@ActiveProfiles("pact-test")
 @Import(IntegrationTestConfig.class)
 @TestPropertySource(properties = {
         "service.case-mapper-service.url=https://CASE-MAPPER.org.uk",

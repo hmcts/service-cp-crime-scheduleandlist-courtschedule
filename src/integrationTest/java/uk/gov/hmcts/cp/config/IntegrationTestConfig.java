@@ -12,8 +12,8 @@ import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.client.RestTemplate;
@@ -25,7 +25,7 @@ import uk.gov.hmcts.cp.services.CourtScheduleService;
 
 import java.util.UUID;
 
-@Configuration
+@TestConfiguration
 public class IntegrationTestConfig {
     @Bean("courtScheduleService")
     public CourtScheduleService courtScheduleService() {
