@@ -1,6 +1,5 @@
 package uk.gov.hmcts.cp.repositories;
 
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
@@ -16,7 +15,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component("inMemoryCourtScheduleClientImpl")
-@Profile("pact-test")
 public class InMemoryCourtScheduleClientImpl implements CourtScheduleClient {
     private final Map<String, CourtScheduleResponse> courtScheduleResponseMap = new ConcurrentHashMap<>();
 
@@ -24,15 +22,12 @@ public class InMemoryCourtScheduleClientImpl implements CourtScheduleClient {
         courtScheduleResponseMap.put(caseUrn, courtScheduleResponse);
     }
 
+    @Override
     public CourtScheduleResponse getCourtScheduleByCaseId(final String caseId) {
         if (!courtScheduleResponseMap.containsKey(caseId)) {
             saveCourtSchedule(caseId, createCourtScheduleResponse());
         }
         return courtScheduleResponseMap.get(caseId);
-    }
-
-    public void clearAll() {
-        courtScheduleResponseMap.clear();
     }
 
     private CourtScheduleResponse createCourtScheduleResponse() {

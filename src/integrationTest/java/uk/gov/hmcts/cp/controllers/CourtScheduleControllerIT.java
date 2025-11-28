@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -16,7 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import uk.gov.hmcts.cp.config.TestConfig;
+import uk.gov.hmcts.cp.config.IntegrationTestConfig;
 import uk.gov.hmcts.cp.repositories.CourtScheduleClient;
 import uk.gov.hmcts.cp.services.CaseUrnMapperService;
 
@@ -29,14 +28,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest
-@AutoConfigureMockMvc
-@ActiveProfiles("pact-test")
-@Import(TestConfig.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@Import(IntegrationTestConfig.class)
 @TestPropertySource(properties = {
         "service.case-mapper-service.url=https://CASE-MAPPER.org.uk",
         "service.court-schedule-client.url=https://COURT-SCHEDULE.org.uk",
-        "service.court-schedule-client.cjscppuid=MOCK-CJSCPPUID"
+        "service.court-schedule-client.cjscppuid=MOCK-CJSCPPUID",
+        "management.tracing.enabled=true"
 })
 class CourtScheduleControllerIT {
     private static final Logger log = LoggerFactory.getLogger(CourtScheduleControllerIT.class);

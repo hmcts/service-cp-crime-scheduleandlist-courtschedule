@@ -4,11 +4,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.gov.hmcts.cp.config.IntegrationTestConfig;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -18,13 +19,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest
-@AutoConfigureMockMvc
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @TestPropertySource(properties = {
         "service.case-mapper-service.url=https://CASE-MAPPER.org.uk",
         "service.court-schedule-client.url=https://COURT-SCHEDULE.org.uk",
-        "service.court-schedule-client.cjscppuid=MOCK-CJSCPPUID"
+        "service.court-schedule-client.cjscppuid=MOCK-CJSCPPUID",
+        "management.tracing.enabled=true"
 })
+@Import(IntegrationTestConfig.class)
 class RootControllerIntegrationIT {
 
     @Autowired

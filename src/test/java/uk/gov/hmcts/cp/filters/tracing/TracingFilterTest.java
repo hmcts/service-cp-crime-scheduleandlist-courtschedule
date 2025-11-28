@@ -1,5 +1,6 @@
 package uk.gov.hmcts.cp.filters.tracing;
 
+import io.micrometer.tracing.Tracer;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,8 +28,10 @@ class TracingFilterTest {
     private HttpServletResponse response;
     @Mock
     private FilterChain filterChain;
+    @Mock
+    private Tracer tracer;
 
-    TracingFilter tracingFilter = new TracingFilter("myAppName");
+    TracingFilter tracingFilter = new TracingFilter("myAppName", tracer);
 
     @Test
     void filter_should_use_incoming_traceId() throws ServletException, IOException {

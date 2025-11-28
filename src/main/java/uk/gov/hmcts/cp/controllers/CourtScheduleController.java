@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.cp.openapi.api.CourtScheduleApi;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
+import uk.gov.hmcts.cp.openapi.model.Hearing;
 import uk.gov.hmcts.cp.services.CaseUrnMapperService;
 import uk.gov.hmcts.cp.services.CourtScheduleService;
 
@@ -37,7 +38,7 @@ public class CourtScheduleController implements CourtScheduleApi {
             final String caseId = caseUrnMapperService.getCaseId(sanitizedCaseUrn);
             courtScheduleResponse = courtScheduleService.getCourtScheduleByCaseId(caseId);
             LOG.atInfo().log("caseUrn : {} -> Court Schedule Hearing Ids : {}", caseUrn, courtScheduleResponse.getCourtSchedule().stream()
-                    .flatMap(a -> a.getHearings().stream().map(b -> b.getHearingId())).collect(Collectors.joining(",")));
+                    .flatMap(a -> a.getHearings().stream().map(Hearing::getHearingId)).collect(Collectors.joining(",")));
         } catch (ResponseStatusException e) {
             LOG.atError().log(e.getMessage());
             throw e;
