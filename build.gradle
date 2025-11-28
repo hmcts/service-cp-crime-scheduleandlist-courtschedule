@@ -5,8 +5,9 @@ plugins {
     id 'org.springframework.boot' version '4.0.0'
     id 'jacoco'
     id 'maven-publish'
-    id "com.github.ben-manes.versions" version "0.52.0"
-    id "org.cyclonedx.bom" version "2.3.1"
+    id 'com.github.ben-manes.versions' version '0.52.0'
+    id 'org.cyclonedx.bom' version '2.3.1'
+    id 'com.gorylenko.gradle-git-properties' version '2.5.4'
 }
 
 group = 'uk.gov.hmcts.cp'
@@ -100,6 +101,8 @@ tasks.register('integration', Test) {
 tasks.named('build') {
     dependsOn tasks.named('test')
     dependsOn tasks.named('integration')
+    dependsOn 'bootBuildInfo'
+    dependsOn 'generateGitProperties'
 }
 
 tasks.named('jacocoTestReport') {
@@ -190,10 +193,24 @@ bootJar {
     manifest {
         attributes('Implementation-Version': project.version.toString())
     }
+    
+    // Ensure build info is generated before creating the JAR
+    dependsOn 'bootBuildInfo'
 }
 
 application {
     mainClass = 'uk.gov.hmcts.cp.Application'
+}
+
+// Configure Spring Boot build info generation
+springBoot {
+    buildInfo()
+}
+
+// Configure git properties plugin
+gitProperties {
+    failOnNoGitDirectory = false
+    keys = ['git.branch', 'git.commit.id', 'git.commit.time']
 }
 
 ext {
@@ -214,6 +231,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-aop:3.5.8'
     implementation 'org.springframework.boot:spring-boot-starter-json'
 
+    // micrometer
     implementation platform('io.micrometer:micrometer-tracing-bom:latest.release')
     implementation 'io.micrometer:micrometer-tracing'
     implementation 'io.micrometer:micrometer-tracing-bridge-otel'
