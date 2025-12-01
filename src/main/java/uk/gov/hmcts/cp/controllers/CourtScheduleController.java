@@ -1,7 +1,7 @@
 package uk.gov.hmcts.cp.controllers;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 import static uk.gov.hmcts.cp.utils.Utils.sanitizeString;
 
 @RestController
+@Slf4j
 public class CourtScheduleController implements CourtScheduleApi {
-    private static final Logger LOG = LoggerFactory.getLogger(CourtScheduleController.class);
     private final CourtScheduleService courtScheduleService;
     private final CaseUrnMapperService caseUrnMapperService;
 
@@ -29,18 +29,19 @@ public class CourtScheduleController implements CourtScheduleApi {
     }
 
     @Override
+    @NonNull
     public ResponseEntity<CourtScheduleResponse> getCourtScheduleByCaseUrn(final String caseUrn) {
         final String sanitizedCaseUrn;
         final CourtScheduleResponse courtScheduleResponse;
         try {
             sanitizedCaseUrn = sanitizeString(caseUrn);
-            LOG.atInfo().log("Received request to get court schedule for caseUrn: {}", sanitizedCaseUrn);
+            log.info("Received request to get court schedule for caseUrn: {}", sanitizedCaseUrn);
             final String caseId = caseUrnMapperService.getCaseId(sanitizedCaseUrn);
             courtScheduleResponse = courtScheduleService.getCourtScheduleByCaseId(caseId);
-            LOG.atInfo().log("caseUrn : {} -> Court Schedule Hearing Ids : {}", caseUrn, courtScheduleResponse.getCourtSchedule().stream()
+            log.info("caseUrn : {} -> Court Schedule Hearing Ids : {}", caseUrn, courtScheduleResponse.getCourtSchedule().stream()
                     .flatMap(a -> a.getHearings().stream().map(Hearing::getHearingId)).collect(Collectors.joining(",")));
         } catch (ResponseStatusException e) {
-            LOG.atError().log(e.getMessage());
+            log.error(e.getMessage());
             throw e;
         }
         return ResponseEntity.ok()

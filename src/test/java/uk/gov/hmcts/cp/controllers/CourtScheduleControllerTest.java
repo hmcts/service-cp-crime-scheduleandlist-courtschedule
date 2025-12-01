@@ -1,17 +1,13 @@
 package uk.gov.hmcts.cp.controllers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
-import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
-import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
-import uk.gov.hmcts.cp.openapi.model.CourtSitting;
-import uk.gov.hmcts.cp.openapi.model.Hearing;
+import uk.gov.hmcts.cp.openapi.model.*;
 import uk.gov.hmcts.cp.repositories.InMemoryCourtScheduleClientImpl;
 import uk.gov.hmcts.cp.services.CaseUrnMapperService;
 import uk.gov.hmcts.cp.services.CourtScheduleService;
@@ -19,14 +15,10 @@ import uk.gov.hmcts.cp.services.CourtScheduleService;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
+@Slf4j
 class CourtScheduleControllerTest {
-
-    private static final Logger log = LoggerFactory.getLogger(CourtScheduleControllerTest.class);
 
     private CourtScheduleController courtScheduleController;
 
@@ -60,11 +52,11 @@ class CourtScheduleControllerTest {
         assertNotNull(responseBody.getCourtSchedule());
         assertEquals(1, responseBody.getCourtSchedule().size());
 
-        CourtSchedule courtSchedule = responseBody.getCourtSchedule().get(0);
+        CourtSchedule courtSchedule = responseBody.getCourtSchedule().getFirst();
         assertNotNull(courtSchedule.getHearings());
         assertEquals(1, courtSchedule.getHearings().size());
 
-        Hearing hearing = courtSchedule.getHearings().get(0);
+        Hearing hearing = courtSchedule.getHearings().getFirst();
         assertNotNull(hearing.getHearingId());
         assertEquals("Requires interpreter", hearing.getListNote());
         assertEquals("Sentencing for theft case", hearing.getHearingDescription());
@@ -73,7 +65,7 @@ class CourtScheduleControllerTest {
         assertEquals(1, hearing.getCourtSittings().size());
 
         CourtSitting courtSitting =
-                hearing.getCourtSittings().get(0);
+                hearing.getCourtSittings().getFirst();
         assertEquals("Central Criminal Court", courtSitting.getCourtHouse());
         assertNotNull(courtSitting.getSittingStart());
         assertTrue(courtSitting.getSittingEnd().isAfter(courtSitting.getSittingStart()));
