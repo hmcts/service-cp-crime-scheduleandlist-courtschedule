@@ -31,21 +31,19 @@ public class CourtScheduleController implements CourtScheduleApi {
     @Override
     @NonNull
     public ResponseEntity<CourtScheduleResponse> getCourtScheduleByCaseUrn(final String caseUrn) {
-        final String sanitizedCaseUrn;
-        final CourtScheduleResponse courtScheduleResponse;
         try {
-            sanitizedCaseUrn = sanitizeString(caseUrn);
+            final String sanitizedCaseUrn = sanitizeString(caseUrn);
             log.info("Received request to get court schedule for caseUrn: {}", sanitizedCaseUrn);
             final String caseId = caseUrnMapperService.getCaseId(sanitizedCaseUrn);
-            courtScheduleResponse = courtScheduleService.getCourtScheduleByCaseId(caseId);
-            log.info("caseUrn : {} -> Court Schedule Hearing Ids : {}", caseUrn, courtScheduleResponse.getCourtSchedule().stream()
+            final CourtScheduleResponse courtScheduleResponse = courtScheduleService.getCourtScheduleByCaseId(caseId);
+            log.debug("caseUrn : {} -> Court Schedule Hearing Ids : {}", sanitizedCaseUrn, courtScheduleResponse.getCourtSchedule().stream()
                     .flatMap(a -> a.getHearings().stream().map(Hearing::getHearingId)).collect(Collectors.joining(",")));
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(courtScheduleResponse);
         } catch (ResponseStatusException e) {
             log.error(e.getMessage());
             throw e;
         }
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(courtScheduleResponse);
     }
 }

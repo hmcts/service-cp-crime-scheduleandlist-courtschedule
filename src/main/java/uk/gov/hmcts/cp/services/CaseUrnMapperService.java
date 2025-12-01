@@ -14,6 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.cp.domain.CaseMapperResponse;
 
 import static uk.gov.hmcts.cp.utils.Utils.ignoreCertificates;
+import static uk.gov.hmcts.cp.utils.Utils.sanitizeString;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +32,7 @@ public class CaseUrnMapperService {
 
 
     public String getCaseId(final String caseUrn) {
+        final String sanitizedCaseUrn = sanitizeString(caseUrn);
         try {
             ignoreCertificates();
             final ResponseEntity<CaseMapperResponse> responseEntity = restTemplate.exchange(
@@ -39,14 +41,14 @@ public class CaseUrnMapperService {
                     getRequestEntity(),
                     CaseMapperResponse.class
             );
-            log.info(" CaseMapperResponse is : {} and body : {} caseurn : {} ", responseEntity.getStatusCode(), responseEntity.getBody(), caseUrn);
+            log.debug(" CaseMapperResponse is : {} and body : {} caseurn : {} ", responseEntity.getStatusCode(), responseEntity.getBody(), sanitizedCaseUrn);
 
             if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
                 final CaseMapperResponse body = responseEntity.getBody();
                 return body.getCaseId();
             }
         } catch (RestClientException e) {
-            log.error("Error while getting case id from case urn: {}", caseUrn, e);
+            log.error("Error while getting case id from case urn: {}", sanitizedCaseUrn, e);
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Case not found by urn: " + caseUrn);
     }
