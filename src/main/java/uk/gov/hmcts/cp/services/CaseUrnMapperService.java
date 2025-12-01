@@ -41,7 +41,10 @@ public class CaseUrnMapperService {
                     getRequestEntity(),
                     CaseMapperResponse.class
             );
-            log.debug(" CaseMapperResponse is : {} and body : {} caseurn : {} ", responseEntity.getStatusCode(), responseEntity.getBody(), sanitizedCaseUrn);
+            log.debug(" CaseMapperResponse is : {} and body : {} caseurn : {} ",
+                    responseEntity.getStatusCode(),
+                    sanitizeString(responseEntity.getBody().toString()),
+                    sanitizedCaseUrn);
 
             if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
                 final CaseMapperResponse body = responseEntity.getBody();
