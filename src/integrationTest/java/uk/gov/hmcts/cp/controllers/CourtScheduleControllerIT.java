@@ -2,16 +2,14 @@ package uk.gov.hmcts.cp.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -36,9 +34,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "service.court-schedule-client.cjscppuid=MOCK-CJSCPPUID",
         "management.tracing.enabled=true"
 })
+@Slf4j
 class CourtScheduleControllerIT {
-    private static final Logger log = LoggerFactory.getLogger(CourtScheduleControllerIT.class);
-
     @Autowired
     private MockMvc mockMvc;
 

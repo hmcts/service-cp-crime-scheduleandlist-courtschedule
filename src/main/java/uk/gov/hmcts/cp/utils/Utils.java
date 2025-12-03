@@ -1,22 +1,17 @@
 package uk.gov.hmcts.cp.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.*;
 import java.net.http.HttpClient;
 import java.security.*;
 import java.security.cert.X509Certificate;
 
+@Slf4j
 public class Utils {
-    private static final Logger LOG = LoggerFactory.getLogger(Utils.class);
-
     public static String sanitizeString(final String urn) {
         if (urn == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "caseUrn is required");
@@ -45,7 +40,7 @@ public class Utils {
             sslContext.init(null, trustAllCerts, new SecureRandom());
             HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
         } catch (GeneralSecurityException e) {
-            LOG.error("Error while ignoring SSL certificate", e);
+            log.error("Error while ignoring SSL certificate", e);
         }
     }
 
