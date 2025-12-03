@@ -1,0 +1,8 @@
+springBoot {
+  buildInfo {
+    properties {
+      name = project.name
+      version = project.version.toString()
+    }
+  }
+}

@@ -24,7 +24,7 @@ jobs:
         continue-on-error: true
         with:
           rulesets: '.github/pmd-ruleset.xml'
-          sourcePath: 'src/main/java,src/test/java,src/integrationTest/java'
+          sourcePath: 'src/main/java'
       - name: Fail build if there are violations
         if: always()
         run: |

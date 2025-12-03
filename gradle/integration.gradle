@@ -1,0 +1,51 @@
+tasks.register('integration', Test) {
+  description = "Runs integration tests against docker-compose stack"
+  group = "Verification"
+
+  mustRunAfter tasks.named('test')
+
+  testClassesDirs = sourceSets.integrationTest.output.classesDirs
+  classpath       = sourceSets.integrationTest.runtimeClasspath
+  useJUnitPlatform()
+
+  jvmArgs = ['-Xshare:off']
+  testLogging {
+    events "passed", "skipped", "failed"
+    exceptionFormat = 'full'
+    showStandardStreams = true
+  }
+}
+
+tasks.named('check') {
+  dependsOn tasks.named('integration')
+}
+
+tasks.named('build') {
+  dependsOn tasks.named('test')
+  dependsOn tasks.named('integration')
+}
+
+sourceSets {
+  integrationTest {
+    java {
+      compileClasspath += sourceSets.main.output
+      runtimeClasspath += sourceSets.main.output
+
+    }
+    resources {
+        srcDir file('src/integrationTest/resources')
+        srcDir file('src/test/resources')
+        srcDir file('src/main/resources')
+    }
+  }
+}
+
+configurations {
+  integrationTestImplementation.extendsFrom testImplementation
+  integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+
+  // Ensure testRuntimeClasspath can be resolved for agent injection
+  testRuntimeClasspath {
+    canBeResolved = true
+  }
+}
