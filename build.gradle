@@ -8,6 +8,7 @@ plugins {
     id 'com.github.ben-manes.versions' version '0.52.0'
     id "org.cyclonedx.bom" version "3.1.0"
     id "au.com.dius.pact" version "4.6.18"
+    id 'com.gorylenko.gradle-git-properties' version '2.5.4'
 }
 
 group = 'uk.gov.hmcts.cp'
@@ -31,14 +32,9 @@ tasks.named('build') {
     dependsOn 'generateGitProperties'
 }
 
-//Creation of Software Bill of Materials
-//https://github.com/CycloneDX/cyclonedx-gradle-plugin
 cyclonedxBom {
-    includeConfigs = ["runtimeClasspath"]
-    skipConfigs = ["compileClasspath", "testImplementation"]
-    schemaVersion = "1.6"
-    componentVersion = providers.provider { project.version.toString() }
-    destination = file("$buildDir/reports")
+    schemaVersion = org.cyclonedx.Version.VERSION_16
+    componentVersion = project.version.toString()
 }
 
 application {
