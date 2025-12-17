@@ -22,7 +22,7 @@ public class CourtScheduleService {
             log.warn("No case Id provided");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "caseId is required");
         }
-        log.warn("NOTE: System configured to return stubbed Court Schedule details. Ignoring provided caseId : {}", Encode.forJava(caseId););
+        log.warn("NOTE: System configured to return stubbed Court Schedule details. Ignoring provided caseId : {}", Encode.forJava(caseId));
         return courtScheduleClient.getCourtScheduleByCaseId(caseId);
     }
 
