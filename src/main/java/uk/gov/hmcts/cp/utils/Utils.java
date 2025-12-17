@@ -6,11 +6,6 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.net.ssl.*;
-import java.net.http.HttpClient;
-import java.security.*;
-import java.security.cert.X509Certificate;
-
 @Slf4j
 @UtilityClass
 public class Utils {
