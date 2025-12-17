@@ -18,8 +18,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.apache.commons.text.StringEscapeUtils;
 
-import static uk.gov.hmcts.cp.utils.Utils.sanitizeString;
+
 
 
 @Service
@@ -38,7 +39,7 @@ public class CaseUrnMapperService {
 
 
     public String getCaseId(final String caseUrn) {
-        final String sanitizedCaseUrn = sanitizeString(caseUrn);
+        final String sanitizedCaseUrn = StringEscapeUtils.escapeHtml4(caseUrn);
         try {
             final ResponseEntity<CaseMapperResponse> responseEntity = restTemplate.exchange(
                     getCaseIdUrl(caseUrn),
@@ -48,7 +49,7 @@ public class CaseUrnMapperService {
             );
             log.debug(" CaseMapperResponse is : {} and body : {} caseurn : {} ",
                     responseEntity.getStatusCode(),
-                    sanitizeString(responseEntity.getBody().toString()),
+                    StringEscapeUtils.escapeHtml4(responseEntity.getBody().toString()),
                     sanitizedCaseUrn);
 
             if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {

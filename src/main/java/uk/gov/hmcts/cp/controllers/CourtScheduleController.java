@@ -13,8 +13,9 @@ import uk.gov.hmcts.cp.services.CaseUrnMapperService;
 import uk.gov.hmcts.cp.services.CourtScheduleService;
 
 import java.util.stream.Collectors;
+import org.apache.commons.text.StringEscapeUtils;
+import org.springframework.http.HttpStatus;
 
-import static uk.gov.hmcts.cp.utils.Utils.sanitizeString;
 
 @RestController
 @Slf4j
@@ -31,8 +32,11 @@ public class CourtScheduleController implements CourtScheduleApi {
     @Override
     @NonNull
     public ResponseEntity<CourtScheduleResponse> getCourtScheduleByCaseUrn(final String caseUrn) {
+        if (caseUrn == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "caseUrn is required");
+        }
         try {
-            final String sanitizedCaseUrn = sanitizeString(caseUrn);
+            final String sanitizedCaseUrn = StringEscapeUtils.escapeHtml4(caseUrn);
             log.info("Received request to get court schedule for caseUrn: {}", sanitizedCaseUrn);
             final String caseId = caseUrnMapperService.getCaseId(sanitizedCaseUrn);
             final CourtScheduleResponse courtScheduleResponse = courtScheduleService.getCourtScheduleByCaseId(caseId);
