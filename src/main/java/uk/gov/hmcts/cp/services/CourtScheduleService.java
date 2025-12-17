@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.repositories.CourtScheduleClient;
+import org.owasp.encoder.Encode;
 
 
 @Service
@@ -21,7 +22,7 @@ public class CourtScheduleService {
             log.warn("No case Id provided");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "caseId is required");
         }
-        log.warn("NOTE: System configured to return stubbed Court Schedule details. Ignoring provided caseId : {}", StringEscapeUtils.escapeHtml4(caseId));
+        log.warn("NOTE: System configured to return stubbed Court Schedule details. Ignoring provided caseId : {}", Encode.forJava(caseId););
         return courtScheduleClient.getCourtScheduleByCaseId(caseId);
     }
 
