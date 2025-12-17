@@ -18,7 +18,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
-
+import org.owasp.encoder.Encode;
 
 
 
@@ -38,7 +38,7 @@ public class CaseUrnMapperService {
 
 
     public String getCaseId(final String caseUrn) {
-        final String sanitizedCaseUrn = StringEscapeUtils.escapeHtml4(caseUrn);
+        final String sanitizedCaseUrn = Encode.forJava(caseUrn);
         try {
             final ResponseEntity<CaseMapperResponse> responseEntity = restTemplate.exchange(
                     getCaseIdUrl(caseUrn),
@@ -48,7 +48,7 @@ public class CaseUrnMapperService {
             );
             log.debug(" CaseMapperResponse is : {} and body : {} caseurn : {} ",
                     responseEntity.getStatusCode(),
-                    StringEscapeUtils.escapeHtml4(responseEntity.getBody().toString()),
+                    Encode.forJava(responseEntity.getBody().toString()),
                     sanitizedCaseUrn);
 
             if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {
