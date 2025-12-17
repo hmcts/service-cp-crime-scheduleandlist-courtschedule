@@ -12,9 +12,10 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.cp.domain.CaseMapperResponse;
+import uk.gov.hmcts.cp.utils.Utils;
 
-import static uk.gov.hmcts.cp.utils.Utils.ignoreCertificates;
 import static uk.gov.hmcts.cp.utils.Utils.sanitizeString;
+
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +35,6 @@ public class CaseUrnMapperService {
     public String getCaseId(final String caseUrn) {
         final String sanitizedCaseUrn = sanitizeString(caseUrn);
         try {
-            ignoreCertificates();
             final ResponseEntity<CaseMapperResponse> responseEntity = restTemplate.exchange(
                     getCaseIdUrl(caseUrn),
                     HttpMethod.GET,

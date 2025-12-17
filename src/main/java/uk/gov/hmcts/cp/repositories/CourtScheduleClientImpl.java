@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static uk.gov.hmcts.cp.utils.Utils.getHttpClient;
 
 @Component
 @Primary
@@ -48,9 +47,6 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
     @Value("${service.court-schedule-client.cjscppuid}")
     private String cjscppuid;
 
-    public CourtScheduleClientImpl() throws NoSuchAlgorithmException, KeyManagementException {
-        this.httpClient = getHttpClient();
-    }
 
     @Override
     public CourtScheduleResponse getCourtScheduleByCaseId(final String caseId) {
