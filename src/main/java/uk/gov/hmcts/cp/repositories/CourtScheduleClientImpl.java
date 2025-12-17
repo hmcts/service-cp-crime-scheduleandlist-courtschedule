@@ -1,5 +1,4 @@
 package uk.gov.hmcts.cp.repositories;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +10,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.cp.domain.HearingResponse;
 import uk.gov.hmcts.cp.domain.HearingResponse.HearingSchedule.Judiciary;
-import uk.gov.hmcts.cp.openapi.model.*;
+
+import uk.gov.hmcts.cp.openapi.model.Hearing;
+import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
+import uk.gov.hmcts.cp.openapi.model.CourtSitting;
+import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
 
 import java.io.IOException;
 import java.net.URI;
@@ -19,15 +22,14 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static uk.gov.hmcts.cp.utils.Utils.getHttpClient;
+
+
 
 @Component
 @Primary
@@ -48,9 +50,6 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
     @Value("${service.court-schedule-client.cjscppuid}")
     private String cjscppuid;
 
-    public CourtScheduleClientImpl() throws NoSuchAlgorithmException, KeyManagementException {
-        this.httpClient = getHttpClient();
-    }
 
     @Override
     public CourtScheduleResponse getCourtScheduleByCaseId(final String caseId) {
