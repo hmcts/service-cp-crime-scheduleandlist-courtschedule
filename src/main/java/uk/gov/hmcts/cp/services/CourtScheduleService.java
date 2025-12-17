@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.repositories.CourtScheduleClient;
-import org.apache.commons.text.StringEscapeUtils;
 
 
 @Service
