@@ -48,7 +48,7 @@ gitProperties {
 }
 
 ext {
-    apiCourtScheduleVersion = "0.4.8"
+    apiCourtScheduleVersion = "1.0.2"
     log4JVersion = "2.24.3"
     logbackVersion = "1.5.18"
     lombokVersion = "1.18.38"
