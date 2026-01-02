@@ -6,8 +6,7 @@ import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.openapi.model.CourtSitting;
 import uk.gov.hmcts.cp.openapi.model.Hearing;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
@@ -16,9 +15,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component("inMemoryCourtScheduleClientImpl")
 public class InMemoryCourtScheduleClientImpl implements CourtScheduleClient {
-    private final Map<String, CourtScheduleResponse> courtScheduleResponseMap = new ConcurrentHashMap<>();
 
-    public void saveCourtSchedule(final String caseUrn, final CourtScheduleResponse courtScheduleResponse) {
+    private final Map<String, CourtScheduleResponse> courtScheduleResponseMap =
+            new ConcurrentHashMap<>();
+
+    public void saveCourtSchedule(final String caseUrn,
+                                  final CourtScheduleResponse courtScheduleResponse) {
         courtScheduleResponseMap.put(caseUrn, courtScheduleResponse);
     }
 
@@ -31,8 +33,9 @@ public class InMemoryCourtScheduleClientImpl implements CourtScheduleClient {
     }
 
     private CourtScheduleResponse createCourtScheduleResponse() {
-        final OffsetDateTime sittingStartTime = OffsetDateTime.now(ZoneOffset.UTC)
+        final Instant sittingStartTime = Instant.now()
                 .truncatedTo(ChronoUnit.SECONDS);
+
         final Hearing hearing = Hearing.builder()
                 .hearingId(UUID.randomUUID().toString())
                 .listNote("Requires interpreter")
@@ -42,17 +45,18 @@ public class InMemoryCourtScheduleClientImpl implements CourtScheduleClient {
                         CourtSitting.builder()
                                 .courtHouse("Central Criminal Court")
                                 .sittingStart(sittingStartTime)
-                                .sittingEnd(sittingStartTime.plusMinutes(60))
+                                .sittingEnd(sittingStartTime.plus(60, ChronoUnit.MINUTES))
                                 .judiciaryId(UUID.randomUUID().toString())
-                                .build())
-                ).build();
+                                .build()
+                ))
+                .build();
 
         return CourtScheduleResponse.builder()
                 .courtSchedule(List.of(
-                                CourtSchedule.builder()
-                                        .hearings(List.of(hearing)
-                                        ).build()
-                        )
-                ).build();
+                        CourtSchedule.builder()
+                                .hearings(List.of(hearing))
+                                .build()
+                ))
+                .build();
     }
 }

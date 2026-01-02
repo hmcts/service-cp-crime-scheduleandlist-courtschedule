@@ -1,4 +1,5 @@
 package uk.gov.hmcts.cp.repositories;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -22,20 +23,18 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
-
-
 
 @Component
 @Primary
 @RequiredArgsConstructor
 @Slf4j
 public class CourtScheduleClientImpl implements CourtScheduleClient {
+
     private final HttpClient httpClient;
 
     @Getter
@@ -50,17 +49,16 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
     @Value("${service.court-schedule-client.cjscppuid}")
     private String cjscppuid;
 
-
     @Override
     public CourtScheduleResponse getCourtScheduleByCaseId(final String caseId) {
         final List<Hearing> hearingList = getHearings(caseId);
         return CourtScheduleResponse.builder()
                 .courtSchedule(List.of(
-                                CourtSchedule.builder()
-                                        .hearings(hearingList)
-                                        .build()
-                        )
-                ).build();
+                        CourtSchedule.builder()
+                                .hearings(hearingList)
+                                .build()
+                ))
+                .build();
     }
 
     private List<Hearing> getHearings(final String caseId) {
@@ -73,13 +71,13 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
                     .header("CJSCPPUID", getCjscppuid())
                     .build();
 
-            final HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            final HttpResponse<String> response =
+                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
             if (response.statusCode() == HttpStatus.OK.value()) {
                 final ObjectMapper objectMapper = new ObjectMapper();
-                final HearingResponse hearingResponse = objectMapper.readValue(
-                        response.body(),
-                        HearingResponse.class
-                );
+                final HearingResponse hearingResponse =
+                        objectMapper.readValue(response.body(), HearingResponse.class);
 
                 hearingSchedule = getHearingData(hearingResponse);
                 log.info("Response Code: {}", response.statusCode());
@@ -92,7 +90,6 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
         return hearingSchedule;
     }
 
-
     private String buildUrl(final String caseId) {
         return UriComponentsBuilder
                 .fromUri(URI.create(getCourtScheduleClientUrl()))
@@ -101,35 +98,45 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
                 .toUriString();
     }
 
-    private List<Hearing> getHearingData(final HearingResponse hearingResponse)  {
+    private List<Hearing> getHearingData(final HearingResponse hearingResponse) {
         final List<Hearing> hearings = new ArrayList<>();
-        hearingResponse.getHearings().stream().filter(HearingResponse.HearingSchedule::isAllocated).forEach(hr -> {
-            final Hearing hearing = new Hearing();
-            hearing.setHearingId(hr.getId());
-            hearing.setHearingType(hr.getType().getDescription());
-            hearing.setHearingDescription(hr.getType().getDescription());
-            hearing.setListNote("sample list note");
-            final List<CourtSitting> courtSittings = new ArrayList<>();
-            final String judiciaryId = hr.getJudiciary().stream().map(Judiciary::getJudicialId).collect(Collectors.joining(","));
 
-            for (final HearingResponse.HearingSchedule.HearingDay hearingDay : hr.getHearingDays()) {
-                final CourtSitting courtSitting = getCourtSitting(hearingDay, judiciaryId);
-                courtSittings.add(courtSitting);
-            }
-            hearing.setCourtSittings(courtSittings);
-            hearings.add(hearing);
-        });
+        hearingResponse.getHearings().stream()
+                .filter(HearingResponse.HearingSchedule::isAllocated)
+                .forEach(hr -> {
+                    final Hearing hearing = new Hearing();
+                    hearing.setHearingId(hr.getId());
+                    hearing.setHearingType(hr.getType().getDescription());
+                    hearing.setHearingDescription(hr.getType().getDescription());
+                    hearing.setListNote("sample list note");
+
+                    final String judiciaryId = hr.getJudiciary().stream()
+                            .map(Judiciary::getJudicialId)
+                            .collect(Collectors.joining(","));
+
+                    final List<CourtSitting> courtSittings = new ArrayList<>();
+                    for (final HearingResponse.HearingSchedule.HearingDay hearingDay : hr.getHearingDays()) {
+                        courtSittings.add(getCourtSitting(hearingDay, judiciaryId));
+                    }
+
+                    hearing.setCourtSittings(courtSittings);
+                    hearings.add(hearing);
+                });
+
         return hearings;
     }
 
-    private static CourtSitting getCourtSitting(final HearingResponse.HearingSchedule.HearingDay hearingDay, final String judiciaryId) {
-        final CourtSitting courtSitting = new CourtSitting();
-        courtSitting.setSittingStart(OffsetDateTime.parse(hearingDay.getStartTime()));
-        courtSitting.setSittingEnd(OffsetDateTime.parse(hearingDay.getEndTime()));
-        courtSitting.setJudiciaryId(judiciaryId);
+    private static CourtSitting getCourtSitting(
+            final HearingResponse.HearingSchedule.HearingDay hearingDay,
+            final String judiciaryId) {
 
+        final CourtSitting courtSitting = new CourtSitting();
+        courtSitting.setSittingStart(Instant.parse(hearingDay.getStartTime()));
+        courtSitting.setSittingEnd(Instant.parse(hearingDay.getEndTime()));
+        courtSitting.setJudiciaryId(judiciaryId);
         courtSitting.setCourtHouse(hearingDay.getCourtCentreId());
         courtSitting.setCourtRoom(hearingDay.getCourtRoomId());
+
         return courtSitting;
     }
 }
