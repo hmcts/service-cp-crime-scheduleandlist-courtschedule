@@ -10,7 +10,9 @@
                 <loggerName/>
                 <threadName/>
                 <logLevel/>
-                <message/>
+                <pattern>
+                    <pattern>{"message": "%message%n%xException"}</pattern>
+                </pattern>
             </providers>
         </encoder>
     </appender>
