@@ -11,11 +11,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.cp.domain.HearingResponse;
 import uk.gov.hmcts.cp.domain.HearingResponse.HearingSchedule.Judiciary;
-
-import uk.gov.hmcts.cp.openapi.model.Hearing;
+import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.openapi.model.CourtSitting;
-import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
+import uk.gov.hmcts.cp.openapi.model.Hearing;
 
 import java.io.IOException;
 import java.net.URI;
@@ -62,10 +61,12 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
     }
 
     private List<Hearing> getHearings(final String caseId) {
+        final String url = buildUrl(caseId);
+        log.info("Getting hearings from {}", url);
         List<Hearing> hearingSchedule = Collections.emptyList();
         try {
             final HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI(buildUrl(caseId)))
+                    .uri(new URI(url))
                     .GET()
                     .header("Accept", "application/vnd.listing.search.hearings+json")
                     .header("CJSCPPUID", getCjscppuid())

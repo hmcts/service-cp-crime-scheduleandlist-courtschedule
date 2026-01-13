@@ -4,22 +4,20 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.owasp.encoder.Encode;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.cp.domain.CaseMapperResponse;
-
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
-import org.owasp.encoder.Encode;
-
 
 
 @Service
@@ -39,9 +37,11 @@ public class CaseUrnMapperService {
 
     public String getCaseId(final String caseUrn) {
         final String sanitizedCaseUrn = Encode.forJava(caseUrn);
+        final String url = getCaseIdUrl(caseUrn);
+        log.info("Getting caseId from {}", url);
         try {
             final ResponseEntity<CaseMapperResponse> responseEntity = restTemplate.exchange(
-                    getCaseIdUrl(caseUrn),
+                    url,
                     HttpMethod.GET,
                     getRequestEntity(),
                     CaseMapperResponse.class
