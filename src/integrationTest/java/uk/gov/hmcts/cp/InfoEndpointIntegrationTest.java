@@ -1,53 +1,50 @@
-package uk.gov.hmcts.cp.controllers;
+package uk.gov.hmcts.cp;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.cp.config.IntegrationTestConfig;
 
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@TestPropertySource(properties = {
-        "service.case-mapper-service.url=https://CASE-MAPPER.org.uk",
-        "service.court-schedule-client.url=https://COURT-SCHEDULE.org.uk",
-        "service.court-schedule-client.cjscppuid=MOCK-CJSCPPUID",
-        "management.tracing.enabled=true"
-})
 @Import(IntegrationTestConfig.class)
-class RootControllerIntegrationIT {
+class InfoEndpointIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @DisplayName("Should welcome upon root request with 200 response code")
     @Test
-    void shouldCallRootAndGet200() throws Exception {
-        mockMvc.perform(get("/"))
+    void should_return_info_with_git_details() throws Exception {
+        mockMvc.perform(get("/info"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content()
-                        .string(containsString("Welcome to service-cp-crime-scheduleandlist-courtschedule")));
+                .andExpect(jsonPath("$.git").exists())
+                .andExpect(jsonPath("$.git.branch").value(notNullValue()))
+                .andExpect(jsonPath("$.git.commit.id").value(notNullValue()))
+                .andExpect(jsonPath("$.git.commit.time").value(notNullValue()));
     }
 
-    @DisplayName("Actuator health status should be UP")
     @Test
-    void shouldCallActuatorAndGet200() throws Exception {
-        mockMvc.perform(get("/health"))
+    void should_return_info_with_build_details() throws Exception {
+        mockMvc.perform(get("/info"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("UP"));
+                .andExpect(jsonPath("$.build").exists())
+                .andExpect(jsonPath("$.build.artifact").value("service-cp-crime-scheduleandlist-courtschedule"))
+                .andExpect(jsonPath("$.build.name").value("service-cp-crime-scheduleandlist-courtschedule"))
+                .andExpect(jsonPath("$.build.time").value(notNullValue()))
+                .andExpect(jsonPath("$.build.version").value(notNullValue()))
+                .andExpect(jsonPath("$.build.group").value("uk.gov.hmcts.cp"));
     }
 }
+

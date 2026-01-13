@@ -1,23 +1,25 @@
 package uk.gov.hmcts.cp.controllers;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.cp.openapi.api.CourtScheduleApi;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
+import uk.gov.hmcts.cp.openapi.model.Hearing;
 import uk.gov.hmcts.cp.services.CaseUrnMapperService;
 import uk.gov.hmcts.cp.services.CourtScheduleService;
 
 import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
+import org.owasp.encoder.Encode;
 
-import static uk.gov.hmcts.cp.utils.Utils.sanitizeString;
 
 @RestController
+@Slf4j
 public class CourtScheduleController implements CourtScheduleApi {
-    private static final Logger LOG = LoggerFactory.getLogger(CourtScheduleController.class);
     private final CourtScheduleService courtScheduleService;
     private final CaseUrnMapperService caseUrnMapperService;
 
@@ -28,22 +30,24 @@ public class CourtScheduleController implements CourtScheduleApi {
     }
 
     @Override
+    @NonNull
     public ResponseEntity<CourtScheduleResponse> getCourtScheduleByCaseUrn(final String caseUrn) {
-        final String sanitizedCaseUrn;
-        final CourtScheduleResponse courtScheduleResponse;
+        if (caseUrn == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "caseUrn is required");
+        }
         try {
-            sanitizedCaseUrn = sanitizeString(caseUrn);
-            LOG.atInfo().log("Received request to get court schedule for caseUrn: {}", sanitizedCaseUrn);
+            final String sanitizedCaseUrn = Encode.forJava(caseUrn);
+            log.info("Received request to get court schedule for caseUrn: {}", sanitizedCaseUrn);
             final String caseId = caseUrnMapperService.getCaseId(sanitizedCaseUrn);
-            courtScheduleResponse = courtScheduleService.getCourtScheduleByCaseId(caseId);
-            LOG.atInfo().log("caseUrn : {} -> Court Schedule Hearing Ids : {}", caseUrn, courtScheduleResponse.getCourtSchedule().stream()
-                    .flatMap(a -> a.getHearings().stream().map(b -> b.getHearingId())).collect(Collectors.joining(",")));
+            final CourtScheduleResponse courtScheduleResponse = courtScheduleService.getCourtScheduleByCaseId(caseId);
+            log.debug("caseUrn : {} -> Court Schedule Hearing Ids : {}", sanitizedCaseUrn, courtScheduleResponse.getCourtSchedule().stream()
+                    .flatMap(a -> a.getHearings().stream().map(Hearing::getHearingId)).collect(Collectors.joining(",")));
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(courtScheduleResponse);
         } catch (ResponseStatusException e) {
-            LOG.atError().log(e.getMessage());
+            log.error(e.getMessage());
             throw e;
         }
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(courtScheduleResponse);
     }
 }
