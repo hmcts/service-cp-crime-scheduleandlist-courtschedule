@@ -17,16 +17,19 @@ import java.util.List;
 public class HearingResponse implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private List<HearingResult> hearings;
+    private List<HearingSchedule> hearings;
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
-    public static class HearingResult implements Serializable {
+    public static class HearingSchedule implements Serializable {
+        private static final long serialVersionUID = 2L;
+
         private String id;
-        private Type type;
+        private HearingType type;
+        private boolean allocated;
         private List<Judiciary> judiciary;
         private List<HearingDay> hearingDays;
 
@@ -35,7 +38,9 @@ public class HearingResponse implements Serializable {
         @AllArgsConstructor
         @NoArgsConstructor
         @Getter
-        public static class Type {
+        public static class HearingType implements Serializable {
+            private static final long serialVersionUID = 3L;
+
             private String description;
         }
 
@@ -44,7 +49,9 @@ public class HearingResponse implements Serializable {
         @AllArgsConstructor
         @NoArgsConstructor
         @Getter
-        public static class Judiciary {
+        public static class Judiciary implements Serializable {
+            private static final long serialVersionUID = 4L;
+
             private String judicialId;
         }
 
@@ -53,7 +60,9 @@ public class HearingResponse implements Serializable {
         @AllArgsConstructor
         @NoArgsConstructor
         @Getter
-        public static class HearingDay {
+        public static class HearingDay implements Serializable {
+            private static final long serialVersionUID = 5L;
+
             private String endTime;
             private int sequence;
             private String startTime;

@@ -19,5 +19,3 @@ jobs:
       is_publish: ${{ github.event_name == 'push' }}
       trigger_docker: ${{ github.event_name == 'push' }}
       trigger_deploy: ${{ github.event_name == 'push' }}
-      pacticipant: CPCourtScheduleProvider
-      pact_env: dev/pactTest

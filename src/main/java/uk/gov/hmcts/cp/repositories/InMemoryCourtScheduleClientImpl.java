@@ -1,14 +1,12 @@
 package uk.gov.hmcts.cp.repositories;
 
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.openapi.model.CourtSitting;
 import uk.gov.hmcts.cp.openapi.model.Hearing;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
@@ -16,14 +14,17 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component("inMemoryCourtScheduleClientImpl")
-@Profile("pact-test")
 public class InMemoryCourtScheduleClientImpl implements CourtScheduleClient {
-    private final Map<String, CourtScheduleResponse> courtScheduleResponseMap = new ConcurrentHashMap<>();
 
-    public void saveCourtSchedule(final String caseUrn, final CourtScheduleResponse courtScheduleResponse) {
+    private final Map<String, CourtScheduleResponse> courtScheduleResponseMap =
+            new ConcurrentHashMap<>();
+
+    public void saveCourtSchedule(final String caseUrn,
+                                  final CourtScheduleResponse courtScheduleResponse) {
         courtScheduleResponseMap.put(caseUrn, courtScheduleResponse);
     }
 
+    @Override
     public CourtScheduleResponse getCourtScheduleByCaseId(final String caseId) {
         if (!courtScheduleResponseMap.containsKey(caseId)) {
             saveCourtSchedule(caseId, createCourtScheduleResponse());
@@ -31,13 +32,10 @@ public class InMemoryCourtScheduleClientImpl implements CourtScheduleClient {
         return courtScheduleResponseMap.get(caseId);
     }
 
-    public void clearAll() {
-        courtScheduleResponseMap.clear();
-    }
-
     private CourtScheduleResponse createCourtScheduleResponse() {
-        final OffsetDateTime sittingStartTime = OffsetDateTime.now(ZoneOffset.UTC)
+        final Instant sittingStartTime = Instant.now()
                 .truncatedTo(ChronoUnit.SECONDS);
+
         final Hearing hearing = Hearing.builder()
                 .hearingId(UUID.randomUUID().toString())
                 .listNote("Requires interpreter")
@@ -47,17 +45,18 @@ public class InMemoryCourtScheduleClientImpl implements CourtScheduleClient {
                         CourtSitting.builder()
                                 .courtHouse("Central Criminal Court")
                                 .sittingStart(sittingStartTime)
-                                .sittingEnd(sittingStartTime.plusMinutes(60))
+                                .sittingEnd(sittingStartTime.plus(60, ChronoUnit.MINUTES))
                                 .judiciaryId(UUID.randomUUID().toString())
-                                .build())
-                ).build();
+                                .build()
+                ))
+                .build();
 
         return CourtScheduleResponse.builder()
                 .courtSchedule(List.of(
-                                CourtSchedule.builder()
-                                        .hearings(List.of(hearing)
-                                        ).build()
-                        )
-                ).build();
+                        CourtSchedule.builder()
+                                .hearings(List.of(hearing))
+                                .build()
+                ))
+                .build();
     }
 }
