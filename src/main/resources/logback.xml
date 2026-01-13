@@ -11,7 +11,7 @@
                 <threadName/>
                 <logLevel/>
                 <pattern>
-                    <pattern>{"message": "%message%xException{full}"}</pattern>
+                    <pattern>{"message": "%message%n%xException{full}"}</pattern>
                 </pattern>
             </providers>
         </encoder>
