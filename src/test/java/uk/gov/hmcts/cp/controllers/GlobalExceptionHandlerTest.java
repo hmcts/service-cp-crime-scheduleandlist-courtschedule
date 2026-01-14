@@ -8,8 +8,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.cp.openapi.model.ErrorResponse;
 
+import java.time.Instant;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -29,18 +32,23 @@ class GlobalExceptionHandlerTest {
         GlobalExceptionHandler handler = new GlobalExceptionHandler(tracer);
 
         String reason = "Test error";
-        ResponseStatusException ex = new ResponseStatusException(HttpStatus.NOT_FOUND, reason);
+        ResponseStatusException ex =
+                new ResponseStatusException(HttpStatus.NOT_FOUND, reason);
 
         // Act
         var response = handler.handleResponseStatusException(ex);
 
         // Assert
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
         ErrorResponse error = response.getBody();
         assertNotNull(error);
         assertEquals("404", error.getError());
         assertEquals(reason, error.getMessage());
+
         assertNotNull(error.getTimestamp());
+        assertTrue(error.getTimestamp() instanceof Instant);
+
         assertEquals("test-trace-id", error.getTraceId());
     }
 }

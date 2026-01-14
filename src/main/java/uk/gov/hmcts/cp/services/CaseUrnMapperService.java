@@ -5,7 +5,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -13,8 +12,15 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.cp.domain.CaseMapperResponse;
 
-import static uk.gov.hmcts.cp.utils.Utils.ignoreCertificates;
-import static uk.gov.hmcts.cp.utils.Utils.sanitizeString;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.owasp.encoder.Encode;
+
+
 
 @Service
 @RequiredArgsConstructor
@@ -32,9 +38,8 @@ public class CaseUrnMapperService {
 
 
     public String getCaseId(final String caseUrn) {
-        final String sanitizedCaseUrn = sanitizeString(caseUrn);
+        final String sanitizedCaseUrn = Encode.forJava(caseUrn);
         try {
-            ignoreCertificates();
             final ResponseEntity<CaseMapperResponse> responseEntity = restTemplate.exchange(
                     getCaseIdUrl(caseUrn),
                     HttpMethod.GET,
@@ -43,7 +48,7 @@ public class CaseUrnMapperService {
             );
             log.debug(" CaseMapperResponse is : {} and body : {} caseurn : {} ",
                     responseEntity.getStatusCode(),
-                    sanitizeString(responseEntity.getBody().toString()),
+                    Encode.forJava(responseEntity.getBody().toString()),
                     sanitizedCaseUrn);
 
             if (responseEntity.getStatusCode().is2xxSuccessful() && responseEntity.getBody() != null) {

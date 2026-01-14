@@ -7,8 +7,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.cp.openapi.model.ErrorResponse;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.Instant;
 import java.util.Objects;
 
 @RestControllerAdvice
@@ -21,11 +20,15 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<ErrorResponse> handleResponseStatusException(final ResponseStatusException responseStatusException) {
+    public ResponseEntity<ErrorResponse> handleResponseStatusException(
+            final ResponseStatusException responseStatusException) {
+
         final ErrorResponse error = ErrorResponse.builder()
                 .error(String.valueOf(responseStatusException.getStatusCode().value()))
-                .message(responseStatusException.getReason() != null ? responseStatusException.getReason() : responseStatusException.getMessage())
-                .timestamp(OffsetDateTime.now(ZoneOffset.UTC))
+                .message(responseStatusException.getReason() != null
+                        ? responseStatusException.getReason()
+                        : responseStatusException.getMessage())
+                .timestamp(Instant.now())
                 .traceId(Objects.requireNonNull(tracer.currentSpan()).context().traceId())
                 .build();
 
