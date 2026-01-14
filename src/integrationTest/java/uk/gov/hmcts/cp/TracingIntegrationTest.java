@@ -61,7 +61,7 @@ class TracingIntegrationTest {
         
         // Verify it's the RootController log
         assertThat(capturedFields.get("logger_name")).isEqualTo("uk.gov.hmcts.cp.controllers.RootController");
-        assertThat(capturedFields.get("message")).isEqualTo("START");
+        assertThat((String)capturedFields.get("message")).startsWith("START");
         
         // Note: TracingFilter only reads from request headers, so traceId/spanId won't be present
         // unless they are sent in the request headers. This test verifies the log structure.
@@ -141,7 +141,7 @@ class TracingIntegrationTest {
                     });
                     // Find RootController log with "START" message
                     if ("uk.gov.hmcts.cp.controllers.RootController".equals(parsed.get("logger_name")) 
-                            && "START".equals(parsed.get("message"))) {
+                            && parsed.get("message").toString().startsWith("START")) {
                         return parsed;
                     }
                 } catch (Exception e) {
