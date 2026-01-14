@@ -67,7 +67,7 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
         List<Hearing> hearingSchedule = Collections.emptyList();
         try {
             final HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI(url))
+                    .uri(new URI(Encode.forJava(url)))
                     .GET()
                     .header("Accept", "application/vnd.listing.search.hearings+json")
                     .header("CJSCPPUID", getCjscppuid())
