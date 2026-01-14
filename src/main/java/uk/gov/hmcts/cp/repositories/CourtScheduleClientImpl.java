@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.owasp.encoder.Encode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
@@ -62,7 +63,7 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
 
     private List<Hearing> getHearings(final String caseId) {
         final String url = buildUrl(caseId);
-        log.info("Getting hearings from {}", url);
+        log.info("Getting hearings from {}", Encode.forJava(url));
         List<Hearing> hearingSchedule = Collections.emptyList();
         try {
             final HttpRequest request = HttpRequest.newBuilder()
