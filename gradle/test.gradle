@@ -1,6 +1,5 @@
 tasks.named('test') {
   useJUnitPlatform {
-    excludeTags 'pact'
   }
   systemProperty 'API_SPEC_VERSION', project.version
   failFast = true
