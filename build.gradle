@@ -57,7 +57,7 @@ ext {
 dependencies {
     implementation "uk.gov.hmcts.cp:api-cp-crime-schedulingandlisting-courtschedule:$apiCourtScheduleVersion"
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1'
-    implementation 'io.swagger.core.v3:swagger-core:2.2.41'
+    implementation 'io.swagger.core.v3:swagger-core:2.2.42'
     implementation 'javax.xml.bind:jaxb-api:2.3.1'
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -76,8 +76,8 @@ dependencies {
     implementation 'net.logstash.logback:logstash-logback-encoder:9.0'
     implementation group: 'io.rest-assured', name: 'rest-assured', version: '6.0.0'
     implementation 'org.hibernate.validator:hibernate-validator:9.1.0.Final'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.20.1'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.21.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.0'
     implementation("org.owasp.encoder:encoder:1.4.0")
 
     compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
