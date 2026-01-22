@@ -31,7 +31,7 @@ class CourtScheduleServiceTest {
     private CourtScheduleService courtScheduleService;
 
     @Test
-    void do_getCourtScheduleByCaseId_should_returnStubbedResponseWhenValidCaseUrnProvided() {
+    void getCourtScheduleByCaseId_should_returnStubbedResponseWhenValidCaseUrnProvided() {
         String validCaseUrn = "123-ABC-456";
         Instant sittingStartTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 
@@ -67,7 +67,7 @@ class CourtScheduleServiceTest {
     }
 
     @Test
-    void do_getCourtScheduleByCaseId_should_throwBadRequestExceptionWhenCaseUrnIsNull() {
+    void getCourtScheduleByCaseId_should_throwBadRequestExceptionWhenCaseUrnIsNull() {
         String nullCaseUrn = null;
 
         assertThatThrownBy(() -> courtScheduleService.getCourtScheduleByCaseId(nullCaseUrn))
@@ -77,7 +77,7 @@ class CourtScheduleServiceTest {
     }
 
     @Test
-    void do_getCourtScheduleByCaseId_should_throwBadRequestExceptionWhenCaseUrnIsEmpty() {
+    void getCourtScheduleByCaseId_should_throwBadRequestExceptionWhenCaseUrnIsEmpty() {
         String emptyCaseUrn = "";
 
         assertThatThrownBy(() -> courtScheduleService.getCourtScheduleByCaseId(emptyCaseUrn))

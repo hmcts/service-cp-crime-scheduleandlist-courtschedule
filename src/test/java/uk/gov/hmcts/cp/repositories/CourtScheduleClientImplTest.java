@@ -75,7 +75,7 @@ class CourtScheduleClientImplTest {
     }
 
     @Test
-    void do_getCourtScheduleByCaseId_should_returnValidResponse() throws Exception {
+    void getCourtScheduleByCaseId_should_returnValidResponse() throws Exception {
         setupMockHttpClient();
         CourtScheduleClientImpl client = createClient();
 
@@ -100,7 +100,7 @@ class CourtScheduleClientImplTest {
     }
 
     @Test
-    void do_getCourtScheduleByCaseId_should_returnEmptyHearingSchedule() throws Exception {
+    void getCourtScheduleByCaseId_should_returnEmptyHearingSchedule() throws Exception {
         setupMockHttpClient();
         CourtScheduleClientImpl client = createClient();
 
