@@ -35,7 +35,7 @@ class GlobalExceptionHandlerTest {
     private GlobalExceptionHandler handler;
 
     @Test
-    void handleResponseStatusException_should_returnErrorResponseWithCorrectFields() {
+    void handleResponseStatusException_ShouldReturnErrorResponseWithCorrectFields() {
         // Arrange
         when(tracer.currentSpan()).thenReturn(span);
         when(span.context()).thenReturn(context);

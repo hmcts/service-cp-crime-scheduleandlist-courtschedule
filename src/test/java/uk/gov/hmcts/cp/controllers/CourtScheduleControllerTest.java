@@ -38,7 +38,7 @@ class CourtScheduleControllerTest {
     private CourtScheduleController courtScheduleController;
 
     @Test
-    void getCourtScheduleByCaseUrn_should_returnOkStatusWithJudges() {
+    void getJudgeById_ShouldReturnJudgesWithOkStatus() {
         UUID caseUrn = UUID.randomUUID();
         String caseId = UUID.randomUUID().toString();
         String hearingId = UUID.randomUUID().toString();
@@ -102,7 +102,7 @@ class CourtScheduleControllerTest {
     }
 
     @Test
-    void getCourtScheduleByCaseUrn_should_sanitizeCaseUrn() {
+    void getCourtScheduleByCaseUrn_ShouldSanitizeCaseUrn() {
         String unsanitizedCaseUrn = "<script>alert('xss')</script>";
         String caseId = UUID.randomUUID().toString();
         CourtScheduleResponse mockResponse = CourtScheduleResponse.builder()
@@ -118,7 +118,7 @@ class CourtScheduleControllerTest {
     }
 
     @Test
-    void getCourtScheduleByCaseUrn_should_returnBadRequestWhenCaseUrnIsNull() {
+    void getJudgeById_ShouldReturnBadRequestStatus() {
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
             courtScheduleController.getCourtScheduleByCaseUrn(null);
         });

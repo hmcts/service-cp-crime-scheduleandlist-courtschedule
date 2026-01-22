@@ -20,7 +20,7 @@ class CourtScheduleClientTest {
     private final CourtScheduleClient courtScheduleClient = new InMemoryCourtScheduleClientImpl();
 
     @Test
-    void getCourtScheduleByCaseId_should_returnCourtScheduleResponse() {
+    void getCourtScheduleByCaseUrn_shouldReturnCourtScheduleResponse() {
         UUID caseUrn = UUID.randomUUID();
         CourtScheduleResponse response = courtScheduleClient.getCourtScheduleByCaseId(caseUrn.toString());
 
