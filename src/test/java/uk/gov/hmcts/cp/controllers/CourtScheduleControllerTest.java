@@ -1,47 +1,76 @@
 package uk.gov.hmcts.cp.controllers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.cp.openapi.model.*;
-import uk.gov.hmcts.cp.repositories.InMemoryCourtScheduleClientImpl;
 import uk.gov.hmcts.cp.services.CaseUrnMapperService;
 import uk.gov.hmcts.cp.services.CourtScheduleService;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
 
 @Slf4j
+@ExtendWith(MockitoExtension.class)
 class CourtScheduleControllerTest {
 
+    @Mock
+    private CourtScheduleService courtScheduleService;
+
+    @Mock
+    private CaseUrnMapperService caseUrnMapperService;
+
+    @InjectMocks
     private CourtScheduleController courtScheduleController;
 
-    @BeforeEach
-    void setUp() {
-        CourtScheduleService courtScheduleService = new CourtScheduleService(new InMemoryCourtScheduleClientImpl());
-         CaseUrnMapperService testCaseUrnMapperService = new CaseUrnMapperService(new RestTemplate()) {
-                @Override
-                public String getCaseMapperServiceUrl() {
-                    return "http://mock-server/test-mapper";
-                }
-
-                public String getCaseId(final String caseUrn) {
-                    return UUID.randomUUID().toString();
-                }
-            };
-        courtScheduleController = new CourtScheduleController(courtScheduleService, testCaseUrnMapperService);
-    }
-
     @Test
-    void getJudgeById_ShouldReturnJudgesWithOkStatus() {
+    void do_getCourtScheduleByCaseUrn_should_returnOkStatusWithJudges() {
         UUID caseUrn = UUID.randomUUID();
-        log.info("Calling courtScheduleController.getCourtScheduleByCaseUrn with caseUrn: {}", caseUrn);
+        String caseId = UUID.randomUUID().toString();
+        String hearingId = UUID.randomUUID().toString();
+        String judiciaryId = UUID.randomUUID().toString();
+        Instant sittingStartTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+
+        CourtScheduleResponse mockResponse = CourtScheduleResponse.builder()
+                .courtSchedule(List.of(
+                        CourtSchedule.builder()
+                                .hearings(List.of(
+                                        Hearing.builder()
+                                                .hearingId(hearingId)
+                                                .listNote("Requires interpreter")
+                                                .hearingDescription("Sentencing for theft case")
+                                                .hearingType("Trial")
+                                                .courtSittings(List.of(
+                                                        CourtSitting.builder()
+                                                                .courtHouse("Central Criminal Court")
+                                                                .sittingStart(sittingStartTime)
+                                                                .sittingEnd(sittingStartTime.plus(60, ChronoUnit.MINUTES))
+                                                                .judiciaryId(judiciaryId)
+                                                                .build()
+                                                ))
+                                                .build()
+                                ))
+                                .build()
+                ))
+                .build();
+
+        when(caseUrnMapperService.getCaseId(anyString())).thenReturn(caseId);
+        when(courtScheduleService.getCourtScheduleByCaseId(caseId)).thenReturn(mockResponse);
+
         ResponseEntity<?> response = courtScheduleController.getCourtScheduleByCaseUrn(caseUrn.toString());
 
         assertNotNull(response);
@@ -73,18 +102,23 @@ class CourtScheduleControllerTest {
     }
 
     @Test
-    void getCourtScheduleByCaseUrn_ShouldSanitizeCaseUrn() {
+    void do_getCourtScheduleByCaseUrn_should_sanitizeCaseUrn() {
         String unsanitizedCaseUrn = "<script>alert('xss')</script>";
-        log.info("Calling courtScheduleController.getCourtScheduleByCaseUrn with unsanitized caseUrn: {}", unsanitizedCaseUrn);
+        String caseId = UUID.randomUUID().toString();
+        CourtScheduleResponse mockResponse = CourtScheduleResponse.builder()
+                .courtSchedule(List.of())
+                .build();
+
+        lenient().when(caseUrnMapperService.getCaseId(anyString())).thenReturn(caseId);
+        lenient().when(courtScheduleService.getCourtScheduleByCaseId(caseId)).thenReturn(mockResponse);
 
         ResponseEntity<?> response = courtScheduleController.getCourtScheduleByCaseUrn(unsanitizedCaseUrn);
         assertNotNull(response);
-        log.debug("Received response: {}", response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
-    void getJudgeById_ShouldReturnBadRequestStatus() {
+    void do_getCourtScheduleByCaseUrn_should_returnBadRequestWhenCaseUrnIsNull() {
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
             courtScheduleController.getCourtScheduleByCaseUrn(null);
         });

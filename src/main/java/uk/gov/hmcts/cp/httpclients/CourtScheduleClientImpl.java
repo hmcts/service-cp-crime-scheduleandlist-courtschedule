@@ -1,4 +1,4 @@
-package uk.gov.hmcts.cp.repositories;
+package uk.gov.hmcts.cp.httpclients;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
