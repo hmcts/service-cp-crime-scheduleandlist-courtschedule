@@ -16,7 +16,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -75,7 +77,7 @@ class CourtScheduleClientImplTest {
     }
 
     @Test
-    void getCourtScheduleByCaseId_shouldReturnValidResponse() throws Exception {
+    void getCourtScheduleByCaseId_forAllocatedHearing_shouldReturnValidResponse() throws Exception {
         setupMockHttpClient();
         CourtScheduleClientImpl client = createClient();
 
@@ -99,8 +101,32 @@ class CourtScheduleClientImplTest {
         assertEquals("court-1", hearing.getCourtSittings().get(0).getCourtHouse());
     }
 
+    void getCourtScheduleByCaseId_forWeekCommencingUnallocatedHearing_shouldReturnValidResponse() throws Exception {
+        setupMockHttpClient();
+        CourtScheduleClientImpl client = createClient();
+
+        URL resource = getClass().getClassLoader().getResource("courtSchedule_weekCommencingUnallocated.json");
+        Path path = Path.of(resource.toURI());
+        String json = Files.readString(path);
+
+        when(mockResponse.statusCode()).thenReturn(200);
+        when(mockResponse.body()).thenReturn(json);
+
+        CourtScheduleResponse response = client.getCourtScheduleByCaseId("some-case-id");
+
+        assertNotNull(response);
+        assertEquals(1, response.getCourtSchedule().size());
+
+        Hearing hearing = response.getCourtSchedule().get(0).getHearings().get(0);
+        assertEquals("hearing-1", hearing.getHearingId());
+        assertEquals("First hearing", hearing.getHearingType());
+        assertEquals(1, hearing.getCourtSittings().size());
+        assertEquals("judge-1", hearing.getCourtSittings().get(0).getJudiciaryId());
+        assertEquals("court-1", hearing.getCourtSittings().get(0).getCourtHouse());
+    }
+
     @Test
-    void getCourtScheduleByCaseId_shouldReturnEmptyHearingSchedule() throws Exception {
+    void getCourtScheduleByCaseId_forUnallocatedHearing_shouldReturnEmptyHearingSchedule()  throws Exception {
         setupMockHttpClient();
         CourtScheduleClientImpl client = createClient();
 
@@ -114,5 +140,33 @@ class CourtScheduleClientImplTest {
         CourtScheduleResponse response = client.getCourtScheduleByCaseId("some-case-id");
         assertNotNull(response);
         assertEquals(0, response.getCourtSchedule().get(0).getHearings().size());
+    }
+
+    @Test
+    void getCourtScheduleByCaseId_shouldFilterAndReturnValidResponse() throws Exception {
+        setupMockHttpClient();
+        CourtScheduleClientImpl client = createClient();
+
+        URL resource = getClass().getClassLoader().getResource("courtSchedule_all_types.json");
+        Path path = Path.of(resource.toURI());
+        String json = Files.readString(path);
+
+        when(mockResponse.statusCode()).thenReturn(200);
+        when(mockResponse.body()).thenReturn(json);
+
+        CourtScheduleResponse response = client.getCourtScheduleByCaseId("some-case-id");
+
+        assertNotNull(response);
+        assertEquals(1, response.getCourtSchedule().size());
+        assertEquals(2, response.getCourtSchedule().getFirst().getHearings().size());
+
+        List<Hearing> hearingList = response.getCourtSchedule()
+                .getFirst()
+                .getHearings();
+        assertThat(hearingList
+                .stream()
+                .map(Hearing::getHearingId)
+                .toList())
+                .contains("hearing-allocated", "hearing-Week commencing");
     }
 }

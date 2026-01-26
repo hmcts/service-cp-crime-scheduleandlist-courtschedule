@@ -1,0 +1,60 @@
+{
+  "hearings": [
+    {
+      "id": "hearing-unallocated",
+      "type": { "description": "Unallocated hearing" },
+      "allocated": false,
+      "judiciary": [],
+      "hearingDays": [
+        {
+          "startTime": "2025-07-21T15:00:00Z",
+          "endTime": "2025-07-21T15:20:00Z",
+          "courtCentreId": "court-1"
+        }
+      ]
+    },
+    {
+      "id": "hearing-unscheduled",
+      "type": { "description": "Unscheduled hearing" },
+      "allocated": false,
+      "judiciary": [],
+      "hearingDays": [
+        {
+          "startTime": "2025-07-21T15:00:00Z",
+          "endTime": "2025-07-21T15:20:00Z",
+          "courtCentreId": "court-1"
+        }
+      ],
+      "unscheduled": true
+    },
+    {
+      "id": "hearing-allocated",
+      "type": { "description": "Allocated hearing" },
+      "allocated": true,
+      "judiciary": [{ "judicialId": "judge-1" }],
+      "hearingDays": [
+        {
+          "startTime": "2025-07-21T15:00:00Z",
+          "endTime": "2025-07-21T15:20:00Z",
+          "courtCentreId": "court-1"
+        }
+      ]
+    },
+    {
+      "id": "hearing-Week commencing",
+      "type": { "description": "Week commencing unallocated hearing"},
+      "allocated": false,
+      "judiciary": [],
+      "hearingDays": [
+        {
+          "startTime": "2025-07-21T15:00:00Z",
+          "endTime": "2025-07-21T15:20:00Z",
+          "courtCentreId": "court-1"
+        }
+      ],
+      "weekCommencingEndDate": "2026-02-01",
+      "weekCommencingStartDate": "2026-01-26",
+      "weekCommencingDurationInWeeks": 1
+    }
+  ]
+}

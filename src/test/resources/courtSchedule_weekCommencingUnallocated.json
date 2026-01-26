@@ -1,0 +1,18 @@
+{
+  "hearings": [
+    {
+      "id": "hearing-1",
+      "type": { "description": "First hearing" },
+      "allocated": false,
+      "judiciary": [{ "judicialId": "judge-1" }],
+      "hearingDays": [
+        {
+          "startTime": "2025-07-21T15:00:00Z",
+          "endTime": "2025-07-21T15:20:00Z",
+          "courtCentreId": "court-1"
+        }
+      ],
+      "weekCommencingDurationInWeeks": 1
+    }
+  ]
+}
