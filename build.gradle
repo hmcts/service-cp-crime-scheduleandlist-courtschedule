@@ -2,7 +2,7 @@ plugins {
     id 'application'
     id 'java'
     id 'io.spring.dependency-management' version '1.1.7'
-    id 'org.springframework.boot' version '4.0.1'
+    id 'org.springframework.boot' version '4.0.2'
     id 'jacoco'
     id 'maven-publish'
     id 'com.github.ben-manes.versions' version '0.53.0'
@@ -57,12 +57,12 @@ ext {
 dependencies {
     implementation "uk.gov.hmcts.cp:api-cp-crime-schedulingandlisting-courtschedule:$apiCourtScheduleVersion"
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1'
-    implementation 'io.swagger.core.v3:swagger-core:2.2.41'
+    implementation 'io.swagger.core.v3:swagger-core:2.2.42'
     implementation 'javax.xml.bind:jaxb-api:2.3.1'
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.boot:spring-boot-starter-aop:3.5.9'
+    implementation 'org.springframework.boot:spring-boot-starter-aop:3.5.10'
     implementation 'org.springframework.boot:spring-boot-starter-json'
 
     // micrometer
@@ -76,8 +76,8 @@ dependencies {
     implementation 'net.logstash.logback:logstash-logback-encoder:9.0'
     implementation group: 'io.rest-assured', name: 'rest-assured', version: '6.0.0'
     implementation 'org.hibernate.validator:hibernate-validator:9.1.0.Final'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.20.1'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.21.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.0'
     implementation("org.owasp.encoder:encoder:1.4.0")
 
     compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
@@ -89,10 +89,10 @@ dependencies {
 
     testImplementation(platform('org.junit:junit-bom:6.0.2'))
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-    testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '4.0.1', {
+    testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '4.0.2', {
         exclude group: 'junit', module: 'junit'
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
-    testImplementation group: 'org.springframework.boot', name: 'spring-boot-test-autoconfigure', version: '4.0.1'
+    testImplementation group: 'org.springframework.boot', name: 'spring-boot-test-autoconfigure', version: '4.0.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
