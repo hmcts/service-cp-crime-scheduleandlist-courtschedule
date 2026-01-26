@@ -1,10 +1,12 @@
 package uk.gov.hmcts.cp.repositories;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import uk.gov.hmcts.cp.httpclients.CourtScheduleClientImpl;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.openapi.model.Hearing;
 
@@ -20,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-
+@ExtendWith(MockitoExtension.class)
 class CourtScheduleClientImplTest {
 
     @Mock
@@ -29,41 +31,53 @@ class CourtScheduleClientImplTest {
     @Mock
     private HttpResponse<String> mockResponse;
 
-    private CourtScheduleClientImpl client;
-
     private final String mockUrl = "http://mock-server";
     private final String mockPath = "/some/mapper";
     private final String cjscppuid = "mock-cjscppuid";
 
-    @BeforeEach
-    void setUp() throws Exception {
-        MockitoAnnotations.openMocks(this);
+    private CourtScheduleClientImpl createClient() {
+        return new TestCourtScheduleClientImpl(mockHttpClient, mockUrl, mockPath, cjscppuid);
+    }
+
+    private static class TestCourtScheduleClientImpl extends CourtScheduleClientImpl {
+        private final String testUrl;
+        private final String testPath;
+        private final String testCjscppuid;
+
+        TestCourtScheduleClientImpl(HttpClient httpClient, String url, String path, String cjscppuid) {
+            super(httpClient);
+            this.testUrl = url;
+            this.testPath = path;
+            this.testCjscppuid = cjscppuid;
+        }
+
+        @Override
+        public String getCourtScheduleClientUrl() {
+            return testUrl;
+        }
+
+        @Override
+        public String getCourtScheduleClientPath() {
+            return testPath;
+        }
+
+        @Override
+        public String getCjscppuid() {
+            return testCjscppuid;
+        }
+    }
+
+    private void setupMockHttpClient() throws Exception {
         when(mockHttpClient.send(
                 any(HttpRequest.class),
                 ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()
         )).thenReturn(mockResponse);
-
-        client = new CourtScheduleClientImpl(mockHttpClient) {
-
-            @Override
-            public String getCourtScheduleClientUrl() {
-                return mockUrl;
-            }
-
-            @Override
-            public String getCourtScheduleClientPath() {
-                return mockPath;
-            }
-
-            @Override
-            public String getCjscppuid() {
-                return cjscppuid;
-            }
-        };
     }
 
     @Test
     void getCourtScheduleByCaseId_shouldReturnValidResponse() throws Exception {
+        setupMockHttpClient();
+        CourtScheduleClientImpl client = createClient();
 
         URL resource = getClass().getClassLoader().getResource("courtSchedule_allocated.json");
         Path path = Path.of(resource.toURI());
@@ -87,6 +101,8 @@ class CourtScheduleClientImplTest {
 
     @Test
     void getCourtScheduleByCaseId_shouldReturnEmptyHearingSchedule() throws Exception {
+        setupMockHttpClient();
+        CourtScheduleClientImpl client = createClient();
 
         URL resource = getClass().getClassLoader().getResource("courtSchedule_unallocated.json");
         Path path = Path.of(resource.toURI());

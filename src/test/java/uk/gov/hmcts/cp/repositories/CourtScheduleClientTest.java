@@ -1,7 +1,9 @@
 package uk.gov.hmcts.cp.repositories;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import uk.gov.hmcts.cp.httpclients.CourtScheduleClient;
+import uk.gov.hmcts.cp.httpclients.InMemoryCourtScheduleClientImpl;
 import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.openapi.model.CourtSitting;
@@ -15,12 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CourtScheduleClientTest {
 
-    private CourtScheduleClient courtScheduleClient;
-
-    @BeforeEach
-    void setUp() {
-        courtScheduleClient = new InMemoryCourtScheduleClientImpl();
-    }
+    private final CourtScheduleClient courtScheduleClient = new InMemoryCourtScheduleClientImpl();
 
     @Test
     void getCourtScheduleByCaseUrn_shouldReturnCourtScheduleResponse() {

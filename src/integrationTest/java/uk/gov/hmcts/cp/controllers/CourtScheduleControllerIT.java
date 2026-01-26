@@ -14,7 +14,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.cp.config.IntegrationTestConfig;
-import uk.gov.hmcts.cp.repositories.CourtScheduleClient;
+import uk.gov.hmcts.cp.httpclients.CourtScheduleClient;
 import uk.gov.hmcts.cp.services.CaseUrnMapperService;
 
 import java.util.UUID;

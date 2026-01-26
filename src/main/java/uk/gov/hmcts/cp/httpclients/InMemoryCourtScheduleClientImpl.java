@@ -1,4 +1,4 @@
-package uk.gov.hmcts.cp.repositories;
+package uk.gov.hmcts.cp.httpclients;
 
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.cp.openapi.model.CourtSchedule;

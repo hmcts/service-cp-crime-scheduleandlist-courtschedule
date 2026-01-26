@@ -1,22 +1,60 @@
 package uk.gov.hmcts.cp.services;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
+import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
-import uk.gov.hmcts.cp.repositories.CourtScheduleClient;
-import uk.gov.hmcts.cp.repositories.InMemoryCourtScheduleClientImpl;
+import uk.gov.hmcts.cp.openapi.model.CourtSitting;
+import uk.gov.hmcts.cp.openapi.model.Hearing;
+import uk.gov.hmcts.cp.httpclients.CourtScheduleClient;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class CourtScheduleServiceTest {
 
-    private final CourtScheduleClient courtScheduleClient = new InMemoryCourtScheduleClientImpl();
-    private final CourtScheduleService courtScheduleService = new CourtScheduleService(courtScheduleClient);
+    @Mock
+    private CourtScheduleClient courtScheduleClient;
+
+    @InjectMocks
+    private CourtScheduleService courtScheduleService;
 
     @Test
     void shouldReturnStubbedCourtScheduleResponse_whenValidCaseUrnProvided() {
         String validCaseUrn = "123-ABC-456";
+        Instant sittingStartTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+
+        CourtScheduleResponse mockResponse = CourtScheduleResponse.builder()
+                .courtSchedule(List.of(
+                        CourtSchedule.builder()
+                                .hearings(List.of(
+                                        Hearing.builder()
+                                                .hearingId(UUID.randomUUID().toString())
+                                                .hearingDescription("Sentencing for theft case")
+                                                .courtSittings(List.of(
+                                                        CourtSitting.builder()
+                                                                .sittingStart(sittingStartTime)
+                                                                .sittingEnd(sittingStartTime.plus(60, ChronoUnit.MINUTES))
+                                                                .build()
+                                                ))
+                                                .build()
+                                ))
+                                .build()
+                ))
+                .build();
+
+        when(courtScheduleClient.getCourtScheduleByCaseId(validCaseUrn)).thenReturn(mockResponse);
 
         CourtScheduleResponse response = courtScheduleService.getCourtScheduleByCaseId(validCaseUrn);
 

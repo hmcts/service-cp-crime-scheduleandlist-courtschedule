@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
-import uk.gov.hmcts.cp.repositories.CourtScheduleClient;
+import uk.gov.hmcts.cp.httpclients.CourtScheduleClient;
 import org.owasp.encoder.Encode;
 
 

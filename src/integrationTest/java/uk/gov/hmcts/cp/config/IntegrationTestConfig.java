@@ -19,7 +19,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 import uk.gov.hmcts.cp.controllers.CourtScheduleController;
-import uk.gov.hmcts.cp.repositories.InMemoryCourtScheduleClientImpl;
+import uk.gov.hmcts.cp.httpclients.InMemoryCourtScheduleClientImpl;
 import uk.gov.hmcts.cp.services.CaseUrnMapperService;
 import uk.gov.hmcts.cp.services.CourtScheduleService;
 

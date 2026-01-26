@@ -1,4 +1,4 @@
-package uk.gov.hmcts.cp.repositories;
+package uk.gov.hmcts.cp.httpclients;
 
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 
