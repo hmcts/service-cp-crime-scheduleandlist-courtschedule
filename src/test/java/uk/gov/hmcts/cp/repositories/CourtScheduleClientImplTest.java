@@ -77,7 +77,7 @@ class CourtScheduleClientImplTest {
     }
 
     @Test
-    void getCourtScheduleByCaseId_forAllocatedHearing_shouldReturnValidResponse() throws Exception {
+    void get_allocated_should_be_ok () throws Exception {
         setupMockHttpClient();
         CourtScheduleClientImpl client = createClient();
 
@@ -101,6 +101,7 @@ class CourtScheduleClientImplTest {
         assertEquals("court-1", hearing.getCourtSittings().get(0).getCourtHouse());
     }
 
+    @Test
     void getCourtScheduleByCaseId_forWeekCommencingUnallocatedHearing_shouldReturnValidResponse() throws Exception {
         setupMockHttpClient();
         CourtScheduleClientImpl client = createClient();
@@ -126,7 +127,32 @@ class CourtScheduleClientImplTest {
     }
 
     @Test
-    void getCourtScheduleByCaseId_forUnallocatedHearing_shouldReturnEmptyHearingSchedule()  throws Exception {
+    void get_week_commencing_unallocated_should_be_ok() throws Exception {
+        setupMockHttpClient();
+        CourtScheduleClientImpl client = createClient();
+
+        URL resource = getClass().getClassLoader().getResource("courtSchedule_weekCommencingUnallocated.json");
+        Path path = Path.of(resource.toURI());
+        String json = Files.readString(path);
+
+        when(mockResponse.statusCode()).thenReturn(200);
+        when(mockResponse.body()).thenReturn(json);
+
+        CourtScheduleResponse response = client.getCourtScheduleByCaseId("some-case-id");
+
+        assertNotNull(response);
+        assertEquals(1, response.getCourtSchedule().size());
+
+        Hearing hearing = response.getCourtSchedule().get(0).getHearings().get(0);
+        assertEquals("hearing-1", hearing.getHearingId());
+        assertEquals("First hearing", hearing.getHearingType());
+        assertEquals(1, hearing.getCourtSittings().size());
+        assertEquals("judge-1", hearing.getCourtSittings().get(0).getJudiciaryId());
+        assertEquals("court-1", hearing.getCourtSittings().get(0).getCourtHouse());
+    }
+
+    @Test
+    void get_unallocated_should_return_empty_response()  throws Exception {
         setupMockHttpClient();
         CourtScheduleClientImpl client = createClient();
 
@@ -143,7 +169,7 @@ class CourtScheduleClientImplTest {
     }
 
     @Test
-    void getCourtScheduleByCaseId_shouldFilterAndReturnValidResponse() throws Exception {
+    void get_all_types_should_filter_allocated_and_week_commencing_unallocated() throws Exception {
         setupMockHttpClient();
         CourtScheduleClientImpl client = createClient();
 

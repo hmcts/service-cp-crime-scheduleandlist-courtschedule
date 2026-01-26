@@ -27,6 +27,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -104,7 +105,7 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
         final List<Hearing> hearings = new ArrayList<>();
 
         hearingResponse.getHearings().stream()
-                .filter(hearing -> hearing.isAllocated() || hearing.getWeekCommencingDurationInWeeks() > 0)
+                .filter(hearing -> hearing.isAllocated() || Objects.nonNull(hearing.getWeekCommencingDurationInWeeks()))
                 .forEach(hr -> {
                     final Hearing hearing = new Hearing();
                     hearing.setHearingId(hr.getId());
