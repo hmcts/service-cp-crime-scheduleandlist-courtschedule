@@ -1,0 +1,28 @@
+tasks.named('test') {
+  useJUnitPlatform {
+  }
+  systemProperty 'API_SPEC_VERSION', project.version
+  failFast = true
+  testLogging {
+    events "passed", "skipped", "failed"
+    exceptionFormat = 'full'
+    showStandardStreams = true
+  }
+  reports {
+    junitXml.required.set(true)
+    html.required.set(true)
+  }
+}
+
+tasks.named('jacocoTestReport') {
+  dependsOn tasks.named('test')
+  executionData fileTree(
+    dir: layout.buildDirectory.dir("jacoco").get().asFile,
+    include: ["*.exec"]
+  )
+  reports {
+    xml.required.set(true)
+    csv.required.set(false)
+    html.required.set(true)
+  }
+}
