@@ -1,4 +1,4 @@
-package uk.gov.hmcts.cp;
+package uk.gov.hmcts.cp.integration;
 
 import ch.qos.logback.classic.AsyncAppender;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -10,16 +10,15 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import uk.gov.hmcts.cp.config.IntegrationTestConfig;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Map;
 
-@SpringBootTest(properties = {"management.tracing.enabled=true"})
-@Import(IntegrationTestConfig.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 @Slf4j
 class SpringLoggingIntegrationTest {
 
@@ -43,11 +42,11 @@ class SpringLoggingIntegrationTest {
         });
         AssertionsForClassTypes.assertThat(capturedFields.get("any-mdc-field")).isEqualTo("1234-1234");
         AssertionsForClassTypes.assertThat(capturedFields.get("timestamp")).isNotNull();
-        AssertionsForClassTypes.assertThat(capturedFields.get("logger_name")).isEqualTo("uk.gov.hmcts.cp.SpringLoggingIntegrationTest");
+        AssertionsForClassTypes.assertThat(capturedFields.get("logger_name")).isEqualTo("uk.gov.hmcts.cp.integration.SpringLoggingIntegrationTest");
         AssertionsForClassTypes.assertThat(capturedFields.get("thread_name")).isEqualTo("Test worker");
         AssertionsForClassTypes.assertThat(capturedFields.get("level")).isEqualTo("INFO");
         AssertionsForClassTypes.assertThat(capturedFields.get("message").toString()).contains("spring boot test message\njava.lang.RuntimeException: MyException");
-        AssertionsForClassTypes.assertThat(capturedFields.get("message").toString()).contains("at uk.gov.hmcts.cp.SpringLoggingIntegrationTest");
+        AssertionsForClassTypes.assertThat(capturedFields.get("message").toString()).contains("at uk.gov.hmcts.cp.integration.SpringLoggingIntegrationTest");
 
     }
 

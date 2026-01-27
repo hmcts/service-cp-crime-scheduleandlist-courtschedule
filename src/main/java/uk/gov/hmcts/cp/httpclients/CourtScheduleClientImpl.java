@@ -1,15 +1,16 @@
 package uk.gov.hmcts.cp.httpclients;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.owasp.encoder.Encode;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.cp.config.AppPropertiesBackend;
 import uk.gov.hmcts.cp.domain.HearingResponse;
 import uk.gov.hmcts.cp.domain.HearingResponse.HearingSchedule.Judiciary;
 import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
@@ -17,15 +18,8 @@ import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.openapi.model.CourtSitting;
 import uk.gov.hmcts.cp.openapi.model.Hearing;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -34,23 +28,11 @@ import java.util.stream.Collectors;
 @Primary
 @RequiredArgsConstructor
 @Slf4j
-public class CourtScheduleClientImpl implements CourtScheduleClient {
+public class CourtScheduleClientImpl {
 
-    private final HttpClient httpClient;
+    private final AppPropertiesBackend appProperties;
+    private final RestTemplate restTemplate;
 
-    @Getter
-    @Value("${service.court-schedule-client.url}")
-    private String courtScheduleClientUrl;
-
-    @Getter
-    @Value("${service.court-schedule-client.path}")
-    private String courtScheduleClientPath;
-
-    @Getter
-    @Value("${service.court-schedule-client.cjscppuid}")
-    private String cjscppuid;
-
-    @Override
     public CourtScheduleResponse getCourtScheduleByCaseId(final String caseId) {
         final List<Hearing> hearingList = getHearings(caseId);
         return CourtScheduleResponse.builder()
@@ -65,40 +47,18 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
     private List<Hearing> getHearings(final String caseId) {
         final String url = buildUrl(caseId);
         log.info("Getting hearings from {}", Encode.forJava(url));
-        List<Hearing> hearingSchedule = Collections.emptyList();
-        try {
-            final HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI(Encode.forJava(url)))
-                    .GET()
-                    .header("Accept", "application/vnd.listing.search.hearings+json")
-                    .header("CJSCPPUID", getCjscppuid())
-                    .build();
-
-            final HttpResponse<String> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == HttpStatus.OK.value()) {
-                final ObjectMapper objectMapper = new ObjectMapper();
-                final HearingResponse hearingResponse =
-                        objectMapper.readValue(response.body(), HearingResponse.class);
-
-                hearingSchedule = getHearingData(hearingResponse);
-                log.info("Response Code: {}", response.statusCode());
-            } else {
-                log.error("Failed to fetch hearing data. HTTP Status: {}", response.statusCode());
-            }
-        } catch (IOException | InterruptedException | URISyntaxException e) {
-            log.error("Exception occurred while fetching hearing data: {}", e.getMessage(), e);
-        }
+        final ResponseEntity<HearingResponse> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                getRequestEntity(),
+                HearingResponse.class
+        );
+        List<Hearing> hearingSchedule = getHearingData(response.getBody());
         return hearingSchedule;
     }
 
     private String buildUrl(final String caseId) {
-        return UriComponentsBuilder
-                .fromUri(URI.create(getCourtScheduleClientUrl()))
-                .path(getCourtScheduleClientPath())
-                .queryParam("caseId", caseId)
-                .toUriString();
+        return String.format("%s%s?caseId=%s", appProperties.getHearingsUrl(), appProperties.getHearingsPath(), caseId);
     }
 
     private List<Hearing> getHearingData(final HearingResponse hearingResponse) {
@@ -111,6 +71,7 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
                     hearing.setHearingId(hr.getId());
                     hearing.setHearingType(hr.getType().getDescription());
                     hearing.setHearingDescription(hr.getType().getDescription());
+                    // TODO COLING weird !
                     hearing.setListNote("sample list note");
 
                     final String judiciaryId = hr.getJudiciary().stream()
@@ -141,5 +102,12 @@ public class CourtScheduleClientImpl implements CourtScheduleClient {
         courtSitting.setCourtRoom(hearingDay.getCourtRoomId());
 
         return courtSitting;
+    }
+
+    private HttpEntity<String> getRequestEntity() {
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add("Accept", "application/vnd.listing.search.hearings+json");
+        headers.add("CJSCPPUID", appProperties.getHearingsCjscppuid());
+        return new HttpEntity<>(headers);
     }
 }
