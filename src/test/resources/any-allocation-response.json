@@ -1,0 +1,386 @@
+{
+    "hearings": [
+        {
+            "id": "39b4bd41-0783-47fb-bb15-9fa102851ed1",
+            "type": {
+                "id": "06b0c2bf-3f98-46ed-ab7e-56efaf9ecced",
+                "description": "Plea and Trial Preparation"
+            },
+            "allocated": false,
+            "judiciary": [],
+            "courtRoomId": "69c5ea6a-6b5c-3a5f-92ea-6533c1e61251",
+            "hearingDays": [],
+            "listedCases": [
+                {
+                    "id": "4b47b27b-7501-4c75-871b-8d0d2e38bd72",
+                    "markers": [],
+                    "caseStatus": "ACTIVE",
+                    "defendants": [
+                        {
+                            "id": "c8191b8d-1685-4b7e-81dc-9b09350209ea",
+                            "address": {
+                                "address1": "221B Baker Street",
+                                "address2": "Baker Street",
+                                "address3": "Marylebone",
+                                "address4": "Greater London",
+                                "address5": "London",
+                                "postcode": "NW1 5BR"
+                            },
+                            "isYouth": false,
+                            "lastName": "Satterfield",
+                            "offences": [
+                                {
+                                    "id": "10e382c5-6deb-4fd4-b7ec-480c82e3192c",
+                                    "count": 0,
+                                    "startDate": "2025-11-10",
+                                    "orderIndex": 1,
+                                    "offenceCode": "TH68013A",
+                                    "shadowListed": false,
+                                    "offenceWording": "Attempt theft to vehicle",
+                                    "statementOfOffence": {
+                                        "title": "Attempt theft of motor vehicle",
+                                        "welshTitle": "Ymgais i ddwyn cerbyd modur",
+                                        "legislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
+                                        "welshLegislation": "Yn groes i adran 1(1) Deddf Ymgeisiau i Droseddu 1981."
+                                    },
+                                    "restrictFromCourtList": false
+                                }
+                            ],
+                            "firstName": "Chelsie",
+                            "bailStatus": {
+                                "id": "eaf18bf8-9569-3656-a4ab-64299f9bd513",
+                                "code": "U",
+                                "description": "Unconditional bail"
+                            },
+                            "dateOfBirth": "1994-01-09",
+                            "masterDefendantId": "c8191b8d-1685-4b7e-81dc-9b09350209ea",
+                            "proceedingsConcluded": false,
+                            "restrictFromCourtList": false,
+                            "courtProceedingsInitiated": "2026-01-09T10:16:28.122Z"
+                        }
+                    ],
+                    "shadowListed": false,
+                    "caseIdentifier": {
+                        "authorityId": "baa2ec52-296b-3f38-922a-9e641c1f94d3",
+                        "authorityCode": "CITYPF",
+                        "caseReference": "QM590975932"
+                    },
+                    "restrictFromCourtList": false
+                }
+            ],
+            "courtCentreId": "ac9e6303-fdf4-3669-a20b-5d234bfc5f8b",
+            "isSlotsBooked": false,
+            "nonDefaultDays": [],
+            "nonSittingDays": [],
+            "hearingLanguage": "ENGLISH",
+            "estimatedMinutes": 240,
+            "jurisdictionType": "CROWN",
+            "courtApplications": [],
+            "courtCentreDetails": {
+                "id": "ac9e6303-fdf4-3669-a20b-5d234bfc5f8b",
+                "defaultDuration": 360,
+                "defaultStartTime": "10:30:00"
+            },
+            "weekCommencingEndDate": "2026-02-01",
+            "weekCommencingStartDate": "2026-01-26",
+            "weekCommencingDurationInWeeks": 1
+        },
+        {
+            "id": "6ab1c92a-a9c8-4094-bad6-d8ff564eb70f",
+            "type": {
+                "id": "4a0e892d-c0c5-3c51-95b8-704d8c781776",
+                "description": "First hearing"
+            },
+            "endDate": "2026-01-09",
+            "resulted": true,
+            "allocated": true,
+            "judiciary": [],
+            "startDate": "2026-01-09",
+            "courtRoomId": "6d335b1f-769f-3120-bcda-c5d7c0725d3a",
+            "hearingDays": [
+                {
+                    "endTime": "2026-01-09T10:50:00.000Z",
+                    "sequence": 3,
+                    "startTime": "2026-01-09T10:30:00.000Z",
+                    "courtRoomId": "6d335b1f-769f-3120-bcda-c5d7c0725d3a",
+                    "hearingDate": "2026-01-09",
+                    "isCancelled": false,
+                    "courtCentreId": "c133d0de-c989-48b9-bd20-0431943e347e",
+                    "courtScheduleId": "d361f08a-0b63-481c-95cb-e932784463f7",
+                    "durationMinutes": 20
+                }
+            ],
+            "listedCases": [
+                {
+                    "id": "4b47b27b-7501-4c75-871b-8d0d2e38bd72",
+                    "markers": [],
+                    "caseStatus": "ACTIVE",
+                    "defendants": [
+                        {
+                            "id": "c8191b8d-1685-4b7e-81dc-9b09350209ea",
+                            "address": {
+                                "address1": "221B Baker Street",
+                                "address2": "Baker Street",
+                                "address3": "Marylebone",
+                                "address4": "Greater London",
+                                "address5": "London",
+                                "postcode": "NW1 5BR"
+                            },
+                            "isYouth": false,
+                            "lastName": "Satterfield",
+                            "offences": [
+                                {
+                                    "id": "10e382c5-6deb-4fd4-b7ec-480c82e3192c",
+                                    "count": 0,
+                                    "startDate": "2025-11-10",
+                                    "orderIndex": 1,
+                                    "offenceCode": "TH68013A",
+                                    "shadowListed": false,
+                                    "offenceWording": "Attempt theft to vehicle",
+                                    "statementOfOffence": {
+                                        "title": "Attempt theft of motor vehicle",
+                                        "welshTitle": "Ymgais i ddwyn cerbyd modur",
+                                        "legislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
+                                        "welshLegislation": "Yn groes i adran 1(1) Deddf Ymgeisiau i Droseddu 1981."
+                                    },
+                                    "restrictFromCourtList": false
+                                }
+                            ],
+                            "firstName": "Chelsie",
+                            "bailStatus": {
+                                "id": "12e69486-4d01-3403-a50a-7419ca040635",
+                                "code": "C",
+                                "description": "Custody"
+                            },
+                            "dateOfBirth": "1994-01-09",
+                            "masterDefendantId": "c8191b8d-1685-4b7e-81dc-9b09350209ea",
+                            "hearingLanguageNeeds": "ENGLISH",
+                            "proceedingsConcluded": false,
+                            "restrictFromCourtList": false,
+                            "courtProceedingsInitiated": "2026-01-09T10:16:28.122Z"
+                        }
+                    ],
+                    "shadowListed": false,
+                    "caseIdentifier": {
+                        "authorityId": "baa2ec52-296b-3f38-922a-9e641c1f94d3",
+                        "authorityCode": "CITYPF",
+                        "caseReference": "QM590975932"
+                    },
+                    "restrictFromCourtList": false
+                }
+            ],
+            "courtCentreId": "c133d0de-c989-48b9-bd20-0431943e347e",
+            "isSlotsBooked": false,
+            "nonDefaultDays": [],
+            "nonSittingDays": [],
+            "hearingLanguage": "ENGLISH",
+            "estimatedMinutes": 20,
+            "jurisdictionType": "MAGISTRATES",
+            "courtApplications": [],
+            "courtCentreDetails": {
+                "id": "c133d0de-c989-48b9-bd20-0431943e347e",
+                "defaultDuration": 420,
+                "defaultStartTime": "10:00:00"
+            },
+            "isGroupProceedings": false,
+            "numberOfGroupCases": 1,
+            "sendNotificationToParties": false
+        },
+        {
+            "id": "79c0a6a3-7783-426d-91f2-de72cb90533b",
+            "type": {
+                "id": "06b0c2bf-3f98-46ed-ab7e-56efaf9ecced",
+                "description": "Plea and Trial Preparation"
+            },
+            "endDate": "2026-01-11",
+            "allocated": false,
+            "judiciary": [],
+            "startDate": "2026-01-11",
+            "hearingDays": [
+                {
+                    "endTime": "2026-01-11T10:00:00.000Z",
+                    "sequence": 0,
+                    "startTime": "2026-01-11T10:00:00.000Z",
+                    "hearingDate": "2026-01-11",
+                    "isCancelled": false,
+                    "courtCentreId": "89592405-c29b-3706-b1d3-b1dd3a08b227",
+                    "durationMinutes": 20
+                }
+            ],
+            "listedCases": [
+                {
+                    "id": "4b47b27b-7501-4c75-871b-8d0d2e38bd72",
+                    "markers": [],
+                    "defendants": [
+                        {
+                            "id": "c8191b8d-1685-4b7e-81dc-9b09350209ea",
+                            "address": {
+                                "address1": "221B Baker Street",
+                                "address2": "Baker Street",
+                                "address3": "Marylebone",
+                                "address4": "Greater London",
+                                "address5": "London",
+                                "postcode": "NW1 5BR"
+                            },
+                            "isYouth": false,
+                            "lastName": "Satterfield",
+                            "offences": [
+                                {
+                                    "id": "10e382c5-6deb-4fd4-b7ec-480c82e3192c",
+                                    "count": 0,
+                                    "startDate": "2025-11-10",
+                                    "orderIndex": 1,
+                                    "offenceCode": "TH68013A",
+                                    "shadowListed": false,
+                                    "offenceWording": "Attempt theft to vehicle",
+                                    "seedingHearing": {
+                                        "sittingDay": "2026-01-09",
+                                        "jurisdictionType": "MAGISTRATES",
+                                        "seedingHearingId": "6ab1c92a-a9c8-4094-bad6-d8ff564eb70f"
+                                    },
+                                    "statementOfOffence": {
+                                        "title": "Attempt theft of motor vehicle",
+                                        "welshTitle": "Ymgais i ddwyn cerbyd modur",
+                                        "legislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
+                                        "welshLegislation": "Yn groes i adran 1(1) Deddf Ymgeisiau i Droseddu 1981."
+                                    },
+                                    "restrictFromCourtList": false
+                                }
+                            ],
+                            "firstName": "Chelsie",
+                            "bailStatus": {
+                                "id": "eaf18bf8-9569-3656-a4ab-64299f9bd513",
+                                "code": "U",
+                                "description": "Unconditional bail"
+                            },
+                            "dateOfBirth": "1994-01-09",
+                            "masterDefendantId": "c8191b8d-1685-4b7e-81dc-9b09350209ea",
+                            "restrictFromCourtList": false,
+                            "courtProceedingsInitiated": "2026-01-09T10:16:28.122Z"
+                        }
+                    ],
+                    "shadowListed": false,
+                    "caseIdentifier": {
+                        "authorityId": "baa2ec52-296b-3f38-922a-9e641c1f94d3",
+                        "authorityCode": "CITYPF",
+                        "caseReference": "QM590975932"
+                    },
+                    "restrictFromCourtList": false
+                }
+            ],
+            "courtCentreId": "89592405-c29b-3706-b1d3-b1dd3a08b227",
+            "isSlotsBooked": false,
+            "nonDefaultDays": [],
+            "nonSittingDays": [],
+            "hearingLanguage": "ENGLISH",
+            "estimatedMinutes": 20,
+            "jurisdictionType": "CROWN",
+            "adjournedFromDate": "2026-01-09",
+            "courtApplications": [],
+            "estimatedDuration": "20 MINUTES",
+            "courtCentreDetails": {
+                "id": "89592405-c29b-3706-b1d3-b1dd3a08b227",
+                "defaultDuration": 420,
+                "defaultStartTime": "10:00:00"
+            }
+        },
+        {
+            "id": "8040f4c3-b6df-4de5-a9d3-c54fcbdbd497",
+            "type": {
+                "id": "bd4dab38-ea91-434b-8e73-e0d50ef0cbdf",
+                "description": "Review"
+            },
+            "endDate": "2026-01-15",
+            "resulted": true,
+            "allocated": true,
+            "judiciary": [],
+            "startDate": "2026-01-15",
+            "courtRoomId": "4294a92c-8827-3296-be53-c74b7e9e31d8",
+            "hearingDays": [
+                {
+                    "endTime": "2026-01-15T10:10:00.000Z",
+                    "sequence": 1,
+                    "startTime": "2026-01-15T10:00:00.000Z",
+                    "courtRoomId": "4294a92c-8827-3296-be53-c74b7e9e31d8",
+                    "hearingDate": "2026-01-15",
+                    "isCancelled": false,
+                    "courtCentreId": "c133d0de-c989-48b9-bd20-0431943e347e",
+                    "courtScheduleId": "393e35b6-7571-4496-958d-6b6e35c99ef7",
+                    "durationMinutes": 10
+                }
+            ],
+            "listedCases": [
+                {
+                    "id": "4b47b27b-7501-4c75-871b-8d0d2e38bd72",
+                    "markers": [],
+                    "caseStatus": "ACTIVE",
+                    "defendants": [
+                        {
+                            "id": "c8191b8d-1685-4b7e-81dc-9b09350209ea",
+                            "address": {
+                                "address1": "221B Baker Street",
+                                "address2": "Baker Street",
+                                "address3": "Marylebone",
+                                "address4": "Greater London",
+                                "address5": "London",
+                                "postcode": "NW1 5BR"
+                            },
+                            "isYouth": false,
+                            "lastName": "Satterfield",
+                            "offences": [
+                                {
+                                    "id": "10e382c5-6deb-4fd4-b7ec-480c82e3192c",
+                                    "count": 0,
+                                    "startDate": "2025-11-10",
+                                    "orderIndex": 1,
+                                    "offenceCode": "TH68013A",
+                                    "shadowListed": false,
+                                    "offenceWording": "Attempt theft to vehicle",
+                                    "statementOfOffence": {
+                                        "title": "Attempt theft of motor vehicle",
+                                        "welshTitle": "Ymgais i ddwyn cerbyd modur",
+                                        "legislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
+                                        "welshLegislation": "Yn groes i adran 1(1) Deddf Ymgeisiau i Droseddu 1981."
+                                    },
+                                    "restrictFromCourtList": false
+                                }
+                            ],
+                            "firstName": "Chelsie",
+                            "bailStatus": {
+                                "id": "eaf18bf8-9569-3656-a4ab-64299f9bd513",
+                                "code": "U",
+                                "description": "Unconditional bail"
+                            },
+                            "dateOfBirth": "1994-01-09",
+                            "masterDefendantId": "c8191b8d-1685-4b7e-81dc-9b09350209ea",
+                            "proceedingsConcluded": false,
+                            "restrictFromCourtList": false,
+                            "courtProceedingsInitiated": "2026-01-09T10:16:28.122Z"
+                        }
+                    ],
+                    "shadowListed": false,
+                    "caseIdentifier": {
+                        "authorityId": "baa2ec52-296b-3f38-922a-9e641c1f94d3",
+                        "authorityCode": "CITYPF",
+                        "caseReference": "QM590975932"
+                    },
+                    "restrictFromCourtList": false
+                }
+            ],
+            "courtCentreId": "c133d0de-c989-48b9-bd20-0431943e347e",
+            "isSlotsBooked": true,
+            "nonDefaultDays": [],
+            "nonSittingDays": [],
+            "hearingLanguage": "ENGLISH",
+            "estimatedMinutes": 10,
+            "jurisdictionType": "MAGISTRATES",
+            "courtApplications": [],
+            "courtCentreDetails": {
+                "id": "c133d0de-c989-48b9-bd20-0431943e347e",
+                "defaultDuration": 420,
+                "defaultStartTime": "10:00:00"
+            },
+            "sendNotificationToParties": false
+        }
+    ]
+}
