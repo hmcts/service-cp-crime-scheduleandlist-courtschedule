@@ -26,12 +26,8 @@ apply {
   from("$rootDir/gradle/apitest.gradle")
 }
 
-ext {
-  apiCourtScheduleVersion = "1.0.3"
-}
-
 dependencies {
-  implementation "uk.gov.hmcts.cp:api-cp-crime-schedulingandlisting-courtschedule:$apiCourtScheduleVersion"
+  implementation "uk.gov.hmcts.cp:api-cp-crime-schedulingandlisting-courtschedule:1.0.3"
 
   implementation 'org.springframework.boot:spring-boot-starter-actuator'
   implementation 'org.springframework.boot:spring-boot-starter-opentelemetry'

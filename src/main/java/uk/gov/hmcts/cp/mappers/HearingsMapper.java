@@ -1,18 +1,6 @@
-package uk.gov.hmcts.cp.httpclients;
+package uk.gov.hmcts.cp.mappers;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.owasp.encoder.Encode;
-import org.springframework.context.annotation.Primary;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-import uk.gov.hmcts.cp.config.AppPropertiesBackend;
 import uk.gov.hmcts.cp.domain.HearingResponse;
-import uk.gov.hmcts.cp.domain.HearingResponse.HearingSchedule.Judiciary;
 import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.openapi.model.CourtSitting;
@@ -24,17 +12,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@Component
-@Primary
-@RequiredArgsConstructor
-@Slf4j
-public class CourtScheduleClientImpl {
+public class HearingsMapper {
 
-    private final AppPropertiesBackend appProperties;
-    private final RestTemplate restTemplate;
-
-    public CourtScheduleResponse getCourtScheduleByCaseId(final String caseId) {
-        final List<Hearing> hearingList = getHearings(caseId);
+    public CourtScheduleResponse mapCommonPlatformResponse(final HearingResponse hearingResponse) {
+        final List<Hearing> hearingList = getHearingData(hearingResponse);
         return CourtScheduleResponse.builder()
                 .courtSchedule(List.of(
                         CourtSchedule.builder()
@@ -44,25 +25,9 @@ public class CourtScheduleClientImpl {
                 .build();
     }
 
-    private List<Hearing> getHearings(final String caseId) {
-        final String url = buildUrl(caseId);
-        log.info("Getting hearings from {}", Encode.forJava(url));
-        final ResponseEntity<HearingResponse> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                getRequestEntity(),
-                HearingResponse.class
-        );
-        return getHearingData(response.getBody());
-    }
-
-    private String buildUrl(final String caseId) {
-        return String.format("%s%s?caseId=%s", appProperties.getHearingsUrl(), appProperties.getHearingsPath(), caseId);
-    }
 
     private List<Hearing> getHearingData(final HearingResponse hearingResponse) {
         final List<Hearing> hearings = new ArrayList<>();
-
         hearingResponse.getHearings().stream()
                 .filter(hearing -> hearing.isAllocated() || Objects.nonNull(hearing.getWeekCommencingDurationInWeeks()))
                 .forEach(hr -> {
@@ -70,11 +35,10 @@ public class CourtScheduleClientImpl {
                     hearing.setHearingId(hr.getId());
                     hearing.setHearingType(hr.getType().getDescription());
                     hearing.setHearingDescription(hr.getType().getDescription());
-                    // TODO COLING weird !
-                    hearing.setListNote("sample list note");
+                    hearing.setListNote(hr.getPublicListNote());
 
                     final String judiciaryId = hr.getJudiciary().stream()
-                            .map(Judiciary::getJudicialId)
+                            .map(HearingResponse.HearingSchedule.Judiciary::getJudicialId)
                             .collect(Collectors.joining(","));
 
                     final List<CourtSitting> courtSittings = new ArrayList<>();
@@ -89,7 +53,7 @@ public class CourtScheduleClientImpl {
         return hearings;
     }
 
-    private static CourtSitting getCourtSitting(
+    private CourtSitting getCourtSitting(
             final HearingResponse.HearingSchedule.HearingDay hearingDay,
             final String judiciaryId) {
 
@@ -101,12 +65,5 @@ public class CourtScheduleClientImpl {
         courtSitting.setCourtRoom(hearingDay.getCourtRoomId());
 
         return courtSitting;
-    }
-
-    private HttpEntity<String> getRequestEntity() {
-        final HttpHeaders headers = new HttpHeaders();
-        headers.add("Accept", "application/vnd.listing.search.hearings+json");
-        headers.add("CJSCPPUID", appProperties.getHearingsCjscppuid());
-        return new HttpEntity<>(headers);
     }
 }
