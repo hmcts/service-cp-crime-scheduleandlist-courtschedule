@@ -1,9 +1,6 @@
 package uk.gov.hmcts.cp.mappers;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.cp.domain.HearingResponse;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.openapi.model.CourtSitting;
@@ -14,10 +11,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(MockitoExtension.class)
 class HearingsMapperTest {
 
-    @InjectMocks
     HearingsMapper mapper = new HearingsMapper();
 
     private String hearingId = "8d20aff7-3275-447c-8bcc-72db68944da3";
