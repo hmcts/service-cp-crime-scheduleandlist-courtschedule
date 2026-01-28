@@ -53,8 +53,7 @@ public class CourtScheduleClientImpl {
                 getRequestEntity(),
                 HearingResponse.class
         );
-        List<Hearing> hearingSchedule = getHearingData(response.getBody());
-        return hearingSchedule;
+        return getHearingData(response.getBody());
     }
 
     private String buildUrl(final String caseId) {

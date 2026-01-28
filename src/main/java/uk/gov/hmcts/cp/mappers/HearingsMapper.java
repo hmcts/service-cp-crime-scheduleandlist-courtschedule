@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 public class HearingsMapper {
 
-    CourtScheduleResponse mapCommonPlatformResponse(HearingResponse hearingResponse) {
+    public CourtScheduleResponse mapCommonPlatformResponse(final HearingResponse hearingResponse) {
         final List<Hearing> hearingList = getHearingData(hearingResponse);
         return CourtScheduleResponse.builder()
                 .courtSchedule(List.of(
