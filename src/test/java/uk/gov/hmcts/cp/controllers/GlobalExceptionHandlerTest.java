@@ -1,87 +1,79 @@
 package uk.gov.hmcts.cp.controllers;
 
-import io.micrometer.tracing.Span;
-import io.micrometer.tracing.TraceContext;
 import io.micrometer.tracing.Tracer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import uk.gov.hmcts.cp.openapi.model.ErrorResponse;
 
-import java.time.Instant;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @ExtendWith(MockitoExtension.class)
 class GlobalExceptionHandlerTest {
-
-    @Mock
-    private Tracer tracer;
-
-    @Mock
-    private Span span;
-
-    @Mock
-    private TraceContext context;
+    @Spy
+    Tracer tracer = Tracer.NOOP;
 
     @InjectMocks
-    private GlobalExceptionHandler handler;
+    GlobalExceptionHandler globalExceptionHandler;
 
     @Test
-    void handleResponseStatusException_ShouldReturnErrorResponseWithCorrectFields() {
-        // Arrange
-        when(tracer.currentSpan()).thenReturn(span);
-        when(span.context()).thenReturn(context);
-        when(context.traceId()).thenReturn("test-trace-id");
-
-        String reason = "Test error";
-        ResponseStatusException ex =
-                new ResponseStatusException(HttpStatus.NOT_FOUND, reason);
-
-        // Act
-        var response = handler.handleResponseStatusException(ex);
-
-        // Assert
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-
-        ErrorResponse error = response.getBody();
-        assertNotNull(error);
-        assertEquals("404", error.getError());
-        assertEquals(reason, error.getMessage());
-
-        assertNotNull(error.getTimestamp());
-        assertTrue(error.getTimestamp() instanceof Instant);
-
-        assertEquals("test-trace-id", error.getTraceId());
+    void error_response_should_handle_ok() {
+        ResponseStatusException e = new ResponseStatusException(INTERNAL_SERVER_ERROR, "Error");
+        ResponseEntity<ErrorResponse> response = globalExceptionHandler.handleResponseStatusException(e);
+        assertErrorFields(response, INTERNAL_SERVER_ERROR, "Error");
     }
 
     @Test
-    void handleException_should_returnInternalServerError() {
-        // Arrange
-        when(tracer.currentSpan()).thenReturn(span);
-        when(span.context()).thenReturn(context);
-        when(context.traceId()).thenReturn("test-trace-id");
+    void server_exception_should_handle_ok() {
+        HttpServerErrorException e = new HttpServerErrorException(INTERNAL_SERVER_ERROR, "Error");
+        ResponseEntity<ErrorResponse> response = globalExceptionHandler.handleServerException(e);
+        assertErrorFields(response, INTERNAL_SERVER_ERROR, "500 Error");
+    }
 
-        RuntimeException ex = new RuntimeException("Unexpected error");
+    @Test
+    void client_exception_should_handle_ok() {
+        HttpClientErrorException e = new HttpClientErrorException(NOT_FOUND, "Error");
+        ResponseEntity<ErrorResponse> response = globalExceptionHandler.handleClientException(e);
+        assertErrorFields(response, NOT_FOUND, "404 Error");
+    }
 
-        // Act
-        var response = handler.handleException(ex);
+    @Test
+    void no_resource_found_exception_should_handle_ok() {
+        NoResourceFoundException e = new NoResourceFoundException(GET, "Url", "Path");
+        ResponseEntity<ErrorResponse> response = globalExceptionHandler.handleNoResourceFoundException(e);
+        assertErrorFields(response, NOT_FOUND, "No static resource Path for request 'Url'.");
+    }
 
-        // Assert
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    @Test
+    void no_handler_found_exception_should_handle_ok() {
+        NoHandlerFoundException e = new NoHandlerFoundException("GET", "Url", null);
+        ResponseEntity<ErrorResponse> response = globalExceptionHandler.handleNoHandlerFoundException(e);
+        assertErrorFields(response, NOT_FOUND, "No endpoint GET Url.");
+    }
 
-        ErrorResponse error = response.getBody();
-        assertNotNull(error);
-        assertEquals("Unexpected error", error.getMessage());
-        assertNotNull(error.getTimestamp());
-        assertTrue(error.getTimestamp() instanceof Instant);
-        assertEquals("test-trace-id", error.getTraceId());
+    @Test
+    void generic_exception_should_handle_ok() {
+        Exception e = new Exception("message");
+        ResponseEntity<ErrorResponse> response = globalExceptionHandler.handleException(e);
+        assertErrorFields(response, INTERNAL_SERVER_ERROR, "message");
+    }
+
+    private void assertErrorFields(ResponseEntity<ErrorResponse> errorResponse, HttpStatusCode httpStatusCode, String message) {
+        assertThat(errorResponse.getStatusCode()).isEqualTo(httpStatusCode);
+        assertThat(errorResponse.getBody().getMessage()).isEqualTo(message);
+        assertThat(errorResponse.getBody().getTraceId()).isNotNull();
+        assertThat(errorResponse.getBody().getTimestamp()).isNotNull();
     }
 }

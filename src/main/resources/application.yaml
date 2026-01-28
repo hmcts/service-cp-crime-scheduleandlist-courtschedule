@@ -25,7 +25,9 @@ spring:
     import: "optional:configtree:/mnt/secrets/rpe/"
   application:
     name: service-cp-crime-scheduleandlist-courtschedule
-
+  web:
+    resources:
+      add-mappings: false     # disable serving any static resources and 404 message
 
 case-mapper-client:
   url: ${AMP_BACKEND_URL:http://localhost:8080}

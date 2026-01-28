@@ -10,12 +10,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.cp.config.AppPropertiesBackend;
 import uk.gov.hmcts.cp.domain.CaseMapperResponse;
 import uk.gov.hmcts.cp.domain.HearingResponse;
 
-import java.net.http.HttpClient;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,15 +33,15 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
     AppPropertiesBackend appProperties;
     @MockitoBean
     RestTemplate restTemplate;
-    @MockitoBean
-    HttpClient httpClient;
+
+    String caseUrn = "test-case-urn";
+    String caseId = UUID.randomUUID().toString();
 
     @Test
     void get_court_schedule_should_return_ok() throws Exception {
-        String caseUrn = "test-case-urn";
-        String caseId = UUID.randomUUID().toString();
         CaseMapperResponse caseMapperResponse = CaseMapperResponse.builder().caseId(caseId).build();
         mockMapperResponse(caseUrn, HttpStatus.OK, caseMapperResponse);
+
         HearingResponse hearingResponse = HearingResponse.builder().hearings(List.of(dummyHearing())).build();
         mockHearingsResponse(caseId, HttpStatus.OK, hearingResponse);
 
@@ -50,6 +50,47 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("courtSchedule[0].hearings[0].hearingDescription").value("Plea and Trial Preparation"));
+    }
+
+    @Test
+    void bad_caseurn_should_return_404() throws Exception {
+        String expectedUrl = String.format("%s%s/%s", appProperties.getCaseMapperUrl(), appProperties.getCaseMapperPath(), caseUrn);
+        log.info("Mocking {} error", expectedUrl);
+        when(restTemplate.exchange(
+                expectedUrl,
+                HttpMethod.GET,
+                expectedMapperHeaders(),
+                CaseMapperResponse.class
+        )).thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
+
+        mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("message").value("404 NOT_FOUND"));
+    }
+
+    @Test
+    void bad_hearings_response_should_return_500() throws Exception {
+        CaseMapperResponse caseMapperResponse = CaseMapperResponse.builder().caseId(caseId).build();
+        mockMapperResponse(caseUrn, HttpStatus.OK, caseMapperResponse);
+
+        String expectedHearingsUrl = String.format("%s%s?caseId=%s", appProperties.getHearingsUrl(), appProperties.getHearingsPath(), caseId);
+        log.info("Mocking {} error", expectedHearingsUrl);
+        when(restTemplate.exchange(
+                expectedHearingsUrl,
+                HttpMethod.GET,
+                expectedMapperHeaders(),
+                CaseMapperResponse.class
+        )).thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
+
+        String expectedParseError = "Cannot invoke \"org.springframework.http.ResponseEntity.getBody()\" because \"response\" is null";
+        mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().is5xxServerError())
+                // TODO COLING fix the error to surface and not try to parse / map the empty response
+                .andExpect(jsonPath("message").value(expectedParseError));
     }
 
     private HearingResponse.HearingSchedule dummyHearing() {
@@ -67,10 +108,10 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
         String expectedUrl = String.format("%s%s/%s", appProperties.getCaseMapperUrl(), appProperties.getCaseMapperPath(), caseUrn);
         log.info("Mocking {} response", expectedUrl);
         when(restTemplate.exchange(
-                eq(expectedUrl),
-                eq(HttpMethod.GET),
-                eq(expectedMapperHeaders()),
-                eq(CaseMapperResponse.class)
+                expectedUrl,
+                HttpMethod.GET,
+                expectedMapperHeaders(),
+                CaseMapperResponse.class
         )).thenReturn(new ResponseEntity<>(response, httpStatus));
     }
 
