@@ -1,98 +1,38 @@
 plugins {
-    id 'application'
-    id 'java'
-    id 'io.spring.dependency-management' version '1.1.7'
-    id 'org.springframework.boot' version '4.0.1'
-    id 'jacoco'
-    id 'maven-publish'
-    id 'com.github.ben-manes.versions' version '0.53.0'
-    id "org.cyclonedx.bom" version "3.1.0"
-    id "au.com.dius.pact" version "4.6.19"
-    id 'com.gorylenko.gradle-git-properties' version '2.5.4'
+  id 'application'
+  id 'java'
+  id 'org.springframework.boot' version '4.0.1'
+  id 'io.spring.dependency-management' version '1.1.7'
+  id 'jacoco'
+  id 'maven-publish'
+  id 'com.github.ben-manes.versions' version '0.53.0'
+  id "org.cyclonedx.bom" version "3.1.0"
+  id 'com.avast.gradle.docker-compose' version '0.17.20'
 }
 
 group = 'uk.gov.hmcts.cp'
 version = System.getProperty('ARTEFACT_VERSION') ?: '0.0.999'
 
 apply {
-    from("$rootDir/gradle/repositories.gradle")
-    from("$rootDir/gradle/java.gradle")
-    from("$rootDir/gradle/dependency.gradle")
-    from("$rootDir/gradle/buildinfo.gradle")
-    from("$rootDir/gradle/pmd.gradle")
-    from("$rootDir/gradle/test.gradle")
-    from("$rootDir/gradle/jar.gradle")
-    from("$rootDir/gradle/integration.gradle")
-}
+  from("$rootDir/gradle/java-core.gradle")
+  from("$rootDir/gradle/spring-core.gradle")
 
-tasks.named('build') {
-    dependsOn tasks.named('test')
-    dependsOn tasks.named('integration')
-    dependsOn 'bootBuildInfo'
-    dependsOn 'generateGitProperties'
-}
+  from("$rootDir/gradle/repositories.gradle")
+  from("$rootDir/gradle/dependency.gradle")
+  from("$rootDir/gradle/pmd.gradle")
+  from("$rootDir/gradle/test.gradle")
+  from("$rootDir/gradle/jar.gradle")
 
-cyclonedxBom {
-    schemaVersion = org.cyclonedx.Version.VERSION_16
-    componentVersion = project.version.toString()
-}
-
-application {
-    mainClass = 'uk.gov.hmcts.cp.Application'
-}
-
-// Configure git properties plugin
-gitProperties {
-    failOnNoGitDirectory = false
-    keys = ['git.branch', 'git.commit.id', 'git.commit.time']
+  from("$rootDir/gradle/apitest.gradle")
 }
 
 ext {
-    apiCourtScheduleVersion = "1.0.3"
-    log4JVersion = "2.24.3"
-    logbackVersion = "1.5.18"
-    lombokVersion = "1.18.38"
+  apiCourtScheduleVersion = "1.0.3"
 }
 
 dependencies {
-    implementation "uk.gov.hmcts.cp:api-cp-crime-schedulingandlisting-courtschedule:$apiCourtScheduleVersion"
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.1'
-    implementation 'io.swagger.core.v3:swagger-core:2.2.41'
-    implementation 'javax.xml.bind:jaxb-api:2.3.1'
+  implementation "uk.gov.hmcts.cp:api-cp-crime-schedulingandlisting-courtschedule:$apiCourtScheduleVersion"
 
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.boot:spring-boot-starter-aop:3.5.9'
-    implementation 'org.springframework.boot:spring-boot-starter-json'
-
-    // micrometer
-    implementation platform('io.micrometer:micrometer-tracing-bom:latest.release')
-    implementation 'io.micrometer:micrometer-tracing'
-    implementation 'io.micrometer:micrometer-tracing-bridge-otel'
-    // Spring Boot 4 will auto-configure OpenTelemetry when management.tracing.enabled=true
-    implementation 'io.micrometer:micrometer-registry-azure-monitor'
-    implementation 'com.azure:azure-monitor-opentelemetry-autoconfigure:1.4.0'
-
-    implementation 'net.logstash.logback:logstash-logback-encoder:9.0'
-    implementation group: 'io.rest-assured', name: 'rest-assured', version: '6.0.0'
-    implementation 'org.hibernate.validator:hibernate-validator:9.1.0.Final'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.20.1'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1'
-    implementation("org.owasp.encoder:encoder:1.4.0")
-
-    compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
-    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
-    testCompileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
-    testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
-    integrationTestCompileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
-    integrationTestAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
-
-    testImplementation(platform('org.junit:junit-bom:6.0.2'))
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-    testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '4.0.1', {
-        exclude group: 'junit', module: 'junit'
-        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-    }
-    testImplementation group: 'org.springframework.boot', name: 'spring-boot-test-autoconfigure', version: '4.0.1'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+  implementation 'org.springframework.boot:spring-boot-starter-actuator'
+  implementation 'org.springframework.boot:spring-boot-starter-opentelemetry'
 }

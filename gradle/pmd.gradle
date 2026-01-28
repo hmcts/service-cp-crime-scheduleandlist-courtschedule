@@ -4,7 +4,6 @@ pmd {
   ruleSets = []
   ruleSetFiles = files(".github/pmd-ruleset.xml")
   ignoreFailures = false
-  sourceSets = [sourceSets.main]
 }
 
 tasks.named("pmdMain").configure {
@@ -13,7 +12,6 @@ tasks.named("pmdMain").configure {
 
 tasks.named("pmdTest").configure {
   enabled = false
-  ignoreFailures = true
 }
 
 tasks.withType(Pmd) {

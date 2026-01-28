@@ -15,32 +15,32 @@ repositories {
 }
 
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact(tasks.named('bootJar'))
-            artifact(tasks.named('jar'))
-            pom {
-                name = project.name
-                url = "https://github.com/${githubRepo ?: 'org/repo'}"
-            }
-        }
+  publications {
+    mavenJava(MavenPublication) {
+      artifact(tasks.named('bootJar'))
+      artifact(tasks.named('jar'))
+      pom {
+        name = project.name
+        url = "https://github.com/${githubRepo ?: 'org/repo'}"
+      }
     }
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/$githubRepo")
-            credentials {
-                username = githubActor
-                password = githubToken
-            }
-        }
-        maven {
-            name = "AzureArtifacts"
-            url = uri(azureADOArtifactRepository)
-            credentials {
-                username = azureADOArtifactActor
-                password = azureADOArtifactToken
-            }
-        }
+  }
+  repositories {
+    maven {
+      name = "GitHubPackages"
+      url = uri("https://maven.pkg.github.com/$githubRepo")
+      credentials {
+        username = githubActor
+        password = githubToken
+      }
     }
+    maven {
+      name = "AzureArtifacts"
+      url = uri(azureADOArtifactRepository)
+      credentials {
+        username = azureADOArtifactActor
+        password = azureADOArtifactToken
+      }
+    }
+  }
 }

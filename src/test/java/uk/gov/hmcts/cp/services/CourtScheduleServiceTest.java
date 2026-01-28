@@ -6,11 +6,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
+import uk.gov.hmcts.cp.httpclients.CourtScheduleClientImpl;
 import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.openapi.model.CourtSitting;
 import uk.gov.hmcts.cp.openapi.model.Hearing;
-import uk.gov.hmcts.cp.httpclients.CourtScheduleClient;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 class CourtScheduleServiceTest {
 
     @Mock
-    private CourtScheduleClient courtScheduleClient;
+    private CourtScheduleClientImpl courtScheduleClient;
 
     @InjectMocks
     private CourtScheduleService courtScheduleService;
