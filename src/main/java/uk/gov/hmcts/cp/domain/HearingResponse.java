@@ -33,6 +33,7 @@ public class HearingResponse implements Serializable {
         private List<Judiciary> judiciary;
         private List<HearingDay> hearingDays;
         private Integer weekCommencingDurationInWeeks;
+        private String publicListNote;
 
         @JsonIgnoreProperties(ignoreUnknown = true)
         @Builder
