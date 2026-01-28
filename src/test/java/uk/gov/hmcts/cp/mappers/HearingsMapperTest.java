@@ -6,8 +6,10 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.cp.domain.HearingResponse;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
+import uk.gov.hmcts.cp.openapi.model.CourtSitting;
 import uk.gov.hmcts.cp.openapi.model.Hearing;
 
+import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,12 +30,17 @@ class HearingsMapperTest {
 
         CourtScheduleResponse response = mapper.mapCommonPlatformResponse(hearingResponse);
 
-        assertThat(response.getCourtSchedule()).hasSize(1);
         Hearing hearing0 = response.getCourtSchedule().getFirst().getHearings().getFirst();
         assertThat(hearing0.getHearingId()).isEqualTo(hearingId);
-        // assert EVERY single field !
-
+        assertThat(hearing0.getHearingType()).isEqualTo("Plea and Trial Preparation");
+        assertThat(hearing0.getHearingDescription()).isEqualTo("Plea and Trial Preparation");
         assertThat(hearing0.getListNote()).isEqualTo("ListNote");
+
+        CourtSitting courtSitting0 = hearing0.getCourtSittings().getFirst();
+        assertThat(courtSitting0.getSittingStart()).isEqualTo(Instant.parse("2026-01-21T11:00:00Z"));
+        assertThat(courtSitting0.getJudiciaryId()).isEqualTo("judge-1,judge-2");
+        assertThat(courtSitting0.getCourtHouse()).isEqualTo(courtId);
+        assertThat(courtSitting0.getCourtRoom()).isEqualTo(courtRoomId);
     }
 
     private HearingResponse.HearingSchedule dummyHearing() {
@@ -43,11 +50,13 @@ class HearingsMapperTest {
                 .courtCentreId(courtId)
                 .courtRoomId(courtRoomId)
                 .build();
+        HearingResponse.HearingSchedule.Judiciary judiciary1 = HearingResponse.HearingSchedule.Judiciary.builder().judicialId("judge-1").build();
+        HearingResponse.HearingSchedule.Judiciary judiciary2 = HearingResponse.HearingSchedule.Judiciary.builder().judicialId("judge-2").build();
         return HearingResponse.HearingSchedule.builder()
                 .id(hearingId)
                 .allocated(true)
                 .type(HearingResponse.HearingSchedule.HearingType.builder().description("Plea and Trial Preparation").build())
-                .judiciary(List.of())
+                .judiciary(List.of(judiciary1, judiciary2))
                 .hearingDays(List.of(hearingDay))
                 .publicListNote("ListNote")
                 .build();
