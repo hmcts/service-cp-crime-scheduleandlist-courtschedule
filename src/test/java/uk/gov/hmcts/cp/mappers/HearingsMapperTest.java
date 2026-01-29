@@ -20,7 +20,7 @@ class HearingsMapperTest {
     private final String courtRoomId = "1ef27392-ee5f-4b81-b783-a80b08037cbc";
 
     @Test
-    void cp_allocated_hearings_should_map_to_amp_response() {
+    void cp_hearings_should_map_to_amp_response() {
         HearingResponse hearingResponse = HearingResponse.builder().hearings(List.of(dummyHearing())).build();
 
         CourtScheduleResponse response = mapper.mapCommonPlatformResponse(hearingResponse);
