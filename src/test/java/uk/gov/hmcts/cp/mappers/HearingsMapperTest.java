@@ -20,8 +20,8 @@ class HearingsMapperTest {
     private String courtRoomId = "1ef27392-ee5f-4b81-b783-a80b08037cbc";
 
     @Test
-    void cp_hearings_should_map_to_amp_response() {
-        HearingResponse hearingResponse = HearingResponse.builder().hearings(List.of(dummyHearing())).build();
+    void cp_allocated_hearings_should_map_to_amp_response() {
+        HearingResponse hearingResponse = HearingResponse.builder().hearings(List.of(dummyHearing(true).build())).build();
 
         CourtScheduleResponse response = mapper.mapCommonPlatformResponse(hearingResponse);
 
@@ -38,7 +38,46 @@ class HearingsMapperTest {
         assertThat(courtSitting0.getCourtRoom()).isEqualTo(courtRoomId);
     }
 
-    private HearingResponse.HearingSchedule dummyHearing() {
+    @Test
+    void cp_week_commencing_hearings_should_should_map_to_amp_response() {
+        HearingResponse hearingResponse = HearingResponse.builder().hearings(List.of(weekCommencingHearing())).build();
+
+        CourtScheduleResponse response = mapper.mapCommonPlatformResponse(hearingResponse);
+
+        Hearing hearing0 = response.getCourtSchedule().getFirst().getHearings().getFirst();
+        assertThat(hearing0.getHearingId()).isEqualTo(hearingId);
+        assertThat(hearing0.getHearingType()).isEqualTo("Plea and Trial Preparation");
+        assertThat(hearing0.getHearingDescription()).isEqualTo("Plea and Trial Preparation");
+        assertThat(hearing0.getListNote()).isEqualTo("ListNote");
+
+        CourtSitting courtSitting0 = hearing0.getCourtSittings().getFirst();
+        assertThat(courtSitting0.getSittingStart()).isEqualTo(Instant.parse("2026-01-21T11:00:00Z"));
+        assertThat(courtSitting0.getJudiciaryId()).isEqualTo("judge-1,judge-2");
+        assertThat(courtSitting0.getCourtHouse()).isEqualTo(courtId);
+        assertThat(courtSitting0.getCourtRoom()).isEqualTo(courtRoomId);
+    }
+
+    @Test
+    void cp_unAllocated_hearings_should_return_empty_response() {
+        HearingResponse hearingResponse = HearingResponse.builder().hearings(List.of(dummyHearing(false).build())).build();
+
+        CourtScheduleResponse response = mapper.mapCommonPlatformResponse(hearingResponse);
+
+        List<Hearing> hearings = response.getCourtSchedule().getFirst().getHearings();
+        assertThat(hearings.size()).isEqualTo(0);
+    }
+
+    @Test
+    void cp_unScheduled_hearings_should_return_empty_response() {
+        HearingResponse hearingResponse = HearingResponse.builder().hearings(List.of(unscheduledHearing())).build();
+
+        CourtScheduleResponse response = mapper.mapCommonPlatformResponse(hearingResponse);
+
+        List<Hearing> hearings = response.getCourtSchedule().getFirst().getHearings();
+        assertThat(hearings.size()).isEqualTo(0);
+    }
+
+    private HearingResponse.HearingSchedule.HearingScheduleBuilder dummyHearing(boolean isAllocated) {
         HearingResponse.HearingSchedule.HearingDay hearingDay = HearingResponse.HearingSchedule.HearingDay.builder()
                 .startTime("2026-01-21T11:00:00Z")
                 .endTime("2026-01-21T11:20:00Z")
@@ -49,11 +88,22 @@ class HearingsMapperTest {
         HearingResponse.HearingSchedule.Judiciary judiciary2 = HearingResponse.HearingSchedule.Judiciary.builder().judicialId("judge-2").build();
         return HearingResponse.HearingSchedule.builder()
                 .id(hearingId)
-                .allocated(true)
+                .allocated(isAllocated)
                 .type(HearingResponse.HearingSchedule.HearingType.builder().description("Plea and Trial Preparation").build())
                 .judiciary(List.of(judiciary1, judiciary2))
                 .hearingDays(List.of(hearingDay))
-                .publicListNote("ListNote")
+                .publicListNote("ListNote");
+    }
+
+    private HearingResponse.HearingSchedule unscheduledHearing() {
+        return dummyHearing(false)
+                .unscheduled(true)
+                .build();
+    }
+
+    private HearingResponse.HearingSchedule weekCommencingHearing() {
+        return dummyHearing(false)
+                .weekCommencingDurationInWeeks(1)
                 .build();
     }
 }

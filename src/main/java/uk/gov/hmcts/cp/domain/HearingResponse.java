@@ -34,6 +34,7 @@ public class HearingResponse implements Serializable {
         private List<HearingDay> hearingDays;
         private Integer weekCommencingDurationInWeeks;
         private String publicListNote;
+        private boolean unscheduled;
 
         @JsonIgnoreProperties(ignoreUnknown = true)
         @Builder

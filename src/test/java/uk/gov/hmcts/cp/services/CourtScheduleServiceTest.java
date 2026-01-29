@@ -6,64 +6,43 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
-import uk.gov.hmcts.cp.httpclients.CourtScheduleClientImpl;
-import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
+import uk.gov.hmcts.cp.clients.CourtScheduleClient;
+import uk.gov.hmcts.cp.domain.HearingResponse;
+import uk.gov.hmcts.cp.mappers.HearingsMapper;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
-import uk.gov.hmcts.cp.openapi.model.CourtSitting;
-import uk.gov.hmcts.cp.openapi.model.Hearing;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CourtScheduleServiceTest {
 
     @Mock
-    private CourtScheduleClientImpl courtScheduleClient;
+    private CourtScheduleClient courtScheduleClient;
+
+    @Mock
+    private HearingsMapper hearingsMapper;
 
     @InjectMocks
     private CourtScheduleService courtScheduleService;
 
     @Test
     void shouldReturnStubbedCourtScheduleResponse_whenValidCaseUrnProvided() {
-        String validCaseUrn = "123-ABC-456";
-        Instant sittingStartTime = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+        String validCaseId= "123-ABC-456";
+        HearingResponse hearingResponse = mock(HearingResponse.class);
+        CourtScheduleResponse courtScheduleResponse = mock(CourtScheduleResponse.class);
 
-        CourtScheduleResponse mockResponse = CourtScheduleResponse.builder()
-                .courtSchedule(List.of(
-                        CourtSchedule.builder()
-                                .hearings(List.of(
-                                        Hearing.builder()
-                                                .hearingId(UUID.randomUUID().toString())
-                                                .hearingDescription("Sentencing for theft case")
-                                                .courtSittings(List.of(
-                                                        CourtSitting.builder()
-                                                                .sittingStart(sittingStartTime)
-                                                                .sittingEnd(sittingStartTime.plus(60, ChronoUnit.MINUTES))
-                                                                .build()
-                                                ))
-                                                .build()
-                                ))
-                                .build()
-                ))
-                .build();
+        when(courtScheduleClient.getHearingResponse(validCaseId)).thenReturn(hearingResponse);
+        when(hearingsMapper.mapCommonPlatformResponse(hearingResponse)).thenReturn(courtScheduleResponse);
 
-        when(courtScheduleClient.getCourtScheduleByCaseId(validCaseUrn)).thenReturn(mockResponse);
+        CourtScheduleResponse response = courtScheduleService.getCourtScheduleByCaseId(validCaseId);
+        assertThat(response).isEqualTo(courtScheduleResponse);
 
-        CourtScheduleResponse response = courtScheduleService.getCourtScheduleByCaseId(validCaseUrn);
-
-        assertThat(response).isNotNull();
-        assertThat(response.getCourtSchedule()).isNotEmpty();
-        assertThat(response.getCourtSchedule().get(0).getHearings()).isNotEmpty();
-        assertThat(response.getCourtSchedule().get(0).getHearings().get(0).getCourtSittings()).isNotEmpty();
-        assertThat(response.getCourtSchedule().get(0).getHearings().get(0).getHearingDescription())
-                .isEqualTo("Sentencing for theft case");
+        verify(courtScheduleClient).getHearingResponse(validCaseId);
+        verify(hearingsMapper).mapCommonPlatformResponse(hearingResponse);
     }
 
     @Test

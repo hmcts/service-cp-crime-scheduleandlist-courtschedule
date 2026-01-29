@@ -1,5 +1,6 @@
 package uk.gov.hmcts.cp.mappers;
 
+import org.springframework.stereotype.Component;
 import uk.gov.hmcts.cp.domain.HearingResponse;
 import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@Component
 public class HearingsMapper {
 
     public CourtScheduleResponse mapCommonPlatformResponse(final HearingResponse hearingResponse) {
