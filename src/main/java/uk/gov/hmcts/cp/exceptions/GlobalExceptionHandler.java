@@ -1,4 +1,4 @@
-package uk.gov.hmcts.cp.controllers;
+package uk.gov.hmcts.cp.exceptions;
 
 import io.micrometer.tracing.Tracer;
 import lombok.AllArgsConstructor;

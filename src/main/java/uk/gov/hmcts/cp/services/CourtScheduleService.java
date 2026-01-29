@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.cp.clients.CourtScheduleClient;
-import uk.gov.hmcts.cp.domain.HearingResponse;
 import uk.gov.hmcts.cp.mappers.HearingsMapper;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 
@@ -24,8 +23,7 @@ public class CourtScheduleService {
             log.error("No case Id provided");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "caseId is required");
         }
-        HearingResponse hearingResponse = courtScheduleClient.getHearingResponse(caseId);
-        return hearingsMapper.mapCommonPlatformResponse(hearingResponse);
+        return hearingsMapper.mapCommonPlatformResponse(courtScheduleClient.getHearingResponse(caseId));
     }
 
 }
