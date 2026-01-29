@@ -10,7 +10,6 @@ import uk.gov.hmcts.cp.openapi.model.Hearing;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -30,8 +29,7 @@ public class HearingsMapper {
 
     private List<Hearing> getHearingData(final HearingResponse hearingResponse) {
         final List<Hearing> hearings = new ArrayList<>();
-        hearingResponse.getHearings().stream()
-                .filter(hearing -> hearing.isAllocated() || Objects.nonNull(hearing.getWeekCommencingDurationInWeeks()))
+        hearingResponse.getHearings()
                 .forEach(hr -> {
                     final Hearing hearing = new Hearing();
                     hearing.setHearingId(hr.getId());

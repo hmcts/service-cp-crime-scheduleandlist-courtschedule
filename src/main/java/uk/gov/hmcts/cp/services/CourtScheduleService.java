@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.cp.clients.CourtScheduleClient;
+import uk.gov.hmcts.cp.domain.HearingResponse;
+import uk.gov.hmcts.cp.filters.HearingResponseFilter;
 import uk.gov.hmcts.cp.mappers.HearingsMapper;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 
@@ -17,13 +19,17 @@ import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 public class CourtScheduleService {
     private final CourtScheduleClient courtScheduleClient;
     private final HearingsMapper hearingsMapper;
+    private final HearingResponseFilter hearingResponseFilter;
 
     public CourtScheduleResponse getCourtScheduleByCaseId(final String caseId) throws ResponseStatusException {
         if (ObjectUtils.isEmpty(caseId)) {
             log.error("No case Id provided");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "caseId is required");
         }
-        return hearingsMapper.mapCommonPlatformResponse(courtScheduleClient.getHearingResponse(caseId));
+
+        final HearingResponse hearingResponse = courtScheduleClient.getHearingResponse(caseId);
+        final HearingResponse filteredResponse = hearingResponseFilter.filterHearingResponse(hearingResponse);
+        return hearingsMapper.mapCommonPlatformResponse(filteredResponse);
     }
 
 }

@@ -8,6 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.cp.clients.CourtScheduleClient;
 import uk.gov.hmcts.cp.domain.HearingResponse;
+import uk.gov.hmcts.cp.filters.HearingResponseFilter;
 import uk.gov.hmcts.cp.mappers.HearingsMapper;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 
@@ -26,6 +27,9 @@ class CourtScheduleServiceTest {
     @Mock
     private HearingsMapper hearingsMapper;
 
+    @Mock
+    private HearingResponseFilter hearingResponseFilter;
+
     @InjectMocks
     private CourtScheduleService courtScheduleService;
 
@@ -36,12 +40,14 @@ class CourtScheduleServiceTest {
         CourtScheduleResponse courtScheduleResponse = mock(CourtScheduleResponse.class);
 
         when(courtScheduleClient.getHearingResponse(validCaseId)).thenReturn(hearingResponse);
+        when(hearingResponseFilter.filterHearingResponse(hearingResponse)).thenReturn(hearingResponse);
         when(hearingsMapper.mapCommonPlatformResponse(hearingResponse)).thenReturn(courtScheduleResponse);
 
         CourtScheduleResponse response = courtScheduleService.getCourtScheduleByCaseId(validCaseId);
         assertThat(response).isEqualTo(courtScheduleResponse);
 
         verify(courtScheduleClient).getHearingResponse(validCaseId);
+        verify(hearingResponseFilter).filterHearingResponse(hearingResponse);
         verify(hearingsMapper).mapCommonPlatformResponse(hearingResponse);
     }
 
