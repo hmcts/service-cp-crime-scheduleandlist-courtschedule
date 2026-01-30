@@ -2,13 +2,15 @@ package uk.gov.hmcts.cp.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.server.ResponseStatusException;
+import uk.gov.hmcts.cp.clients.CourtScheduleClient;
+import uk.gov.hmcts.cp.domain.HearingResponse;
+import uk.gov.hmcts.cp.filters.HearingResponseFilter;
+import uk.gov.hmcts.cp.mappers.HearingsMapper;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
-import uk.gov.hmcts.cp.httpclients.CourtScheduleClient;
-import org.owasp.encoder.Encode;
 
 
 @Service
@@ -16,14 +18,18 @@ import org.owasp.encoder.Encode;
 @Slf4j
 public class CourtScheduleService {
     private final CourtScheduleClient courtScheduleClient;
+    private final HearingsMapper hearingsMapper;
+    private final HearingResponseFilter hearingResponseFilter;
 
     public CourtScheduleResponse getCourtScheduleByCaseId(final String caseId) throws ResponseStatusException {
-        if (StringUtils.isEmpty(caseId)) {
-            log.warn("No case Id provided");
+        if (ObjectUtils.isEmpty(caseId)) {
+            log.error("No case Id provided");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "caseId is required");
         }
-        log.warn("NOTE: System configured to return stubbed Court Schedule details. Ignoring provided caseId : {}", Encode.forJava(caseId));
-        return courtScheduleClient.getCourtScheduleByCaseId(caseId);
+
+        final HearingResponse hearingResponse = courtScheduleClient.getHearingResponse(caseId);
+        final HearingResponse filteredResponse = hearingResponseFilter.filterHearingResponse(hearingResponse);
+        return hearingsMapper.mapCommonPlatformResponse(filteredResponse);
     }
 
 }

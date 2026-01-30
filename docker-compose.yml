@@ -1,37 +1,20 @@
-version: '3.8'
-
 services:
-  service-cp-crime-scheduleandlist-courtschedule:
-    env_file:
-      - .env
+  wiremock:
+    image: wiremock/wiremock:3.6.0
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./src/apiTest/resources/mappings:/home/wiremock/mappings
+      - ./src/apiTest/resources/__files:/home/wiremock/__files
+    command:
+      - "--global-response-templating"
+      - "--verbose"
+
+  app:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        http_proxy: ${http_proxy}
-        https_proxy: ${https_proxy}
-        no_proxy: ${no_proxy}
-        BASE_IMAGE: ${BASE_IMAGE}
-        SERVER_PORT: ${SERVER_PORT}
-        JAR_FILENAME: ${JAR_FILENAME}
-        JAR_FILE_PATH: ${JAR_FILE_PATH}
-        AMP_BACKEND_URL: ${AMP_BACKEND_URL}
-        CP_BACKEND_URL: ${CP_BACKEND_URL}
-        CJSCPPUID: ${CJSCPPUID}
-
     environment:
-      - SERVER_PORT=${SERVER_PORT:-4550}
+      CP_BACKEND_URL: "http://wiremock:8080"
     ports:
-      - "${SERVER_PORT:-4550}:${SERVER_PORT:-4550}"
-    networks:
-      - service-network
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:${SERVER_PORT}/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 5s
-
-networks:
-  service-network:
-    name: service-cp-crime-scheduleandlist-courtschedule-network
+      - "4550:4550"

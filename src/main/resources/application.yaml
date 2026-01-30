@@ -6,9 +6,6 @@ management:
   endpoint:
     health:
       show-details: "always"
-      # group:
-      #  readiness:
-      #   include: "db"
   endpoints:
     web:
       base-path: /
@@ -28,26 +25,19 @@ spring:
     import: "optional:configtree:/mnt/secrets/rpe/"
   application:
     name: service-cp-crime-scheduleandlist-courtschedule
-#  azure:
-#    cosmos:
-#      endpoint: ${COSMOSDB_ENDPOINT}
-#      key: ${COSMOSDB_KEY}
-#      database: ${COSMOSDB_DATABASE}
+  web:
+    resources:
+      add-mappings: false     # disable serving any static resources and 404 message
 
-service:
-  case-mapper-service:
-    url: ${AMP_BACKEND_URL:}
-    path: /urnmapper
+case-mapper-client:
+  url: ${AMP_BACKEND_URL:http://localhost:8080}
+  path: /urnmapper
 
-  court-schedule-client:
-    url: ${CP_BACKEND_URL:}
-    path: /listing-query-api/query/api/rest/listing/hearings/allocated-and-unallocated
-    cjscppuid: ${CJSCPPUID:}
+court-schedule-client:
+  url: ${CP_BACKEND_URL:http://localhost}
+  path: /listing-query-api/query/api/rest/listing/hearings/allocated-and-unallocated
+  cjscppuid: ${CJSCPPUID:00000000-0000-0000-0000-000000000000}
 
 azure:
   application-insights:
     instrumentation-key: ${rpe.AppInsightsInstrumentationKey:00000000-0000-0000-0000-000000000000}
-
-logging:
-  level:
-    uk.gov.hmcts.cp: INFO

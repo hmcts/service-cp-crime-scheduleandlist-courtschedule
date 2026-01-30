@@ -1,4 +1,4 @@
-package uk.gov.hmcts.cp;
+package uk.gov.hmcts.cp.integration;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,10 +7,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import uk.gov.hmcts.cp.config.IntegrationTestConfig;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -25,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "jwt.filter.enabled=false",
         "management.tracing.enabled=true"
 })
-@Import(IntegrationTestConfig.class)
+@AutoConfigureMockMvc
 class TracingIntegrationTest {
 
     private static final String TRACE_ID_HEADER = "traceId";
@@ -50,7 +49,7 @@ class TracingIntegrationTest {
     @Test
     void incomingRequestShouldAddNewTracing() throws Exception {
         final ByteArrayOutputStream capturedStdOut = captureStdOut();
-        
+
         // Make the request
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
@@ -58,11 +57,11 @@ class TracingIntegrationTest {
 
         // Find the RootController log line
         final Map<String, Object> capturedFields = findLogWithTracing(capturedStdOut);
-        
+
         // Verify it's the RootController log
         assertThat(capturedFields.get("logger_name")).isEqualTo("uk.gov.hmcts.cp.controllers.RootController");
-        assertThat((String)capturedFields.get("message")).startsWith("START");
-        
+        assertThat((String) capturedFields.get("message")).startsWith("START");
+
         // Note: TracingFilter only reads from request headers, so traceId/spanId won't be present
         // unless they are sent in the request headers. This test verifies the log structure.
         // If traceId/spanId are present, they would have been sent in headers.
@@ -86,7 +85,7 @@ class TracingIntegrationTest {
         // Note: In MockMvc, response headers might not be accessible the same way
         final String responseTraceId = result.getResponse().getHeader(TRACE_ID_HEADER);
         final String responseSpanId = result.getResponse().getHeader(SPAN_ID_HEADER);
-        
+
         // The filter should set these headers when request headers are present
         if (responseTraceId != null && responseSpanId != null) {
             assertThat(responseTraceId).isEqualTo(TEST_TRACE_ID);
@@ -131,7 +130,7 @@ class TracingIntegrationTest {
 
     private Map<String, Object> findLogWithTracing(final ByteArrayOutputStream buf) throws Exception {
         final String[] lines = buf.toString(java.nio.charset.StandardCharsets.UTF_8).split("\\R");
-        
+
         // Look for RootController log with "START" message
         for (int i = lines.length - 1; i >= 0; i--) {
             final String line = lines[i].trim();
@@ -140,7 +139,7 @@ class TracingIntegrationTest {
                     final Map<String, Object> parsed = OBJECT_MAPPER.readValue(line, new TypeReference<>() {
                     });
                     // Find RootController log with "START" message
-                    if ("uk.gov.hmcts.cp.controllers.RootController".equals(parsed.get("logger_name")) 
+                    if ("uk.gov.hmcts.cp.controllers.RootController".equals(parsed.get("logger_name"))
                             && parsed.get("message").toString().startsWith("START")) {
                         return parsed;
                     }
@@ -149,7 +148,7 @@ class TracingIntegrationTest {
                 }
             }
         }
-        
+
         throw new IllegalStateException("No JSON log line found from RootController with 'START' message on STDOUT");
     }
 
@@ -174,26 +173,26 @@ class TracingIntegrationTest {
                 }
             }
         }
-        
+
         // If not found, look for any log with matching traceId and spanId
-            for (int i = lines.length - 1; i >= 0; i--) {
-                final String line = lines[i].trim();
-                if (!line.isEmpty() && line.startsWith("{") && line.endsWith("}")) {
-                    try {
+        for (int i = lines.length - 1; i >= 0; i--) {
+            final String line = lines[i].trim();
+            if (!line.isEmpty() && line.startsWith("{") && line.endsWith("}")) {
+                try {
                     Map<String, Object> parsed = new ObjectMapper().readValue(line, new TypeReference<>() {
-                        });
-                        // Find log with matching traceId and spanId
+                    });
+                    // Find log with matching traceId and spanId
                     if (expectedTraceId.equals(parsed.get("traceId")) && expectedSpanId.equals(parsed.get("spanId"))) {
                         return parsed;
-                        }
-                    } catch (Exception e) {
-                        // Skip invalid JSON lines
-                        // PMD: Empty catch block is intentional here as we're skipping invalid JSON
+                    }
+                } catch (Exception e) {
+                    // Skip invalid JSON lines
+                    // PMD: Empty catch block is intentional here as we're skipping invalid JSON
 
                 }
             }
         }
 
-            throw new IllegalStateException("No JSON log line found with traceId=" + expectedTraceId + " and spanId=" + expectedSpanId + " on STDOUT");
-        }
+        throw new IllegalStateException("No JSON log line found with traceId=" + expectedTraceId + " and spanId=" + expectedSpanId + " on STDOUT");
+    }
 }

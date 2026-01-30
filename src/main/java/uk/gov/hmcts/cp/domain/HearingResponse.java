@@ -32,6 +32,9 @@ public class HearingResponse implements Serializable {
         private boolean allocated;
         private List<Judiciary> judiciary;
         private List<HearingDay> hearingDays;
+        private Integer weekCommencingDurationInWeeks;
+        private String publicListNote;
+        private boolean unscheduled;
 
         @JsonIgnoreProperties(ignoreUnknown = true)
         @Builder
