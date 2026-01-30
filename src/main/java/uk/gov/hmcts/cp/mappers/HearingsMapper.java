@@ -37,16 +37,14 @@ public class HearingsMapper {
                     hearing.setHearingId(hr.getId());
                     hearing.setHearingType(hr.getType().getDescription());
                     hearing.setHearingDescription(hr.getType().getDescription());
-                    // PublicListNote is an optional field
                     hearing.setListNote(Optional.ofNullable(hr.getPublicListNote())
                             .orElse(""));
 
                     final List<CourtSitting> courtSittings = getCourtSittingsForAllocatedHearing(hr);
                     if(Objects.nonNull(hr.getWeekCommencingDurationInWeeks())) {
-                        //ToDo after api version 1.0.6 is build
-                       // hearing.setWeekCommencingStartDate(hr.getWeekCommencingStartDate());
-                       // hearing.setWeekCommencingEndDate(hr.getWeekCommencingEndDate());
-                       // hearing.setWeekCommencingDurationInWeeks(hr.getWeekCommencingDurationInWeeks());
+                        hearing.setWeekCommencingStartDate(hr.getWeekCommencingStartDate());
+                        hearing.setWeekCommencingEndDate(hr.getWeekCommencingEndDate());
+                        hearing.setWeekCommencingDurationInWeeks(hr.getWeekCommencingDurationInWeeks());
                     }
 
                     hearing.setCourtSittings(courtSittings);
@@ -56,14 +54,14 @@ public class HearingsMapper {
         return hearings;
     }
 
-    private List<CourtSitting> getCourtSittingsForAllocatedHearing(HearingResponse.HearingSchedule hr) {
-        List<CourtSitting> courtSittings = new ArrayList<>();
-        if(hr.isAllocated()) {
-            final String judiciaryId = hr.getJudiciary().stream()
+    private List<CourtSitting> getCourtSittingsForAllocatedHearing(final HearingResponse.HearingSchedule hearingSchedule) {
+        final List<CourtSitting> courtSittings = new ArrayList<>();
+        if(hearingSchedule.isAllocated()) {
+            final String judiciaryId = hearingSchedule.getJudiciary().stream()
                     .map(HearingResponse.HearingSchedule.Judiciary::getJudicialId)
                     .collect(Collectors.joining(","));
 
-            for (final HearingResponse.HearingSchedule.HearingDay hearingDay : hr.getHearingDays()) {
+            for (final HearingResponse.HearingSchedule.HearingDay hearingDay : hearingSchedule.getHearingDays()) {
                 courtSittings.add(getCourtSitting(hearingDay, judiciaryId));
             }
         }

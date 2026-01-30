@@ -38,9 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
 
     public static final ObjectMapper MAPPER = new ObjectMapper();
-    static {
-        MAPPER.findAndRegisterModules();
-    }
+
     @Autowired
     AppPropertiesBackend appProperties;
     @MockitoBean
@@ -56,7 +54,7 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
 
         mockHearingsResponse(caseId, HttpStatus.OK, cp_allocated_and_unallocated_response());
 
-        CourtScheduleResponse expectedResponse = expected_amp_response();
+        String expectedResponse = expected_amp_response();
 
         MvcResult result = mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
                         .accept(MediaType.APPLICATION_JSON))
@@ -64,7 +62,7 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        CourtScheduleResponse actualResponse = MAPPER.readValue(result.getResponse().getContentAsString(), CourtScheduleResponse.class);
+        String actualResponse = result.getResponse().getContentAsString();
         assertThat(actualResponse).isEqualTo(expectedResponse);
     }
 
@@ -115,10 +113,9 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
         return MAPPER.readValue(json, HearingResponse.class);
     }
 
-    private CourtScheduleResponse expected_amp_response() throws IOException, URISyntaxException {
+    private String expected_amp_response() throws IOException, URISyntaxException {
         URL resource = getClass().getClassLoader().getResource("expected_amp_response.json");
-        String json = Files.readString(Path.of(resource.toURI()));
-        return MAPPER.readValue(json, CourtScheduleResponse.class);
+        return Files.readString(Path.of(resource.toURI()));
     }
 
     private void mockMapperResponse(String caseUrn, HttpStatus httpStatus, CaseMapperResponse response) {

@@ -58,10 +58,9 @@ class HearingsMapperTest {
         assertThat(hearing.getListNote()).isEqualTo("");
 
         assertThat(hearing.getCourtSittings().size()).isEqualTo(0);
-        //ToDo after api version 1.0.6 is build
-//        assertThat(hearing.getWeekCommencingStartDate()).isEqualTo("2026-02-16");
-//        assertThat(hearing.getWeekCommencingEndDate()).isEqualTo("2026-02-22");
-//        assertThat(hearing.weekCommencingDurationInWeeks()).isEqualTo(1);
+        assertThat(hearing.getWeekCommencingStartDate()).isEqualTo("2026-02-16");
+        assertThat(hearing.getWeekCommencingEndDate()).isEqualTo("2026-02-22");
+        assertThat(hearing.getWeekCommencingDurationInWeeks()).isEqualTo(1);
     }
 
     private HearingResponse.HearingSchedule.HearingScheduleBuilder dummyHearing(String hearingId, boolean isAllocated) {
