@@ -1,5 +1,6 @@
 package uk.gov.hmcts.cp.integration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,17 +11,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.cp.config.AppPropertiesBackend;
 import uk.gov.hmcts.cp.domain.CaseMapperResponse;
 import uk.gov.hmcts.cp.domain.HearingResponse;
+import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 
-import java.util.List;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -29,6 +37,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Slf4j
 class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
 
+    public static final ObjectMapper MAPPER = new ObjectMapper();
+    static {
+        MAPPER.findAndRegisterModules();
+    }
     @Autowired
     AppPropertiesBackend appProperties;
     @MockitoBean
@@ -42,14 +54,18 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
         CaseMapperResponse caseMapperResponse = CaseMapperResponse.builder().caseId(caseId).build();
         mockMapperResponse(caseUrn, HttpStatus.OK, caseMapperResponse);
 
-        HearingResponse hearingResponse = HearingResponse.builder().hearings(List.of(dummyHearing())).build();
-        mockHearingsResponse(caseId, HttpStatus.OK, hearingResponse);
+        mockHearingsResponse(caseId, HttpStatus.OK, cp_allocated_and_unallocated_response());
 
-        mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
+        CourtScheduleResponse expectedResponse = expected_amp_response();
+
+        MvcResult result = mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("courtSchedule[0].hearings[0].hearingDescription").value("Plea and Trial Preparation"));
+                .andReturn();
+
+        CourtScheduleResponse actualResponse = MAPPER.readValue(result.getResponse().getContentAsString(), CourtScheduleResponse.class);
+        assertThat(actualResponse).isEqualTo(expectedResponse);
     }
 
     @Test
@@ -93,15 +109,16 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
                 .andExpect(jsonPath("message").value(expectedParseError));
     }
 
-    private HearingResponse.HearingSchedule dummyHearing() {
-        // TODO COLING implement tolerant mapper. Currently get rubbish error if these fields are null
-        return HearingResponse.HearingSchedule.builder()
-                .id(UUID.randomUUID().toString())
-                .allocated(true)
-                .type(HearingResponse.HearingSchedule.HearingType.builder().description("Plea and Trial Preparation").build())
-                .judiciary(List.of())
-                .hearingDays(List.of())
-                .build();
+    private HearingResponse cp_allocated_and_unallocated_response() throws IOException, URISyntaxException {
+        URL resource = getClass().getClassLoader().getResource("cp_allocated_and_unallocated_response.json");
+        String json = Files.readString(Path.of(resource.toURI()));
+        return MAPPER.readValue(json, HearingResponse.class);
+    }
+
+    private CourtScheduleResponse expected_amp_response() throws IOException, URISyntaxException {
+        URL resource = getClass().getClassLoader().getResource("expected_amp_response.json");
+        String json = Files.readString(Path.of(resource.toURI()));
+        return MAPPER.readValue(json, CourtScheduleResponse.class);
     }
 
     private void mockMapperResponse(String caseUrn, HttpStatus httpStatus, CaseMapperResponse response) {
