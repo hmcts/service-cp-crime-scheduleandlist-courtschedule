@@ -27,8 +27,9 @@ apply {
 }
 
 dependencies {
-  implementation "uk.gov.hmcts.cp:api-cp-crime-schedulingandlisting-courtschedule:1.0.3"
+  implementation "uk.gov.hmcts.cp:api-cp-crime-schedulingandlisting-courtschedule:1.0.6"
 
   implementation 'org.springframework.boot:spring-boot-starter-actuator'
   implementation 'org.springframework.boot:spring-boot-starter-opentelemetry'
+  testCompileOnly 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.7.3'
 }
