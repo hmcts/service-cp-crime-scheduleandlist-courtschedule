@@ -10,6 +10,8 @@ import uk.gov.hmcts.cp.openapi.model.Hearing;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -35,15 +37,14 @@ public class HearingsMapper {
                     hearing.setHearingId(hr.getId());
                     hearing.setHearingType(hr.getType().getDescription());
                     hearing.setHearingDescription(hr.getType().getDescription());
-                    hearing.setListNote(hr.getPublicListNote());
+                    hearing.setListNote(Optional.ofNullable(hr.getPublicListNote())
+                            .orElse(""));
 
-                    final String judiciaryId = hr.getJudiciary().stream()
-                            .map(HearingResponse.HearingSchedule.Judiciary::getJudicialId)
-                            .collect(Collectors.joining(","));
-
-                    final List<CourtSitting> courtSittings = new ArrayList<>();
-                    for (final HearingResponse.HearingSchedule.HearingDay hearingDay : hr.getHearingDays()) {
-                        courtSittings.add(getCourtSitting(hearingDay, judiciaryId));
+                    final List<CourtSitting> courtSittings = getCourtSittingsForAllocatedHearing(hr);
+                    if(Objects.nonNull(hr.getWeekCommencingDurationInWeeks())) {
+                        hearing.setWeekCommencingStartDate(hr.getWeekCommencingStartDate());
+                        hearing.setWeekCommencingEndDate(hr.getWeekCommencingEndDate());
+                        hearing.setWeekCommencingDurationInWeeks(hr.getWeekCommencingDurationInWeeks());
                     }
 
                     hearing.setCourtSittings(courtSittings);
@@ -51,6 +52,20 @@ public class HearingsMapper {
                 });
 
         return hearings;
+    }
+
+    private List<CourtSitting> getCourtSittingsForAllocatedHearing(final HearingResponse.HearingSchedule hearingSchedule) {
+        final List<CourtSitting> courtSittings = new ArrayList<>();
+        if(hearingSchedule.isAllocated()) {
+            final String judiciaryId = hearingSchedule.getJudiciary().stream()
+                    .map(HearingResponse.HearingSchedule.Judiciary::getJudicialId)
+                    .collect(Collectors.joining(","));
+
+            for (final HearingResponse.HearingSchedule.HearingDay hearingDay : hearingSchedule.getHearingDays()) {
+                courtSittings.add(getCourtSitting(hearingDay, judiciaryId));
+            }
+        }
+        return courtSittings;
     }
 
     private CourtSitting getCourtSitting(
