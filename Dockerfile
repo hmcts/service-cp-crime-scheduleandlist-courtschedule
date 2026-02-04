@@ -1,4 +1,6 @@
-FROM eclipse-temurin:21
+# ---- Base image (default fallback) ----
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE:-eclipse-temurin:21-jdk}
 
 WORKDIR /app
 
