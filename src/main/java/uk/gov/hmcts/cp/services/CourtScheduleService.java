@@ -28,14 +28,14 @@ public class CourtScheduleService {
         return createCourtScheduleResponse(hearingResponse);
     }
 
-    private void validateOrThrowError(Object obj, HttpStatus status, String errorMessage) {
+    private void validateOrThrowError(final Object obj, final HttpStatus status, final String errorMessage) {
         if (ObjectUtils.isEmpty(obj)) {
             log.error(errorMessage);
             throw new ResponseStatusException(status, errorMessage);
         }
     }
 
-    private CourtScheduleResponse createCourtScheduleResponse(HearingResponse hearingResponse) {
+    private CourtScheduleResponse createCourtScheduleResponse(final HearingResponse hearingResponse) {
         final HearingResponse filteredResponse = hearingResponseFilter.filterHearingResponse(hearingResponse);
         return hearingsMapper.mapCommonPlatformResponse(filteredResponse);
     }
