@@ -22,14 +22,21 @@ public class CourtScheduleService {
     private final HearingResponseFilter hearingResponseFilter;
 
     public CourtScheduleResponse getCourtScheduleByCaseId(final String caseId) throws ResponseStatusException {
-        if (ObjectUtils.isEmpty(caseId)) {
-            log.error("No case Id provided");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "caseId is required");
-        }
-
+        validateOrThrowError(caseId, HttpStatus.BAD_REQUEST, "caseId is mandatory");
         final HearingResponse hearingResponse = courtScheduleClient.getHearingResponse(caseId);
+        validateOrThrowError(hearingResponse.getHearings(), HttpStatus.NOT_FOUND, "hearing response should not be empty");
+        return createCourtScheduleResponse(hearingResponse);
+    }
+
+    private void validateOrThrowError(Object obj, HttpStatus status, String errorMessage) {
+        if (ObjectUtils.isEmpty(obj)) {
+            log.error(errorMessage);
+            throw new ResponseStatusException(status, errorMessage);
+        }
+    }
+
+    private CourtScheduleResponse createCourtScheduleResponse(HearingResponse hearingResponse) {
         final HearingResponse filteredResponse = hearingResponseFilter.filterHearingResponse(hearingResponse);
         return hearingsMapper.mapCommonPlatformResponse(filteredResponse);
     }
-
 }

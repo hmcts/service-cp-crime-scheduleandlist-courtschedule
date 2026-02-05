@@ -129,7 +129,7 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
         when(restTemplate.exchange(
                 expectedHearingsUrl,
                 HttpMethod.GET,
-                expectedMapperHeaders(),
+                expectedHearingsHeaders(),
                 CaseMapperResponse.class
         )).thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
 
@@ -138,8 +138,19 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().is5xxServerError())
-                // TODO COLING fix the error to surface and not try to parse / map the empty response
                 .andExpect(jsonPath("message").value(expectedParseError));
+    }
+
+    @Test
+    void empty_cp_hearings_response_should_return_404() throws Exception {
+        CaseMapperResponse caseMapperResponse = CaseMapperResponse.builder().caseId(caseId).build();
+        mockMapperResponse(caseUrn, HttpStatus.OK, caseMapperResponse);
+        mockHearingsResponse(caseId, HttpStatus.OK, HearingResponse.builder().build());
+
+        mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 
     private HearingResponse cp_response(final String resourceName) throws IOException, URISyntaxException {
