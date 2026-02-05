@@ -1,6 +1,96 @@
 {
   "hearings": [
     {
+      "id": "20d90278-2958-4a72-97ed-b1d20ca5e1c3",
+      "type": {
+        "id": "1466e2a6-3760-41de-9d23-17deac22d0a2",
+        "description": "Committal for Sentence"
+      },
+      "allocated": false,
+      "judiciary": [],
+      "hearingDays": [],
+      "listedCases": [
+        {
+          "id": "3eb749aa-8ff5-48b1-aef2-9455b0383d87",
+          "markers": [],
+          "caseStatus": "ACTIVE",
+          "defendants": [
+            {
+              "id": "39cdf92c-8bef-4122-9cd0-8ebe83f15dbb",
+              "address": {
+                "address1": "40 Market Place",
+                "address2": "Market Place",
+                "address3": "Bristol",
+                "postcode": "NW1 5BR"
+              },
+              "isYouth": false,
+              "lastName": "BOT58736",
+              "offences": [
+                {
+                  "id": "cfadcc59-243b-4cab-90f4-43d7270df3a4",
+                  "count": 0,
+                  "startDate": "2025-11-28",
+                  "orderIndex": 1,
+                  "offenceCode": "TH68023",
+                  "shadowListed": false,
+                  "offenceWording": "Robbery",
+                  "seedingHearing": {
+                    "sittingDay": "2026-01-30",
+                    "jurisdictionType": "MAGISTRATES",
+                    "seedingHearingId": "adbe2826-badc-4b08-8dd9-ded62cddd0f6"
+                  },
+                  "statementOfOffence": {
+                    "title": "Robbery",
+                    "welshTitle": "Ysbeilio/Lladrad",
+                    "legislation": "Contrary to section 8(1) of the Theft Act 1968.",
+                    "welshLegislation": "Yn groes i adran 8(1) Deddf Dwyn 1968."
+                  },
+                  "restrictFromCourtList": false
+                }
+              ],
+              "firstName": "TestYasmin",
+              "bailStatus": {
+                "id": "eaf18bf8-9569-3656-a4ab-64299f9bd513",
+                "code": "U",
+                "description": "Unconditional bail"
+              },
+              "dateOfBirth": "1993-03-21",
+              "masterDefendantId": "39cdf92c-8bef-4122-9cd0-8ebe83f15dbb",
+              "proceedingsConcluded": false,
+              "restrictFromCourtList": false,
+              "nationalityDescription": "Unknown",
+              "courtProceedingsInitiated": "2026-01-27T15:37:49.172Z"
+            }
+          ],
+          "shadowListed": false,
+          "caseIdentifier": {
+            "authorityId": "baa2ec52-296b-3f38-922a-9e641c1f94d3",
+            "authorityCode": "CITYPF",
+            "caseReference": "KW143473822"
+          },
+          "restrictFromCourtList": false
+        }
+      ],
+      "courtCentreId": "9b583616-049b-30f9-a14f-028a53b7cfe8",
+      "isSlotsBooked": false,
+      "nonDefaultDays": [],
+      "nonSittingDays": [],
+      "hearingLanguage": "ENGLISH",
+      "estimatedMinutes": 300,
+      "jurisdictionType": "CROWN",
+      "adjournedFromDate": "2026-01-28",
+      "courtApplications": [],
+      "estimatedDuration": "5 HOURS",
+      "courtCentreDetails": {
+        "id": "9b583616-049b-30f9-a14f-028a53b7cfe8",
+        "defaultDuration": 360,
+        "defaultStartTime": "10:30:00"
+      },
+      "weekCommencingEndDate": "2026-02-22",
+      "weekCommencingStartDate": "2026-02-16",
+      "weekCommencingDurationInWeeks": 1
+    },
+    {
       "id": "2c6e6234-601a-4647-b7c9-db8f5052372f",
       "type": {
         "id": "bd4dab38-ea91-434b-8e73-e0d50ef0cbdf",

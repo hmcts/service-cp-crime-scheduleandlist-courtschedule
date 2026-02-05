@@ -1,31 +1,19 @@
 {
   "hearings": [
     {
-      "id": "2c6e6234-601a-4647-b7c9-db8f5052372f",
+      "id": "20d90278-2958-4a72-97ed-b1d20ca5e1c3",
       "type": {
-        "id": "bd4dab38-ea91-434b-8e73-e0d50ef0cbdf",
-        "description": "Review"
+        "id": "1466e2a6-3760-41de-9d23-17deac22d0a2",
+        "description": "Committal for Sentence"
       },
-      "endDate": "2026-03-30",
       "allocated": false,
       "judiciary": [],
-      "startDate": "2026-03-30",
-      "bookingType": "TEL",
-      "hearingDays": [
-        {
-          "endTime": "2026-03-30T09:00:00.000Z",
-          "sequence": 0,
-          "startTime": "2026-03-30T09:00:00.000Z",
-          "hearingDate": "2026-03-30",
-          "isCancelled": false,
-          "courtCentreId": "64e16502-f3ac-3a35-bbc7-3b1c326bf64c",
-          "durationMinutes": 45
-        }
-      ],
+      "hearingDays": [],
       "listedCases": [
         {
           "id": "3eb749aa-8ff5-48b1-aef2-9455b0383d87",
           "markers": [],
+          "caseStatus": "ACTIVE",
           "defendants": [
             {
               "id": "39cdf92c-8bef-4122-9cd0-8ebe83f15dbb",
@@ -36,7 +24,7 @@
                 "postcode": "NW1 5BR"
               },
               "isYouth": false,
-              "lastName": "Miller",
+              "lastName": "BOT58736",
               "offences": [
                 {
                   "id": "cfadcc59-243b-4cab-90f4-43d7270df3a4",
@@ -46,6 +34,11 @@
                   "offenceCode": "TH68023",
                   "shadowListed": false,
                   "offenceWording": "Robbery",
+                  "seedingHearing": {
+                    "sittingDay": "2026-01-30",
+                    "jurisdictionType": "MAGISTRATES",
+                    "seedingHearingId": "adbe2826-badc-4b08-8dd9-ded62cddd0f6"
+                  },
                   "statementOfOffence": {
                     "title": "Robbery",
                     "welshTitle": "Ysbeilio/Lladrad",
@@ -55,15 +48,17 @@
                   "restrictFromCourtList": false
                 }
               ],
-              "firstName": "Ursula",
+              "firstName": "TestYasmin",
               "bailStatus": {
-                "id": "86009c70-759d-3308-8de4-194886ff9a77",
-                "code": "A",
-                "description": "Not applicable"
+                "id": "eaf18bf8-9569-3656-a4ab-64299f9bd513",
+                "code": "U",
+                "description": "Unconditional bail"
               },
-              "dateOfBirth": "1996-01-27",
+              "dateOfBirth": "1993-03-21",
               "masterDefendantId": "39cdf92c-8bef-4122-9cd0-8ebe83f15dbb",
+              "proceedingsConcluded": false,
               "restrictFromCourtList": false,
+              "nationalityDescription": "Unknown",
               "courtProceedingsInitiated": "2026-01-27T15:37:49.172Z"
             }
           ],
@@ -76,19 +71,24 @@
           "restrictFromCourtList": false
         }
       ],
-      "courtCentreId": "64e16502-f3ac-3a35-bbc7-3b1c326bf64c",
+      "courtCentreId": "9b583616-049b-30f9-a14f-028a53b7cfe8",
       "isSlotsBooked": false,
       "nonDefaultDays": [],
       "nonSittingDays": [],
       "hearingLanguage": "ENGLISH",
-      "estimatedMinutes": 45,
+      "estimatedMinutes": 300,
       "jurisdictionType": "CROWN",
+      "adjournedFromDate": "2026-01-28",
       "courtApplications": [],
+      "estimatedDuration": "5 HOURS",
       "courtCentreDetails": {
-        "id": "64e16502-f3ac-3a35-bbc7-3b1c326bf64c",
-        "defaultDuration": 420,
-        "defaultStartTime": "10:00:00"
-      }
+        "id": "9b583616-049b-30f9-a14f-028a53b7cfe8",
+        "defaultDuration": 360,
+        "defaultStartTime": "10:30:00"
+      },
+      "weekCommencingEndDate": "2026-02-22",
+      "weekCommencingStartDate": "2026-02-16",
+      "weekCommencingDurationInWeeks": 1
     },
     {
       "id": "06a9ff45-7574-437c-a9b8-97a046bc4f9f",

@@ -11,13 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.cp.config.AppPropertiesBackend;
 import uk.gov.hmcts.cp.domain.CaseMapperResponse;
 import uk.gov.hmcts.cp.domain.HearingResponse;
-import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -28,9 +26,9 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -48,22 +46,59 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
     String caseId = UUID.randomUUID().toString();
 
     @Test
-    void get_court_schedule_should_return_ok() throws Exception {
-        CaseMapperResponse caseMapperResponse = CaseMapperResponse.builder().caseId(caseId).build();
-        mockMapperResponse(caseUrn, HttpStatus.OK, caseMapperResponse);
+    void get_court_schedule_for_allocated_and_weekcommencingunallocated_response_should_return_ok() throws Exception {
+        String cp_response = "cp_allocated_and_weekcommencingunallocated_response.json";
+        String expected_amp_response = "expected_amp_allocated_and_weekcommencingunallocated_response.json";
 
-        mockHearingsResponse(caseId, HttpStatus.OK, cp_allocated_and_unallocated_response());
+        verifyResponse(cp_response, expected_amp_response);
+    }
 
-        String expectedResponse = expected_amp_response();
+    @Test
+    void get_court_schedule_for_allocated_should_return_ok() throws Exception {
+        String cp_response = "cp_allocated_response.json";
+        String expected_amp_response = "expected_amp_allocated_response.json";
 
-        MvcResult result = mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andReturn();
+        verifyResponse(cp_response, expected_amp_response);
+    }
 
-        String actualResponse = result.getResponse().getContentAsString();
-        assertThat(actualResponse).isEqualTo(expectedResponse);
+    @Test
+    void get_court_schedule_for_allocated_and_unallocated_should_return_ok() throws Exception {
+        String cp_response = "cp_allocated_and_unallocated_response.json";
+        String expected_amp_response = "expected_amp_allocated_response.json";
+
+        verifyResponse(cp_response, expected_amp_response);
+    }
+
+    @Test
+    void get_court_schedule_for_allocated_and_weekcommencing_and_unallocated_should_return_ok() throws Exception {
+        String cp_response = "cp_allocated_and_weekcommencing_and_unallocated_response.json";
+        String expected_amp_response = "expected_amp_allocated_and_weekcommencingunallocated_response.json";
+
+        verifyResponse(cp_response, expected_amp_response);
+    }
+
+    @Test
+    void get_court_schedule_for_allocated_and_unscheduled_response_should_return_ok() throws Exception {
+        String cp_response = "cp_allocated_and_unscheduled_response.json";
+        String expected_amp_response = "expected_amp_allocated_response.json";
+
+        verifyResponse(cp_response, expected_amp_response);
+    }
+
+    @Test
+    void get_court_schedule_for_all_types_response_should_return_ok() throws Exception {
+        String cp_response = "cp_all_types_response.json";
+        String expected_amp_response = "expected_amp_allocated_and_weekcommencingunallocated_response.json";
+
+        verifyResponse(cp_response, expected_amp_response);
+    }
+
+    @Test
+    void get_court_schedule_for_unallocated_response_should_return_ok() throws Exception {
+        String cp_response = "cp_unallocated_response.json";
+        String expected_amp_response = "empty_hearing_response.json";
+
+        verifyResponse(cp_response, expected_amp_response);
     }
 
     @Test
@@ -107,15 +142,29 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
                 .andExpect(jsonPath("message").value(expectedParseError));
     }
 
-    private HearingResponse cp_allocated_and_unallocated_response() throws IOException, URISyntaxException {
-        URL resource = getClass().getClassLoader().getResource("cp_allocated_and_unallocated_response.json");
+    private HearingResponse cp_response(final String resourceName) throws IOException, URISyntaxException {
+        URL resource = getClass().getClassLoader().getResource(resourceName);
         String json = Files.readString(Path.of(resource.toURI()));
         return MAPPER.readValue(json, HearingResponse.class);
     }
 
-    private String expected_amp_response() throws IOException, URISyntaxException {
-        URL resource = getClass().getClassLoader().getResource("expected_amp_response.json");
+    private String expected_amp_response(final String resourceName) throws IOException, URISyntaxException {
+        URL resource = getClass().getClassLoader().getResource(resourceName);
         return Files.readString(Path.of(resource.toURI()));
+    }
+
+    private void verifyResponse(String cp_response, String expected_amp_response) throws Exception {
+        CaseMapperResponse caseMapperResponse = CaseMapperResponse.builder().caseId(caseId).build();
+        mockMapperResponse(caseUrn, HttpStatus.OK, caseMapperResponse);
+        mockHearingsResponse(caseId, HttpStatus.OK, cp_response(cp_response));
+
+
+        String expectedResponse = expected_amp_response(expected_amp_response);
+        mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedResponse));
     }
 
     private void mockMapperResponse(String caseUrn, HttpStatus httpStatus, CaseMapperResponse response) {
@@ -144,7 +193,6 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
                 eq(expectedHearingsHeaders()),
                 eq(HearingResponse.class)
         )).thenReturn(new ResponseEntity<>(response, httpStatus));
-        //             final HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
     private HttpEntity expectedHearingsHeaders() {
