@@ -10,6 +10,9 @@ logmsg() {
 }
 
 logmsg "running and loading certificates ..."
+if [ -z "$JAVA_HOME" ]; then
+    export JAVA_HOME="/usr/local/openjdk-21"
+fi
 export KEYSTORE="$JAVA_HOME/lib/security/cacerts"
 if [ -z "$CERTS_DIR" ]; then
     logmsg "Warning - expects \$CERTS_DIR to be set. i.e. export CERTS_DIR="/etc/certs
@@ -18,7 +21,7 @@ if [ -z "$CERTS_DIR" ]; then
 fi
 
 if [ ! -f "$KEYSTORE" ]; then
-    logmsg "Error - expects keystore to already exist"
+    logmsg "Error - expects keystore $KEYSTORE to already exist"
     exit 1
 fi
 
