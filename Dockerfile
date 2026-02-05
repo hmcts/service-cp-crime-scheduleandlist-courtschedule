@@ -14,7 +14,9 @@ COPY docker/* /app/
 COPY build/libs/*.jar /app/
 COPY lib/applicationinsights.json /app/
 # Temp fix we need to work out the actual app user
-RUN chmod 777 /opt/java/openjdk/lib/security/cacerts
+RUN test -n "$JAVA_HOME" \
+ && test -f "$JAVA_HOME/lib/security/cacerts" \
+ && chmod 777 "$JAVA_HOME/lib/security/cacerts"
 
 # ---- Runtime ----
 EXPOSE 4550
