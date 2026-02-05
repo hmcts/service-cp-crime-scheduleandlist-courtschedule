@@ -37,10 +37,10 @@ public class CourtScheduleController implements CourtScheduleApi {
         }
         try {
             final String sanitizedCaseUrn = Encode.forJava(caseUrn);
-            log.info("Received request to get court schedule for caseUrn: {}", sanitizedCaseUrn);
+            log.info("Received request to get court schedule for caseUrn:{}", sanitizedCaseUrn);
             final String caseId = caseUrnMapperService.getCaseId(sanitizedCaseUrn);
             final CourtScheduleResponse courtScheduleResponse = courtScheduleService.getCourtScheduleByCaseId(caseId);
-            log.debug("caseUrn : {} -> Court Schedule Hearing Ids : {}", sanitizedCaseUrn, courtScheduleResponse.getCourtSchedule().stream()
+            log.debug("caseUrn :{} -> Court Schedule Hearing Ids :{}", sanitizedCaseUrn, courtScheduleResponse.getCourtSchedule().stream()
                     .flatMap(a -> a.getHearings().stream().map(Hearing::getHearingId)).collect(Collectors.joining(",")));
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
