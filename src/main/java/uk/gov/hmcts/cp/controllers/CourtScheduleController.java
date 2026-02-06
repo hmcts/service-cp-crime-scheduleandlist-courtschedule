@@ -32,7 +32,7 @@ public class CourtScheduleController implements CourtScheduleApi {
     @Override
     @NonNull
     public ResponseEntity<CourtScheduleResponse> getCourtScheduleByCaseUrn(final String caseUrn) {
-        if (caseUrn == null) {
+        if (caseUrn == null || caseUrn.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "caseUrn is required");
         }
         try {

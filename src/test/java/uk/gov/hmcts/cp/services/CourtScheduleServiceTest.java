@@ -12,10 +12,14 @@ import uk.gov.hmcts.cp.filters.HearingResponseFilter;
 import uk.gov.hmcts.cp.mappers.HearingsMapper;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 
+import java.util.Collections;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,7 +40,7 @@ class CourtScheduleServiceTest {
     @Test
     void shouldReturnStubbedCourtScheduleResponse_whenValidCaseUrnProvided() {
         String validCaseId= "123-ABC-456";
-        HearingResponse hearingResponse = mock(HearingResponse.class);
+        HearingResponse hearingResponse = mockNotEmptyHearingResponse();
         CourtScheduleResponse courtScheduleResponse = mock(CourtScheduleResponse.class);
 
         when(courtScheduleClient.getHearingResponse(validCaseId)).thenReturn(hearingResponse);
@@ -58,7 +62,7 @@ class CourtScheduleServiceTest {
         assertThatThrownBy(() -> courtScheduleService.getCourtScheduleByCaseId(nullCaseUrn))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("400 BAD_REQUEST")
-                .hasMessageContaining("caseId is required");
+                .hasMessageContaining("caseId is mandatory");
     }
 
     @Test
@@ -68,6 +72,29 @@ class CourtScheduleServiceTest {
         assertThatThrownBy(() -> courtScheduleService.getCourtScheduleByCaseId(emptyCaseUrn))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("400 BAD_REQUEST")
-                .hasMessageContaining("caseId is required");
+                .hasMessageContaining("caseId is mandatory");
+    }
+
+    @Test
+    void shouldThrowBNotFoundException_whenHearingResponseIsEmpty() {
+        String validCaseId= "123-ABC-456";
+        HearingResponse hearingResponse = HearingResponse.builder()
+                .hearings(Collections.emptyList())
+                .build();
+
+        when(courtScheduleClient.getHearingResponse(validCaseId)).thenReturn(hearingResponse);
+
+        assertThatThrownBy(() -> courtScheduleService.getCourtScheduleByCaseId(validCaseId))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("404 NOT_FOUND")
+                .hasMessageContaining("hearing response should not be empty");
+        verifyNoInteractions(hearingResponseFilter, hearingsMapper);
+    }
+
+    private HearingResponse mockNotEmptyHearingResponse() {
+        HearingResponse.HearingSchedule hearing = mock(HearingResponse.HearingSchedule.class);
+        return HearingResponse.builder()
+                .hearings(List.of(hearing))
+                .build();
     }
 }

@@ -10,7 +10,8 @@ import java.util.Objects;
 public class HearingResponseFilter {
 
     public HearingResponse filterHearingResponse(final HearingResponse response) {
-        final List<HearingResponse.HearingSchedule> hearings = response.getHearings().stream()
+        final List<HearingResponse.HearingSchedule> hearings = response.getHearings()
+                .stream()
                 .filter(hearingSchedule -> hearingSchedule.isAllocated()
                         || Objects.nonNull(hearingSchedule.getWeekCommencingDurationInWeeks()))
                 .toList();
