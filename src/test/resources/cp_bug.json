@@ -1,0 +1,107 @@
+{
+    "hearings": [
+        {
+            "id": "5e439bd9-5035-467a-8434-8e00d775a816",
+            "type": {
+                "id": "4a0e892d-c0c5-3c51-95b8-704d8c781776",
+                "description": "First hearing"
+            },
+            "endDate": "2026-02-05",
+            "allocated": true,
+            "judiciary": [],
+            "startDate": "2026-02-05",
+            "courtRoomId": "9e4932f7-97b2-3010-b942-ddd2624e4dd8",
+            "hearingDays": [
+                {
+                    "endTime": "2026-02-05T09:20:00.000Z",
+                    "sequence": 1,
+                    "startTime": "2026-02-05T09:00:00.000Z",
+                    "courtRoomId": "9e4932f7-97b2-3010-b942-ddd2624e4dd8",
+                    "hearingDate": "2026-02-05",
+                    "isCancelled": false,
+                    "courtCentreId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+                    "courtScheduleId": "ac919496-2751-4806-b7c4-b2c4d6cd0960",
+                    "durationMinutes": 20
+                }
+            ],
+            "listedCases": [
+                {
+                    "id": "7b05e4b4-d99e-433f-b3e6-67c492fa053f",
+                    "markers": [],
+                    "defendants": [
+                        {
+                            "id": "4fceb351-38a9-44c3-a37d-48503f7dd69b",
+                            "address": {
+                                "address1": "n",
+                                "address2": "Mara Meadow",
+                                "address3": "Kalebmouth",
+                                "address4": "Avon",
+                                "postcode": "DA6 7ND"
+                            },
+                            "isYouth": true,
+                            "lastName": "Schimmel",
+                            "offences": [
+                                {
+                                    "id": "8cf22c3c-8b6c-4def-806f-d65f203c3d2a",
+                                    "count": 0,
+                                    "startDate": "2019-11-28",
+                                    "orderIndex": 1,
+                                    "offenceCode": "OF61003A",
+                                    "shadowListed": false,
+                                    "offenceWording": "From 13th November 2018, an aggravated version of this offence applies where the offence is committed against an emergency worker acting in the exercise of his / her functions as such a worker, as per section 1 of the Assaults on emergency Workers (Offences) Act 2018; see offence wording document H19568.",
+                                    "statementOfOffence": {
+                                        "title": "Attempt to solicit to commit murder",
+                                        "welshTitle": "Attempt to solicit to commit murder",
+                                        "legislation": "Contrary to section 1 of the Criminal Attempts Act 1981."
+                                    },
+                                    "reportingRestrictions": [
+                                        {
+                                            "id": "0540e839-4eb0-4e3f-a540-47b7fcd909a2",
+                                            "label": "Section 49 of the Children and Young Persons Act 1933 applies",
+                                            "orderedDate": "2026-02-05"
+                                        }
+                                    ],
+                                    "restrictFromCourtList": false
+                                }
+                            ],
+                            "firstName": "Charlie",
+                            "bailStatus": {
+                                "id": "12e69486-4d01-3403-a50a-7419ca040635",
+                                "code": "C",
+                                "description": "Custody"
+                            },
+                            "dateOfBirth": "2011-09-09",
+                            "masterDefendantId": "4fceb351-38a9-44c3-a37d-48503f7dd69b",
+                            "hearingLanguageNeeds": "ENGLISH",
+                            "restrictFromCourtList": false,
+                            "courtProceedingsInitiated": "2026-02-05T16:56:51.918Z"
+                        }
+                    ],
+                    "shadowListed": false,
+                    "caseIdentifier": {
+                        "authorityId": "bdc190e7-c939-37ca-be4b-9f615d6ef40e",
+                        "authorityCode": "DERPF",
+                        "caseReference": "80MR260001"
+                    },
+                    "restrictFromCourtList": false
+                }
+            ],
+            "courtCentreId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+            "isSlotsBooked": false,
+            "nonDefaultDays": [],
+            "nonSittingDays": [],
+            "hearingLanguage": "ENGLISH",
+            "estimatedMinutes": 20,
+            "jurisdictionType": "MAGISTRATES",
+            "courtApplications": [],
+            "courtCentreDetails": {
+                "id": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+                "defaultDuration": 420,
+                "defaultStartTime": "10:00:00"
+            },
+            "isGroupProceedings": false,
+            "numberOfGroupCases": 1,
+            "sendNotificationToParties": false
+        }
+    ]
+}
