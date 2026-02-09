@@ -49,11 +49,11 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void get_court_schedule_for_allocated_and_weekcommencingunallocated_response_should_return_ok() throws Exception {
+    void get_court_schedule_for_allocated_and_weekcommencingunallocated_response_should_return_ok() {
         String cp_response = "cp_allocated_and_weekcommencingunallocated_response.json";
         String expected_amp_response = "expected_amp_allocated_and_weekcommencingunallocated_response.json";
 
-        amp_endpoint_and_verify_response(cp_response, expected_amp_response);
+        stub_cp_response_and_verify_expected_amp_response(cp_response, expected_amp_response);
     }
 
     @Test
@@ -61,47 +61,47 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
         String cp_response = "cp_allocated_response.json";
         String expected_amp_response = "expected_amp_allocated_response.json";
 
-        amp_endpoint_and_verify_response(cp_response, expected_amp_response);
+        stub_cp_response_and_verify_expected_amp_response(cp_response, expected_amp_response);
     }
 
     @Test
-    void get_court_schedule_for_allocated_and_unallocated_should_return_ok() throws Exception {
+    void get_court_schedule_for_allocated_and_unallocated_should_return_ok() {
         String cp_response = "cp_allocated_and_unallocated_response.json";
         String expected_amp_response = "expected_amp_allocated_response.json";
 
-        amp_endpoint_and_verify_response(cp_response, expected_amp_response);
+        stub_cp_response_and_verify_expected_amp_response(cp_response, expected_amp_response);
     }
 
     @Test
-    void get_court_schedule_for_allocated_and_weekcommencing_and_unallocated_should_return_ok() throws Exception {
+    void get_court_schedule_for_allocated_and_weekcommencing_and_unallocated_should_return_ok() {
         String cp_response = "cp_allocated_and_weekcommencing_and_unallocated_response.json";
         String expected_amp_response = "expected_amp_allocated_and_weekcommencingunallocated_response.json";
 
-        amp_endpoint_and_verify_response(cp_response, expected_amp_response);
+        stub_cp_response_and_verify_expected_amp_response(cp_response, expected_amp_response);
     }
 
     @Test
-    void get_court_schedule_for_allocated_and_unscheduled_response_should_return_ok() throws Exception {
+    void get_court_schedule_for_allocated_and_unscheduled_response_should_return_ok() {
         String cp_response = "cp_allocated_and_unscheduled_response.json";
         String expected_amp_response = "expected_amp_allocated_response.json";
 
-        amp_endpoint_and_verify_response(cp_response, expected_amp_response);
+        stub_cp_response_and_verify_expected_amp_response(cp_response, expected_amp_response);
     }
 
     @Test
-    void get_court_schedule_for_all_types_response_should_return_ok() throws Exception {
+    void get_court_schedule_for_all_types_response_should_return_ok() {
         String cp_response = "cp_all_types_response.json";
         String expected_amp_response = "expected_amp_allocated_and_weekcommencingunallocated_response.json";
 
-        amp_endpoint_and_verify_response(cp_response, expected_amp_response);
+        stub_cp_response_and_verify_expected_amp_response(cp_response, expected_amp_response);
     }
 
     @Test
-    void get_court_schedule_for_unallocated_response_should_return_ok() throws Exception {
+    void get_court_schedule_for_unallocated_response_should_return_ok() {
         String cp_response = "cp_unallocated_response.json";
         String expected_amp_response = "empty_hearing_response.json";
 
-        amp_endpoint_and_verify_response(cp_response, expected_amp_response);
+        stub_cp_response_and_verify_expected_amp_response(cp_response, expected_amp_response);
     }
 
     @Test
@@ -138,14 +138,14 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void empty_cp_hearings_response_should_return_404() throws Exception {
+    void empty_cp_response_should_return_404() throws Exception {
         stubMappingResponse(caseUrn, caseId);
         String expectedHearingsUrl = String.format("%s%s?caseId=%s", appProperties.getHearingsUrl(), appProperties.getHearingsPath(), caseId);
 
         ResponseDefinitionBuilder mockResponse = aResponse()
-                .withStatus(HTTP_NOT_FOUND)
+                .withStatus(HTTP_OK)
                 .withHeader("Content-Type", "application/json")
-                .withBody("{\"hearings\": []}");
+                .withBody(readResourceContents("cp_empty_response.json"));
         log.info("Stubbing hearing response url:{}", expectedHearingsUrl);
         stubFor(WireMock.get(urlEqualTo(expectedHearingsUrl)).willReturn(mockResponse));
 
@@ -155,11 +155,34 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
                 .andExpect(status().isNotFound());
     }
 
-    private void amp_endpoint_and_verify_response(String cp_response_file, String expected_amp_response) throws Exception {
+    @Test
+    void empty_cp_hearings_response_should_return_404() throws Exception {
+        stubMappingResponse(caseUrn, caseId);
+        String expectedHearingsUrl = String.format("%s%s?caseId=%s", appProperties.getHearingsUrl(), appProperties.getHearingsPath(), caseId);
+
+        ResponseDefinitionBuilder mockResponse = aResponse()
+                .withStatus(HTTP_NOT_FOUND)
+                .withHeader("Content-Type", "application/json")
+                .withBody(readResourceContents("cp_empty_hearings_response.json"));
+        log.info("Stubbing hearing response url:{}", expectedHearingsUrl);
+        stubFor(WireMock.get(urlEqualTo(expectedHearingsUrl)).willReturn(mockResponse));
+
+        mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    private void stub_cp_response_and_verify_expected_amp_response(String cp_response_file, String expected_amp_response_file) {
         stubMappingResponse(caseUrn, caseId);
         stubGetHearingsResponse(caseId, cp_response_file);
 
-        String expectedResponse = readResourceContents(expected_amp_response);
+        String expectedResponse = readResourceContents(expected_amp_response_file);
+        amp_endpoint_and_verify_response(expectedResponse);
+    }
+
+    @SneakyThrows
+    private void amp_endpoint_and_verify_response(String expectedResponse) {
         mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
