@@ -3,7 +3,6 @@ package uk.gov.hmcts.cp.controllers;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.owasp.encoder.Encode;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,9 +28,6 @@ public class CourtScheduleController implements CourtScheduleApi {
     @Override
     @NonNull
     public ResponseEntity<CourtScheduleResponse> getCourtScheduleByCaseUrn(final String caseUrn) {
-        if (caseUrn == null || caseUrn.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "caseUrn is required");
-        }
         try {
             final String sanitizedCaseUrn = Encode.forJava(caseUrn);
             log.info("Received request to get court schedule for caseUrn:{}", sanitizedCaseUrn);

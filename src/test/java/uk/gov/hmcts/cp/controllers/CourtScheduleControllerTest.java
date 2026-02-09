@@ -1,7 +1,6 @@
 package uk.gov.hmcts.cp.controllers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -9,7 +8,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.openapi.model.CourtSitting;
@@ -24,8 +22,6 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
@@ -122,25 +118,5 @@ class CourtScheduleControllerTest {
         ResponseEntity<?> response = courtScheduleController.getCourtScheduleByCaseUrn(unsanitizedCaseUrn);
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
-
-    @Test
-    void getCourtScheduleByCaseUrn_ShouldReturnBadRequestStatus_WhenCaseUrnIsNull() {
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            courtScheduleController.getCourtScheduleByCaseUrn(null);
-        });
-        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(exception.getReason()).isEqualTo("caseUrn is required");
-        assertThat(exception.getMessage()).isEqualTo("400 BAD_REQUEST \"caseUrn is required\"");
-    }
-
-    @Test
-    void getCourtScheduleByCaseUrn_ShouldReturnBadRequestStatus_WhenCaseUrnIsEmpty() {
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            courtScheduleController.getCourtScheduleByCaseUrn(Strings.EMPTY);
-        });
-        assertThat(exception.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(exception.getReason()).isEqualTo("caseUrn is required");
-        assertThat(exception.getMessage()).isEqualTo("400 BAD_REQUEST \"caseUrn is required\"");
     }
 }
