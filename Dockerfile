@@ -1,4 +1,5 @@
 # Docker base image - note that this is currently overwritten by azure pipelines
+ARG BASE_IMAGE
 FROM ${BASE_IMAGE:-eclipse-temurin:21-jdk}
 
 # run as non-root ... group and user "app"
