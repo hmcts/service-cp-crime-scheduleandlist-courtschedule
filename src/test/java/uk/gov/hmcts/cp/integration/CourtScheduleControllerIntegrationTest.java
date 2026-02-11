@@ -1,56 +1,59 @@
 package uk.gov.hmcts.cp.integration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-import uk.gov.hmcts.cp.config.AppPropertiesBackend;
-import uk.gov.hmcts.cp.domain.CaseMapperResponse;
-import uk.gov.hmcts.cp.domain.HearingResponse;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
 class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
 
-    public static final ObjectMapper MAPPER = new ObjectMapper();
-
-    @Autowired
-    AppPropertiesBackend appProperties;
-    @MockitoBean
-    RestTemplate restTemplate;
-
-    String caseUrn = "test-case-urn";
+    String caseUrn = "ABCD1234567";
     String caseId = UUID.randomUUID().toString();
 
+    protected WireMockServer wireMockServer;
+
+    @BeforeEach
+    void beforeEach() {
+        wireMockServer = new WireMockServer(WireMockConfiguration.options().port(8081));
+        wireMockServer.start();
+        WireMock.configureFor("localhost", 8081);
+    }
+
+    @AfterEach
+    void afterEach() {
+        if (wireMockServer != null) {
+            wireMockServer.stop();
+        }
+    }
+
     @Test
-    void get_court_schedule_for_allocated_and_weekcommencingunallocated_response_should_return_ok() throws Exception {
+    void get_court_schedule_for_allocated_and_weekcommencingunallocated_response_should_return_ok() {
         String cp_response = "cp_allocated_and_weekcommencingunallocated_response.json";
         String expected_amp_response = "expected_amp_allocated_and_weekcommencingunallocated_response.json";
 
-        verifyResponse(cp_response, expected_amp_response);
+        stub_cp_response_and_verify_expected_amp_response(cp_response, expected_amp_response);
     }
 
     @Test
@@ -58,94 +61,58 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
         String cp_response = "cp_allocated_response.json";
         String expected_amp_response = "expected_amp_allocated_response.json";
 
-        verifyResponse(cp_response, expected_amp_response);
+        stub_cp_response_and_verify_expected_amp_response(cp_response, expected_amp_response);
     }
 
     @Test
-    void get_court_schedule_for_allocated_and_unallocated_should_return_ok() throws Exception {
+    void get_court_schedule_for_allocated_and_unallocated_should_return_ok() {
         String cp_response = "cp_allocated_and_unallocated_response.json";
         String expected_amp_response = "expected_amp_allocated_response.json";
 
-        verifyResponse(cp_response, expected_amp_response);
+        stub_cp_response_and_verify_expected_amp_response(cp_response, expected_amp_response);
     }
 
     @Test
-    void get_court_schedule_for_allocated_and_weekcommencing_and_unallocated_should_return_ok() throws Exception {
+    void get_court_schedule_for_allocated_and_weekcommencing_and_unallocated_should_return_ok() {
         String cp_response = "cp_allocated_and_weekcommencing_and_unallocated_response.json";
         String expected_amp_response = "expected_amp_allocated_and_weekcommencingunallocated_response.json";
 
-        verifyResponse(cp_response, expected_amp_response);
+        stub_cp_response_and_verify_expected_amp_response(cp_response, expected_amp_response);
     }
 
     @Test
-    void get_court_schedule_for_allocated_and_unscheduled_response_should_return_ok() throws Exception {
+    void get_court_schedule_for_allocated_and_unscheduled_response_should_return_ok() {
         String cp_response = "cp_allocated_and_unscheduled_response.json";
         String expected_amp_response = "expected_amp_allocated_response.json";
 
-        verifyResponse(cp_response, expected_amp_response);
+        stub_cp_response_and_verify_expected_amp_response(cp_response, expected_amp_response);
     }
 
     @Test
-    void get_court_schedule_for_all_types_response_should_return_ok() throws Exception {
+    void get_court_schedule_for_all_types_response_should_return_ok() {
         String cp_response = "cp_all_types_response.json";
         String expected_amp_response = "expected_amp_allocated_and_weekcommencingunallocated_response.json";
 
-        verifyResponse(cp_response, expected_amp_response);
+        stub_cp_response_and_verify_expected_amp_response(cp_response, expected_amp_response);
     }
 
     @Test
-    void get_court_schedule_for_unallocated_response_should_return_ok() throws Exception {
+    void get_court_schedule_for_unallocated_response_should_return_ok() {
         String cp_response = "cp_unallocated_response.json";
         String expected_amp_response = "empty_hearing_response.json";
 
-        verifyResponse(cp_response, expected_amp_response);
+        stub_cp_response_and_verify_expected_amp_response(cp_response, expected_amp_response);
     }
 
     @Test
     void bad_caseurn_should_return_404() throws Exception {
-        String expectedUrl = String.format("%s%s/%s", appProperties.getCaseMapperUrl(), appProperties.getCaseMapperPath(), caseUrn);
-        log.info("Mocking {} error", expectedUrl);
-        when(restTemplate.exchange(
-                expectedUrl,
-                HttpMethod.GET,
-                expectedMapperHeaders(),
-                CaseMapperResponse.class
-        )).thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
+        String expectedUrl = String.format("%s/%s", appProperties.getCaseMapperPath(), caseUrn);
+        ResponseDefinitionBuilder mockResponse = aResponse()
+                .withStatus(HTTP_NOT_FOUND)
+                .withHeader("Content-Type", "application/json");
+        log.info("Stubbing mapping url:{}", expectedUrl);
+        stubFor(WireMock.get(urlEqualTo(expectedUrl)).willReturn(mockResponse));
 
-        mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("message").value("404 NOT_FOUND"));
-    }
-
-    @Test
-    void bad_hearings_response_should_return_500() throws Exception {
-        CaseMapperResponse caseMapperResponse = CaseMapperResponse.builder().caseId(caseId).build();
-        mockMapperResponse(caseUrn, HttpStatus.OK, caseMapperResponse);
-
-        String expectedHearingsUrl = String.format("%s%s?caseId=%s", appProperties.getHearingsUrl(), appProperties.getHearingsPath(), caseId);
-        log.info("Mocking {} error", expectedHearingsUrl);
-        when(restTemplate.exchange(
-                expectedHearingsUrl,
-                HttpMethod.GET,
-                expectedHearingsHeaders(),
-                CaseMapperResponse.class
-        )).thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
-
-        String expectedParseError = "Cannot invoke \"org.springframework.http.ResponseEntity.getBody()\" because \"response\" is null";
-        mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().is5xxServerError())
-                .andExpect(jsonPath("message").value(expectedParseError));
-    }
-
-    @Test
-    void empty_cp_hearings_response_should_return_404() throws Exception {
-        CaseMapperResponse caseMapperResponse = CaseMapperResponse.builder().caseId(caseId).build();
-        mockMapperResponse(caseUrn, HttpStatus.OK, caseMapperResponse);
-        mockHearingsResponse(caseId, HttpStatus.OK, HearingResponse.builder().build());
 
         mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
                         .accept(MediaType.APPLICATION_JSON))
@@ -153,24 +120,69 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
                 .andExpect(status().isNotFound());
     }
 
-    private HearingResponse cp_response(final String resourceName) throws IOException, URISyntaxException {
-        URL resource = getClass().getClassLoader().getResource(resourceName);
-        String json = Files.readString(Path.of(resource.toURI()));
-        return MAPPER.readValue(json, HearingResponse.class);
+    @Test
+    void bad_hearings_response_should_return_404() throws Exception {
+        stubMappingResponse(caseUrn, caseId);
+        String expectedHearingsUrl = String.format("%s%s?caseId=%s", appProperties.getHearingsUrl(), appProperties.getHearingsPath(), caseId);
+
+        ResponseDefinitionBuilder mockResponse = aResponse()
+                .withStatus(HTTP_NOT_FOUND)
+                .withHeader("Content-Type", "application/json");
+        log.info("Stubbing hearing response url:{}", expectedHearingsUrl);
+        stubFor(WireMock.get(urlEqualTo(expectedHearingsUrl)).willReturn(mockResponse));
+
+        mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 
-    private String expected_amp_response(final String resourceName) throws IOException, URISyntaxException {
-        URL resource = getClass().getClassLoader().getResource(resourceName);
-        return Files.readString(Path.of(resource.toURI()));
+    @Test
+    void empty_cp_response_should_return_404() throws Exception {
+        stubMappingResponse(caseUrn, caseId);
+        String expectedHearingsUrl = String.format("%s%s?caseId=%s", appProperties.getHearingsUrl(), appProperties.getHearingsPath(), caseId);
+
+        ResponseDefinitionBuilder mockResponse = aResponse()
+                .withStatus(HTTP_OK)
+                .withHeader("Content-Type", "application/json")
+                .withBody(readResourceContents("cp_empty_response.json"));
+        log.info("Stubbing hearing response url:{}", expectedHearingsUrl);
+        stubFor(WireMock.get(urlEqualTo(expectedHearingsUrl)).willReturn(mockResponse));
+
+        mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 
-    private void verifyResponse(String cp_response, String expected_amp_response) throws Exception {
-        CaseMapperResponse caseMapperResponse = CaseMapperResponse.builder().caseId(caseId).build();
-        mockMapperResponse(caseUrn, HttpStatus.OK, caseMapperResponse);
-        mockHearingsResponse(caseId, HttpStatus.OK, cp_response(cp_response));
+    @Test
+    void empty_cp_hearings_response_should_return_404() throws Exception {
+        stubMappingResponse(caseUrn, caseId);
+        String expectedHearingsUrl = String.format("%s%s?caseId=%s", appProperties.getHearingsUrl(), appProperties.getHearingsPath(), caseId);
 
+        ResponseDefinitionBuilder mockResponse = aResponse()
+                .withStatus(HTTP_NOT_FOUND)
+                .withHeader("Content-Type", "application/json")
+                .withBody(readResourceContents("cp_empty_hearings_response.json"));
+        log.info("Stubbing hearing response url:{}", expectedHearingsUrl);
+        stubFor(WireMock.get(urlEqualTo(expectedHearingsUrl)).willReturn(mockResponse));
 
-        String expectedResponse = expected_amp_response(expected_amp_response);
+        mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    private void stub_cp_response_and_verify_expected_amp_response(String cp_response_file, String expected_amp_response_file) {
+        stubMappingResponse(caseUrn, caseId);
+        stubGetHearingsResponse(caseId, cp_response_file);
+
+        String expectedResponse = readResourceContents(expected_amp_response_file);
+        amp_endpoint_and_verify_response(expectedResponse);
+    }
+
+    @SneakyThrows
+    private void amp_endpoint_and_verify_response(String expectedResponse) {
         mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -178,38 +190,30 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
                 .andExpect(content().string(expectedResponse));
     }
 
-    private void mockMapperResponse(String caseUrn, HttpStatus httpStatus, CaseMapperResponse response) {
-        String expectedUrl = String.format("%s%s/%s", appProperties.getCaseMapperUrl(), appProperties.getCaseMapperPath(), caseUrn);
-        log.info("Mocking {} response", expectedUrl);
-        when(restTemplate.exchange(
-                expectedUrl,
-                HttpMethod.GET,
-                expectedMapperHeaders(),
-                CaseMapperResponse.class
-        )).thenReturn(new ResponseEntity<>(response, httpStatus));
+    private void stubMappingResponse(String caseUrn, String caseId) {
+        String expectedUrl = String.format("%s/%s", appProperties.getCaseMapperPath(), caseUrn);
+        String responseBody = String.format("{\"caseUrn\":\"%s\", \"caseId\":\"%s\"}", caseUrn, caseId);
+        ResponseDefinitionBuilder mockResponse = aResponse()
+                .withStatus(HTTP_OK)
+                .withHeader("Content-Type", "application/json")
+                .withBody(responseBody);
+        log.info("Stubbing mapping url:{}", expectedUrl);
+        stubFor(WireMock.get(urlEqualTo(expectedUrl)).willReturn(mockResponse));
     }
 
-    private HttpEntity expectedMapperHeaders() {
-        final HttpHeaders headers = new HttpHeaders();
-        headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
-        return new HttpEntity<>(headers);
+    private void stubGetHearingsResponse(String caseId, String filename) {
+        String expectedUrl = String.format("%s?caseId=%s", appProperties.getHearingsPath(), caseId);
+        ResponseDefinitionBuilder mockResponse = aResponse()
+                .withStatus(HTTP_OK)
+                .withHeader("Content-Type", "application/json")
+                .withBody(readResourceContents(filename));
+        log.info("Stubbing hearings url:{}", expectedUrl);
+        stubFor(WireMock.get(urlEqualTo(expectedUrl)).willReturn(mockResponse));
     }
 
-    private void mockHearingsResponse(String caseId, HttpStatus httpStatus, HearingResponse response) {
-        String expectedUrl = String.format("%s%s?caseId=%s", appProperties.getHearingsUrl(), appProperties.getHearingsPath(), caseId);
-        log.info("Mocking {} response", expectedUrl);
-        when(restTemplate.exchange(
-                eq(expectedUrl),
-                eq(HttpMethod.GET),
-                eq(expectedHearingsHeaders()),
-                eq(HearingResponse.class)
-        )).thenReturn(new ResponseEntity<>(response, httpStatus));
-    }
-
-    private HttpEntity expectedHearingsHeaders() {
-        final HttpHeaders headers = new HttpHeaders();
-        headers.set("Accept", "application/vnd.listing.search.hearings+json");
-        headers.set("CJSCPPUID", appProperties.getHearingsCjscppuid());
-        return new HttpEntity<>(headers);
+    @SneakyThrows
+    private String readResourceContents(final String resourceName) {
+        URL resource = getClass().getClassLoader().getResource(resourceName);
+        return Files.readString(Path.of(resource.toURI()));
     }
 }

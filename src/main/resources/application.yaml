@@ -30,11 +30,11 @@ spring:
       add-mappings: false     # disable serving any static resources and 404 message
 
 case-mapper-client:
-  url: ${AMP_BACKEND_URL:http://localhost:8080}
+  url: ${AMP_BACKEND_URL:http://localhost:8081}
   path: /urnmapper
 
 court-schedule-client:
-  url: ${CP_BACKEND_URL:http://localhost}
+  url: ${CP_BACKEND_URL:http://localhost:8081}
   path: /listing-query-api/query/api/rest/listing/hearings/allocated-and-unallocated
   cjscppuid: ${CJSCPPUID:00000000-0000-0000-0000-000000000000}
 

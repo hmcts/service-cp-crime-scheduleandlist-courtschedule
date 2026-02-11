@@ -2,19 +2,15 @@ package uk.gov.hmcts.cp.controllers;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.owasp.encoder.Encode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.cp.openapi.api.CourtScheduleApi;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
-import uk.gov.hmcts.cp.openapi.model.Hearing;
 import uk.gov.hmcts.cp.services.CaseUrnMapperService;
 import uk.gov.hmcts.cp.services.CourtScheduleService;
-
-import java.util.stream.Collectors;
-import org.springframework.http.HttpStatus;
-import org.owasp.encoder.Encode;
 
 
 @RestController
@@ -32,16 +28,11 @@ public class CourtScheduleController implements CourtScheduleApi {
     @Override
     @NonNull
     public ResponseEntity<CourtScheduleResponse> getCourtScheduleByCaseUrn(final String caseUrn) {
-        if (caseUrn == null || caseUrn.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "caseUrn is required");
-        }
         try {
             final String sanitizedCaseUrn = Encode.forJava(caseUrn);
             log.info("Received request to get court schedule for caseUrn:{}", sanitizedCaseUrn);
             final String caseId = caseUrnMapperService.getCaseId(sanitizedCaseUrn);
             final CourtScheduleResponse courtScheduleResponse = courtScheduleService.getCourtScheduleByCaseId(caseId);
-            log.debug("caseUrn :{} -> Court Schedule Hearing Ids :{}", sanitizedCaseUrn, courtScheduleResponse.getCourtSchedule().stream()
-                    .flatMap(a -> a.getHearings().stream().map(Hearing::getHearingId)).collect(Collectors.joining(",")));
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(courtScheduleResponse);
