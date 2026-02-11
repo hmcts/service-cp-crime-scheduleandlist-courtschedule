@@ -67,13 +67,12 @@ public class HearingsMapper {
 
     private void updateForWeekCommencingHearing(final HearingResponse.HearingSchedule hearingSchedule, final Hearing hearing) {
         if(Objects.nonNull(hearingSchedule.getWeekCommencingDurationInWeeks())) {
-            final HearingWeekCommencing hearingWeekCommencing = new HearingWeekCommencing();
-            hearingWeekCommencing.setStartDate(hearingSchedule.getWeekCommencingStartDate());
-            hearingWeekCommencing.setEndDate(hearingSchedule.getWeekCommencingEndDate());
-            hearingWeekCommencing.setDurationInWeeks(hearingSchedule.getWeekCommencingDurationInWeeks());
-            hearingWeekCommencing.setCourtHouse(hearingSchedule.getCourtCentreId());
-
-            hearing.setWeekCommencing(hearingWeekCommencing);
+            hearing.setWeekCommencing(HearingWeekCommencing.builder()
+                    .startDate(hearingSchedule.getWeekCommencingStartDate())
+                    .durationInWeeks(hearingSchedule.getWeekCommencingDurationInWeeks())
+                    .endDate(hearingSchedule.getWeekCommencingEndDate())
+                    .courtHouse(hearingSchedule.getCourtCentreId())
+                    .build());
         }
     }
 

@@ -30,8 +30,8 @@ class HearingsMapperTest {
         CourtScheduleResponse response = mapper.mapCommonPlatformResponse(hearingResponse);
 
         CourtSchedule courtSchedule = response.getCourtSchedule().getFirst();
-        assertForAllocatedHearing(getHearingFor(hearingId_allocated, courtSchedule).get());
-        assertForUnallocatedWeekCommencingHearing(getHearingFor(hearingId_unallocatedWeekCommencing, courtSchedule).get());
+        assertThat(getHearingFor(hearingId_allocated, courtSchedule)).hasValueSatisfying(this::assertForAllocatedHearing);
+        assertThat(getHearingFor(hearingId_unallocatedWeekCommencing, courtSchedule)).hasValueSatisfying(this::assertForUnallocatedWeekCommencingHearing);
     }
 
     private Optional<Hearing> getHearingFor(String id, CourtSchedule courtSchedule) {
@@ -51,6 +51,8 @@ class HearingsMapperTest {
         assertThat(courtSitting0.getJudiciaryId()).isEqualTo("judge-1,judge-2");
         assertThat(courtSitting0.getCourtHouse()).isEqualTo(courtId);
         assertThat(courtSitting0.getCourtRoom()).isEqualTo(courtRoomId);
+
+        assertThat(hearing.getWeekCommencing()).isNull();
     }
 
     private void assertForUnallocatedWeekCommencingHearing(Hearing hearing) {
@@ -61,6 +63,7 @@ class HearingsMapperTest {
         assertThat(hearing.getCourtSittings().size()).isEqualTo(0);
 
         HearingWeekCommencing hearingWeekCommencing = hearing.getWeekCommencing();
+        assertThat(hearingWeekCommencing).isNotNull();
         assertThat(hearingWeekCommencing.getStartDate()).isEqualTo("2026-02-16");
         assertThat(hearingWeekCommencing.getEndDate()).isEqualTo("2026-02-22");
         assertThat(hearingWeekCommencing.getDurationInWeeks()).isEqualTo(1);
