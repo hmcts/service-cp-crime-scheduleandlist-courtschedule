@@ -51,18 +51,6 @@ public class HearingsMapper {
         return hearings;
     }
 
-    private static void updateForWeekCommencingHearing(HearingResponse.HearingSchedule hr, Hearing hearing) {
-        if(Objects.nonNull(hr.getWeekCommencingDurationInWeeks())) {
-            HearingWeekCommencing hearingWeekCommencing = new HearingWeekCommencing();
-            hearingWeekCommencing.setStartDate(hr.getWeekCommencingStartDate());
-            hearingWeekCommencing.setEndDate(hr.getWeekCommencingEndDate());
-            hearingWeekCommencing.setDurationInWeeks(hr.getWeekCommencingDurationInWeeks());
-            hearingWeekCommencing.setCourtHouse(hr.getCourtCentreId());
-
-            hearing.setWeekCommencing(hearingWeekCommencing);
-        }
-    }
-
     private List<CourtSitting> getCourtSittingsForAllocatedHearing(final HearingResponse.HearingSchedule hearingSchedule) {
         final List<CourtSitting> courtSittings = new ArrayList<>();
         if(hearingSchedule.isAllocated()) {
@@ -75,6 +63,18 @@ public class HearingsMapper {
             }
         }
         return courtSittings;
+    }
+
+    private void updateForWeekCommencingHearing(final HearingResponse.HearingSchedule hearingSchedule, final Hearing hearing) {
+        if(Objects.nonNull(hearingSchedule.getWeekCommencingDurationInWeeks())) {
+            final HearingWeekCommencing hearingWeekCommencing = new HearingWeekCommencing();
+            hearingWeekCommencing.setStartDate(hearingSchedule.getWeekCommencingStartDate());
+            hearingWeekCommencing.setEndDate(hearingSchedule.getWeekCommencingEndDate());
+            hearingWeekCommencing.setDurationInWeeks(hearingSchedule.getWeekCommencingDurationInWeeks());
+            hearingWeekCommencing.setCourtHouse(hearingSchedule.getCourtCentreId());
+
+            hearing.setWeekCommencing(hearingWeekCommencing);
+        }
     }
 
     private CourtSitting getCourtSitting(
