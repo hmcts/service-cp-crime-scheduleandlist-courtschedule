@@ -2,7 +2,11 @@ package uk.gov.hmcts.cp.mappers;
 
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.cp.domain.HearingResponse;
-import uk.gov.hmcts.cp.openapi.model.*;
+import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
+import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
+import uk.gov.hmcts.cp.openapi.model.CourtSitting;
+import uk.gov.hmcts.cp.openapi.model.Hearing;
+import uk.gov.hmcts.cp.openapi.model.HearingWeekCommencing;
 
 import java.time.Instant;
 import java.util.List;
