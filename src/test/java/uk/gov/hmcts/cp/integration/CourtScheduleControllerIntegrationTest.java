@@ -187,7 +187,8 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().string(expectedResponse));
+                .andExpect(content().string(expectedResponse))
+                .andReturn();
     }
 
     private void stubMappingResponse(String caseUrn, String caseId) {

@@ -2,10 +2,7 @@ package uk.gov.hmcts.cp.mappers;
 
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.cp.domain.HearingResponse;
-import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
-import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
-import uk.gov.hmcts.cp.openapi.model.CourtSitting;
-import uk.gov.hmcts.cp.openapi.model.Hearing;
+import uk.gov.hmcts.cp.openapi.model.*;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -41,17 +38,25 @@ public class HearingsMapper {
                             .orElse(""));
 
                     final List<CourtSitting> courtSittings = getCourtSittingsForAllocatedHearing(hr);
-                    if(Objects.nonNull(hr.getWeekCommencingDurationInWeeks())) {
-                        hearing.setWeekCommencingStartDate(hr.getWeekCommencingStartDate());
-                        hearing.setWeekCommencingEndDate(hr.getWeekCommencingEndDate());
-                        hearing.setWeekCommencingDurationInWeeks(hr.getWeekCommencingDurationInWeeks());
-                    }
+                    updateForWeekCommencingHearing(hr, hearing);
 
                     hearing.setCourtSittings(courtSittings);
                     hearings.add(hearing);
                 });
 
         return hearings;
+    }
+
+    private static void updateForWeekCommencingHearing(HearingResponse.HearingSchedule hr, Hearing hearing) {
+        if(Objects.nonNull(hr.getWeekCommencingDurationInWeeks())) {
+            HearingWeekCommencing hearingWeekCommencing = new HearingWeekCommencing();
+            hearingWeekCommencing.setStartDate(hr.getWeekCommencingStartDate());
+            hearingWeekCommencing.setEndDate(hr.getWeekCommencingEndDate());
+            hearingWeekCommencing.setDurationInWeeks(hr.getWeekCommencingDurationInWeeks());
+            hearingWeekCommencing.setCourtHouse(hr.getCourtCentreId());
+
+            hearing.setWeekCommencing(hearingWeekCommencing);
+        }
     }
 
     private List<CourtSitting> getCourtSittingsForAllocatedHearing(final HearingResponse.HearingSchedule hearingSchedule) {

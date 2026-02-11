@@ -2,10 +2,7 @@ package uk.gov.hmcts.cp.mappers;
 
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.cp.domain.HearingResponse;
-import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
-import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
-import uk.gov.hmcts.cp.openapi.model.CourtSitting;
-import uk.gov.hmcts.cp.openapi.model.Hearing;
+import uk.gov.hmcts.cp.openapi.model.*;
 
 import java.time.Instant;
 import java.util.List;
@@ -58,9 +55,12 @@ class HearingsMapperTest {
         assertThat(hearing.getListNote()).isEqualTo("");
 
         assertThat(hearing.getCourtSittings().size()).isEqualTo(0);
-        assertThat(hearing.getWeekCommencingStartDate()).isEqualTo("2026-02-16");
-        assertThat(hearing.getWeekCommencingEndDate()).isEqualTo("2026-02-22");
-        assertThat(hearing.getWeekCommencingDurationInWeeks()).isEqualTo(1);
+
+        HearingWeekCommencing hearingWeekCommencing = hearing.getWeekCommencing();
+        assertThat(hearingWeekCommencing.getStartDate()).isEqualTo("2026-02-16");
+        assertThat(hearingWeekCommencing.getEndDate()).isEqualTo("2026-02-22");
+        assertThat(hearingWeekCommencing.getDurationInWeeks()).isEqualTo(1);
+        assertThat(hearingWeekCommencing.getCourtHouse()).isEqualTo(courtId);
     }
 
     private HearingResponse.HearingSchedule.HearingScheduleBuilder dummyHearing(String hearingId, boolean isAllocated) {
@@ -75,6 +75,7 @@ class HearingsMapperTest {
         return HearingResponse.HearingSchedule.builder()
                 .id(hearingId)
                 .allocated(isAllocated)
+                .courtCentreId(courtId)
                 .type(HearingResponse.HearingSchedule.HearingType.builder().description("Plea and Trial Preparation").build())
                 .judiciary(List.of(judiciary1, judiciary2))
                 .hearingDays(List.of(hearingDay));
