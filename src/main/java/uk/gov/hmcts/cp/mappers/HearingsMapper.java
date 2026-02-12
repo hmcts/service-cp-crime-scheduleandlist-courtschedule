@@ -6,6 +6,7 @@ import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
 import uk.gov.hmcts.cp.openapi.model.CourtScheduleResponse;
 import uk.gov.hmcts.cp.openapi.model.CourtSitting;
 import uk.gov.hmcts.cp.openapi.model.Hearing;
+import uk.gov.hmcts.cp.openapi.model.HearingWeekCommencing;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -41,11 +42,7 @@ public class HearingsMapper {
                             .orElse(""));
 
                     final List<CourtSitting> courtSittings = getCourtSittingsForAllocatedHearing(hr);
-                    if(Objects.nonNull(hr.getWeekCommencingDurationInWeeks())) {
-                        hearing.setWeekCommencingStartDate(hr.getWeekCommencingStartDate());
-                        hearing.setWeekCommencingEndDate(hr.getWeekCommencingEndDate());
-                        hearing.setWeekCommencingDurationInWeeks(hr.getWeekCommencingDurationInWeeks());
-                    }
+                    updateForWeekCommencingHearing(hr, hearing);
 
                     hearing.setCourtSittings(courtSittings);
                     hearings.add(hearing);
@@ -66,6 +63,17 @@ public class HearingsMapper {
             }
         }
         return courtSittings;
+    }
+
+    private void updateForWeekCommencingHearing(final HearingResponse.HearingSchedule hearingSchedule, final Hearing hearing) {
+        if(Objects.nonNull(hearingSchedule.getWeekCommencingDurationInWeeks())) {
+            hearing.setWeekCommencing(HearingWeekCommencing.builder()
+                    .startDate(hearingSchedule.getWeekCommencingStartDate())
+                    .durationInWeeks(hearingSchedule.getWeekCommencingDurationInWeeks())
+                    .endDate(hearingSchedule.getWeekCommencingEndDate())
+                    .courtHouse(hearingSchedule.getCourtCentreId())
+                    .build());
+        }
     }
 
     private CourtSitting getCourtSitting(
