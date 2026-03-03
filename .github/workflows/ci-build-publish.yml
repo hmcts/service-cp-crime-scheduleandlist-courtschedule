@@ -9,6 +9,9 @@ on:
         required: true
       HMCTS_CP_ADO_PAT:
         required: true
+      CP_VP_AKS_DEPLOY_KEY:
+        required: true
+        description: "SSH deploy key with write access to hmcts/cp-vp-aks-deploy"
     inputs:
       environment:
         required: true
@@ -27,6 +30,10 @@ on:
       trigger_deploy:
         required: true
         type: boolean
+      deploy_environment:
+        required: false
+        type: string
+        default: dev
 
 jobs:
   Artefact-Version:
@@ -180,15 +187,18 @@ jobs:
             JAR_FILENAME=${{ needs.Build.outputs.artefact_name }}.jar
 
   Deploy:
-    needs: [ Provider-Deploy, Build, Artefact-Version ]
+    needs: [Provider-Deploy, Build, Artefact-Version]
     if: ${{ inputs.trigger_deploy }}
     runs-on: ubuntu-latest
+    outputs:
+      run_id: ${{ steps.trigger.outputs.run_id }}
     steps:
       - name: Extract repo name
         run: echo "REPO_NAME=${GITHUB_REPOSITORY##*/}" >> $GITHUB_ENV
 
-      - name: Trigger ADO pipeline
-        uses: hmcts/trigger-ado-pipeline@v1
+      - name: Trigger ADO pipeline 460
+        id: trigger
+        uses: hmcts/trigger-ado-pipeline@v2
         with:
           pipeline_id: 460
           ado_pat: ${{ secrets.HMCTS_CP_ADO_PAT }}
@@ -198,4 +208,116 @@ jobs:
               "ARTIFACT_ID": "${{ env.REPO_NAME }}",
               "ARTIFACT_VERSION": "${{ needs.Artefact-Version.outputs.artefact_version }}",
               "TARGET_REPOSITORY": "${{ github.repository }}"
+            }
+
+  Wait-For-ACR-Push:
+    needs: [Deploy]
+    if: ${{ inputs.trigger_deploy }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for ADO pipeline 460
+        uses: hmcts/monitor-ado-pipeline@v1
+        with:
+          pipeline_id: 460
+          run_id: ${{ needs.Deploy.outputs.run_id }}
+          ado_pat: ${{ secrets.HMCTS_CP_ADO_PAT }}
+          poll_interval: 30
+          timeout: 1800
+
+  Update-Deploy-Config:
+    needs: [Wait-For-ACR-Push, Artefact-Version, Build]
+    if: ${{ inputs.trigger_deploy }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup SSH for deploy repo
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.CP_VP_AKS_DEPLOY_KEY }}
+
+      - name: Checkout deploy repo
+        run: |
+          git clone git@github.com:hmcts/cp-vp-aks-deploy.git deploy-repo
+
+      - name: Setup environment branch
+        working-directory: deploy-repo
+        run: |
+          ENV_BRANCH="env/${{ inputs.deploy_environment }}"
+          git fetch origin "${ENV_BRANCH}" || true
+          if git rev-parse --verify "origin/${ENV_BRANCH}" >/dev/null 2>&1; then
+            git checkout "${ENV_BRANCH}"
+            git pull origin "${ENV_BRANCH}"
+          else
+            git checkout -b "${ENV_BRANCH}"
+          fi
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq \
+            https://github.com/mikefarah/yq/releases/download/v4.44.1/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Update image tag
+        working-directory: deploy-repo
+        run: |
+          SERVICE="${{ needs.Build.outputs.repo_name }}"
+          TAG="${{ needs.Artefact-Version.outputs.artefact_version }}"
+          echo "Updating ${SERVICE} tag to ${TAG}"
+          yq eval ".services.\"${SERVICE}\".image.tag = \"${TAG}\"" \
+            -i vp-config/services_values.yml
+          cat vp-config/services_values.yml
+
+      - name: Commit and push
+        working-directory: deploy-repo
+        run: |
+          ENV_BRANCH="env/${{ inputs.deploy_environment }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add vp-config/services_values.yml
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "Update ${{ needs.Build.outputs.repo_name }} to ${{ needs.Artefact-Version.outputs.artefact_version }}"
+          git push origin "${ENV_BRANCH}"
+
+  Trigger-K8s-Deploy:
+    needs: [Update-Deploy-Config]
+    if: ${{ inputs.trigger_deploy }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Map environment parameters
+        id: env_map
+        run: |
+          case "${{ inputs.deploy_environment }}" in
+            dev)
+              echo "cpbackendenv=steccm64" >> $GITHUB_OUTPUT
+              echo "stack=devamp01" >> $GITHUB_OUTPUT
+              echo "cluster=K8-DEV-CS01-CL02" >> $GITHUB_OUTPUT
+              ;;
+            sit)
+              echo "cpbackendenv=sitccm01" >> $GITHUB_OUTPUT
+              echo "stack=sitamp01" >> $GITHUB_OUTPUT
+              echo "cluster=K8-SIT-CS01-CL02" >> $GITHUB_OUTPUT
+              ;;
+            prp)
+              echo "cpbackendenv=prpccm01" >> $GITHUB_OUTPUT
+              echo "stack=prpamp01" >> $GITHUB_OUTPUT
+              echo "cluster=K8-PRD-CS01-CL02" >> $GITHUB_OUTPUT
+              ;;
+            prd)
+              echo "cpbackendenv=prdccm01" >> $GITHUB_OUTPUT
+              echo "stack=prdamp01" >> $GITHUB_OUTPUT
+              echo "cluster=K8-PRD-CS01-CL02" >> $GITHUB_OUTPUT
+              ;;
+          esac
+
+      - name: Trigger K8s deployment
+        uses: hmcts/trigger-ado-pipeline@v2
+        with:
+          pipeline_id: 434
+          ado_pat: ${{ secrets.HMCTS_CP_ADO_PAT }}
+          ref_name: refs/heads/env/${{ inputs.deploy_environment }}
+          template_parameters: >
+            {
+              "env": "${{ inputs.deploy_environment }}",
+              "cpbackendenv": "${{ steps.env_map.outputs.cpbackendenv }}",
+              "stack": "${{ steps.env_map.outputs.stack }}",
+              "cluster": "${{ steps.env_map.outputs.cluster }}"
             }
