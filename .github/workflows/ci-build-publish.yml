@@ -9,6 +9,9 @@ on:
         required: true
       HMCTS_CP_ADO_PAT:
         required: true
+      CP_VP_AKS_DEPLOY_KEY:
+        required: true
+        description: "SSH deploy key with write access to hmcts/cp-vp-aks-deploy"
     inputs:
       environment:
         required: true
@@ -27,6 +30,10 @@ on:
       trigger_deploy:
         required: true
         type: boolean
+      deploy_environment:
+        required: false
+        type: string
+        default: dev
 
 jobs:
   Artefact-Version:
@@ -180,15 +187,18 @@ jobs:
             JAR_FILENAME=${{ needs.Build.outputs.artefact_name }}.jar
 
   Deploy:
-    needs: [ Provider-Deploy, Build, Artefact-Version ]
+    needs: [Provider-Deploy, Build, Artefact-Version]
     if: ${{ inputs.trigger_deploy }}
     runs-on: ubuntu-latest
+    outputs:
+      run_id: ${{ steps.trigger.outputs.run_id }}
     steps:
       - name: Extract repo name
         run: echo "REPO_NAME=${GITHUB_REPOSITORY##*/}" >> $GITHUB_ENV
 
-      - name: Trigger ADO pipeline
-        uses: hmcts/trigger-ado-pipeline@v1
+      - name: Trigger ADO pipeline 460
+        id: trigger
+        uses: hmcts/trigger-ado-pipeline@v2
         with:
           pipeline_id: 460
           ado_pat: ${{ secrets.HMCTS_CP_ADO_PAT }}
@@ -199,3 +209,28 @@ jobs:
               "ARTIFACT_VERSION": "${{ needs.Artefact-Version.outputs.artefact_version }}",
               "TARGET_REPOSITORY": "${{ github.repository }}"
             }
+
+  Wait-For-ACR-Push:
+    needs: [Deploy]
+    if: ${{ inputs.trigger_deploy }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for ADO pipeline 460
+        uses: hmcts/monitor-ado-pipeline@v1
+        with:
+          pipeline_id: 460
+          run_id: ${{ needs.Deploy.outputs.run_id }}
+          ado_pat: ${{ secrets.HMCTS_CP_ADO_PAT }}
+          poll_interval: 30
+          timeout: 1800
+
+  Deploy-To-K8s:
+    needs: [Wait-For-ACR-Push, Artefact-Version, Build]
+    if: ${{ inputs.trigger_deploy }}
+    uses: hmcts/cp-vp-aks-deploy/.github/workflows/update-service-tag.yml@main
+    with:
+      service_name: ${{ needs.Build.outputs.repo_name }}
+      image_tag: ${{ needs.Artefact-Version.outputs.artefact_version }}
+      environment: ${{ inputs.deploy_environment }}
+    secrets:
+      deploy_key: ${{ secrets.CP_VP_AKS_DEPLOY_KEY }}
