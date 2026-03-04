@@ -251,8 +251,7 @@ jobs:
           fi
 
       - name: Install yq
-        - name: Install yq
-           uses: mikefarah/yq@v4.44.1
+         uses: mikefarah/yq@v4.44.1
 
       - name: Update image tag
         working-directory: deploy-repo
