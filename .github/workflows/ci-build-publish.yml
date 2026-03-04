@@ -285,26 +285,32 @@ jobs:
       - name: Map environment parameters
         id: env_map
         run: |
+          set -euo pipefail
+
           case "${{ inputs.deploy_environment }}" in
             dev)
-              echo "cpbackendenv=steccm64" >> $GITHUB_OUTPUT
-              echo "stack=devamp01" >> $GITHUB_OUTPUT
-              echo "cluster=K8-DEV-CS01-CL02" >> $GITHUB_OUTPUT
+              echo "cpbackendenv=steccm64" >> "$GITHUB_OUTPUT"
+              echo "stack=devamp01" >> "$GITHUB_OUTPUT"
+              echo "cluster=K8-DEV-CS01-CL02" >> "$GITHUB_OUTPUT"
               ;;
             sit)
-              echo "cpbackendenv=sitccm01" >> $GITHUB_OUTPUT
-              echo "stack=sitamp01" >> $GITHUB_OUTPUT
-              echo "cluster=K8-SIT-CS01-CL02" >> $GITHUB_OUTPUT
+              echo "cpbackendenv=sitccm01" >> "$GITHUB_OUTPUT"
+              echo "stack=sitamp01" >> "$GITHUB_OUTPUT"
+              echo "cluster=K8-SIT-CS01-CL02" >> "$GITHUB_OUTPUT"
               ;;
             prp)
-              echo "cpbackendenv=prpccm01" >> $GITHUB_OUTPUT
-              echo "stack=prpamp01" >> $GITHUB_OUTPUT
-              echo "cluster=K8-PRD-CS01-CL02" >> $GITHUB_OUTPUT
+              echo "cpbackendenv=prpccm01" >> "$GITHUB_OUTPUT"
+              echo "stack=prpamp01" >> "$GITHUB_OUTPUT"
+              echo "cluster=K8-PRD-CS01-CL02" >> "$GITHUB_OUTPUT"
               ;;
             prd)
-              echo "cpbackendenv=prdccm01" >> $GITHUB_OUTPUT
-              echo "stack=prdamp01" >> $GITHUB_OUTPUT
-              echo "cluster=K8-PRD-CS01-CL02" >> $GITHUB_OUTPUT
+              echo "cpbackendenv=prdccm01" >> "$GITHUB_OUTPUT"
+              echo "stack=prdamp01" >> "$GITHUB_OUTPUT"
+              echo "cluster=K8-PRD-CS01-CL02" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "Error: Unsupported deploy_environment value: '${{ inputs.deploy_environment }}'. Expected one of: dev, sit, prp, prd." >&2
+              exit 1
               ;;
           esac
 
