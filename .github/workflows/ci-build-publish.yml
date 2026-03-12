@@ -7,7 +7,7 @@ on:
         required: true
       AZURE_DEVOPS_ARTIFACT_TOKEN:
         required: true
-      HMCTS_CP_ADO_PAT:
+      HMCTS_ADO_PAT:
         required: true
     inputs:
       environment:
@@ -57,7 +57,6 @@ jobs:
     outputs:
       repo_name: ${{ steps.repo_vars.outputs.repo_name }}
       artefact_name: ${{ steps.repo_vars.outputs.artefact_name }}
-
     steps:
       - name: Checkout source code
         uses: actions/checkout@v6
@@ -66,19 +65,45 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '25'
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v5
         with:
           gradle-version: current
 
-      - name: Gradle Build
+      - name: Gradle Build and Publish
         env:
           ARTEFACT_VERSION: ${{ needs.Artefact-Version.outputs.artefact_version }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AZURE_DEVOPS_ARTIFACT_USERNAME: ${{ secrets.AZURE_DEVOPS_ARTIFACT_USERNAME }}
+          AZURE_DEVOPS_ARTIFACT_TOKEN: ${{ secrets.AZURE_DEVOPS_ARTIFACT_TOKEN }}
+          ENVIRONMENT: ${{ inputs.environment }}
         run: |
           echo "Building with ARTEFACT_VERSION=$ARTEFACT_VERSION"
-          gradle build -DARTEFACT_VERSION=$ARTEFACT_VERSION
+          echo "Active environment=$ENVIRONMENT"
+
+          ./gradlew build -DARTEFACT_VERSION=$ARTEFACT_VERSION
+
+          if [ -z "AZURE_DEVOPS_ARTIFACT_USERNAME" ]; then
+            echo "::warning::AZURE_DEVOPS_ARTIFACT_USERNAME is null or not set"
+          fi
+
+          if [ -z "$AZURE_DEVOPS_ARTIFACT_TOKEN" ]; then
+            echo "::warning::AZURE_DEVOPS_ARTIFACT_TOKEN is null or not set"
+          fi
+
+          if [ "${{ inputs.is_publish }}" == "true" ]; then
+            echo "Publishing artefact for version: $ARTEFACT_VERSION"
+
+            ./gradlew publish \
+              -DARTEFACT_VERSION=$ARTEFACT_VERSION \
+              -DGITHUB_REPOSITORY=${{ github.repository }} \
+              -DGITHUB_ACTOR=${{ github.actor }} \
+              -DGITHUB_TOKEN=$GITHUB_TOKEN \
+              -DAZURE_DEVOPS_ARTIFACT_USERNAME=$AZURE_DEVOPS_ARTIFACT_USERNAME \
+              -DAZURE_DEVOPS_ARTIFACT_TOKEN=$AZURE_DEVOPS_ARTIFACT_TOKEN
+          fi
 
       - name: Extract repo name
         id: repo_vars
@@ -93,56 +118,8 @@ jobs:
           name: app.jar
           path: build/libs/${{ steps.repo_vars.outputs.artefact_name }}.jar
 
-  Provider-Deploy:
-    needs: [ Artefact-Version, Build ]
-    runs-on: ubuntu-latest
-    environment:
-      name: ${{ inputs.environment }}
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v6
-
-      - name: Set up JDK
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v5
-        with:
-          gradle-version: current
-
-      - name: Gradle Publish
-        if: ${{ inputs.is_publish }}
-        env:
-          ARTEFACT_VERSION: ${{ needs.Artefact-Version.outputs.artefact_version }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AZURE_DEVOPS_ARTIFACT_USERNAME: ${{ secrets.AZURE_DEVOPS_ARTIFACT_USERNAME }}
-          AZURE_DEVOPS_ARTIFACT_TOKEN: ${{ secrets.AZURE_DEVOPS_ARTIFACT_TOKEN }}
-          ENVIRONMENT: ${{ inputs.environment }}
-        run: |
-          echo "Active environment=$ENVIRONMENT"
-          if [ -z "AZURE_DEVOPS_ARTIFACT_USERNAME" ]; then
-            echo "::warning::AZURE_DEVOPS_ARTIFACT_USERNAME is null or not set"
-          fi
-
-          if [ -z "$AZURE_DEVOPS_ARTIFACT_TOKEN" ]; then
-            echo "::warning::AZURE_DEVOPS_ARTIFACT_TOKEN is null or not set"
-          fi
-
-          echo "Publishing artefact for version: $ARTEFACT_VERSION"
-          
-          gradle publish \
-            -DARTEFACT_VERSION=$ARTEFACT_VERSION \
-            -DGITHUB_REPOSITORY=${{ github.repository }} \
-            -DGITHUB_ACTOR=${{ github.actor }} \
-            -DGITHUB_TOKEN=$GITHUB_TOKEN \
-            -DAZURE_DEVOPS_ARTIFACT_USERNAME=$AZURE_DEVOPS_ARTIFACT_USERNAME \
-            -DAZURE_DEVOPS_ARTIFACT_TOKEN=$AZURE_DEVOPS_ARTIFACT_TOKEN
-
   Build-Docker:
-    needs: [ Provider-Deploy, Build, Artefact-Version ]
+    needs: [ Build, Artefact-Version ]
     if: ${{ inputs.trigger_docker }}
     runs-on: ubuntu-latest
     environment:
@@ -176,11 +153,11 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}:${{ needs.Artefact-Version.outputs.artefact_version }}
           build-args: |
-            BASE_IMAGE=eclipse-temurin:21
+            BASE_IMAGE=eclipse-temurin:25
             JAR_FILENAME=${{ needs.Build.outputs.artefact_name }}.jar
 
   Deploy:
-    needs: [ Provider-Deploy, Build, Artefact-Version ]
+    needs: [ Build, Artefact-Version ]
     if: ${{ inputs.trigger_deploy }}
     runs-on: ubuntu-latest
     steps:
@@ -191,11 +168,13 @@ jobs:
         uses: hmcts/trigger-ado-pipeline@v1
         with:
           pipeline_id: 460
-          ado_pat: ${{ secrets.HMCTS_CP_ADO_PAT }}
+          ado_pat: ${{ secrets.HMCTS_ADO_PAT }}
           template_parameters: >
             {
               "GROUP_ID": "uk.gov.hmcts.cp",
               "ARTIFACT_ID": "${{ env.REPO_NAME }}",
               "ARTIFACT_VERSION": "${{ needs.Artefact-Version.outputs.artefact_version }}",
-              "TARGET_REPOSITORY": "${{ github.repository }}"
+              "TARGET_REPOSITORY": "${{ github.repository }}",
+              "agentDemand": "ubuntu-j25",
+              "baseImage": "hmcts/apm-services:25-jre"
             }
