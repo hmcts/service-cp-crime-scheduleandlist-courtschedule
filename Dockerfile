@@ -1,6 +1,9 @@
-# Docker base image - note that this is currently overwritten by azure pipelines
+# See ci-build-publish.yml which sets baseImage=hmcts/apm-services:25-jre and agentDemand:ubuntu-j25
+# azure pipeline replaces $BASE_IMAGE with crmdvrepo01.azurecr.io + $baseImage
+# This image has the hmcts self signing certificate authority added to truststore so we dont need to worry about about the certs
+# If pulling this locally we need to authenticate to acr ... az login; az acr login -n crmdvrepo01
 ARG BASE_IMAGE
-FROM ${BASE_IMAGE:-eclipse-temurin:21-jdk}
+FROM ${BASE_IMAGE:-eclipse-temurin:25-jre}
 
 # run as non-root ... group and user "app"
 RUN groupadd -r app && useradd -r -g app app
@@ -15,11 +18,6 @@ RUN apt-get update \
 COPY docker/* /app/
 COPY build/libs/*.jar /app/
 COPY lib/applicationinsights.json /app/
-
-# Not sure this does anything useful we can drop once we sort certificates
-RUN test -n "$JAVA_HOME" \
- && test -f "$JAVA_HOME/lib/security/cacerts" \
- && chmod 777 "$JAVA_HOME/lib/security/cacerts"
 
 USER app
 ENTRYPOINT ["/bin/sh","./startup.sh"]
