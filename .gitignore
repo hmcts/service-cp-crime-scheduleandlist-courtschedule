@@ -30,4 +30,4 @@ applicationinsights-agent-*.jar
 .DS_Store
 */.DS_Store
 
-.env
+.env.claude/CLAUDE.md
