@@ -54,7 +54,7 @@ uk.gov.hmcts.cp/
 ## Repo-Specific Architecture Rules
 
 - **HearingResponseFilter**: Applied before `HearingsMapper` — it normalises or removes backend fields that should not appear in the API response. Modify the filter (not the mapper) to change what fields are included.
-- **CJSCPPUID header**: `CourtScheduleClient` sets `CJSCPPUID` on every backend request. Never remove this header.
+- **CJSCPPUID header**: `CourtScheduleClient` sets `CJSCPPUID` on every backend request.
 - **Mapper is pure**: `HearingsMapper` only transforms types; no filtering or business logic.
 
 ## Debugging
