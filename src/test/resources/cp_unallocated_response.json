@@ -85,7 +85,8 @@
       "hearingLanguage": "ENGLISH",
       "estimatedMinutes": 0,
       "jurisdictionType": "CROWN",
-      "courtApplications": []
+      "courtApplications": [],
+      "ampPublicDataLastUpdated": "2026-01-27T10:30:00.000Z"
     },
     {
       "id": "2c6e6234-601a-4647-b7c9-db8f5052372f",
@@ -175,7 +176,8 @@
         "id": "64e16502-f3ac-3a35-bbc7-3b1c326bf64c",
         "defaultDuration": 420,
         "defaultStartTime": "10:00:00"
-      }
+      },
+      "ampPublicDataLastUpdated": "2026-01-27T10:30:00.000Z"
     }
   ]
 }

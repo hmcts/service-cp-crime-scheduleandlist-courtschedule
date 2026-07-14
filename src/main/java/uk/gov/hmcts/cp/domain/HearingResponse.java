@@ -38,6 +38,7 @@ public class HearingResponse implements Serializable {
         private String publicListNote;
         private Boolean unscheduled;
         private String courtCentreId;
+        private String ampPublicDataLastUpdated;
 
         @JsonIgnoreProperties(ignoreUnknown = true)
         @Builder

@@ -122,7 +122,8 @@
         "defaultDuration": 420,
         "defaultStartTime": "10:00:00"
       },
-      "sendNotificationToParties": false
+      "sendNotificationToParties": false,
+      "ampPublicDataLastUpdated": "2026-01-27T10:30:00.000Z"
     },
     {
       "id": "adbe2826-badc-4b08-8dd9-ded62cddd0f6",
@@ -244,7 +245,8 @@
         "defaultDuration": 420,
         "defaultStartTime": "10:00:00"
       },
-      "sendNotificationToParties": false
+      "sendNotificationToParties": false,
+      "ampPublicDataLastUpdated": "2026-01-27T10:30:00.000Z"
     },
     {
       "id": "73fbf951-2f4d-4830-bd04-81630cd92059",
@@ -343,7 +345,8 @@
       },
       "isGroupProceedings": false,
       "numberOfGroupCases": 1,
-      "sendNotificationToParties": false
+      "sendNotificationToParties": false,
+      "ampPublicDataLastUpdated": "2026-01-27T10:30:00.000Z"
     }
   ]
 }

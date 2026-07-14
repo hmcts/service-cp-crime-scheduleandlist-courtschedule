@@ -23,11 +23,17 @@ apply {
   from("$rootDir/gradle/apitest.gradle")
 }
 
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(25)
+  }
+}
+
 // We MUST keep all dependencies in the build.gradle to allow dependabot to provide version updates
 // Sadly, dependabot does not track dependencies in the apply-from files
 dependencies {
   // Api spec
-  implementation "uk.gov.hmcts.cp:api-cp-crime-schedulingandlisting-courtschedule:1.1.0"
+  implementation "uk.gov.hmcts.cp:api-cp-crime-schedulingandlisting-courtschedule:1.1.2"
 
 
   // Java core

@@ -1,5 +1,7 @@
 package uk.gov.hmcts.cp.mappers;
 
+import static java.util.Objects.nonNull;
+
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.cp.domain.HearingResponse;
 import uk.gov.hmcts.cp.openapi.model.CourtSchedule;
@@ -38,6 +40,11 @@ public class HearingsMapper {
                     hearing.setHearingId(hr.getId());
                     hearing.setHearingType(hr.getType().getDescription());
                     hearing.setHearingDescription(hr.getType().getDescription());
+
+                    if (nonNull(hr.getAmpPublicDataLastUpdated())) {
+                        hearing.setLastUpdatedTime(Instant.parse(hr.getAmpPublicDataLastUpdated()));
+                    }
+
                     hearing.setListNote(Optional.ofNullable(hr.getPublicListNote())
                             .orElse(""));
 
@@ -66,7 +73,7 @@ public class HearingsMapper {
     }
 
     private void updateForWeekCommencingHearing(final HearingResponse.HearingSchedule hearingSchedule, final Hearing hearing) {
-        if(Objects.nonNull(hearingSchedule.getWeekCommencingDurationInWeeks())) {
+        if(nonNull(hearingSchedule.getWeekCommencingDurationInWeeks())) {
             hearing.setWeekCommencing(HearingWeekCommencing.builder()
                     .startDate(hearingSchedule.getWeekCommencingStartDate())
                     .durationInWeeks(hearingSchedule.getWeekCommencingDurationInWeeks())
