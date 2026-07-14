@@ -19,14 +19,8 @@ apply {
   from("$rootDir/gradle/pmd.gradle")
   from("$rootDir/gradle/test.gradle")
   from("$rootDir/gradle/jar.gradle")
-
+  from("$rootDir/gradle/java.gradle")
   from("$rootDir/gradle/apitest.gradle")
-}
-
-java {
-  toolchain {
-    languageVersion = JavaLanguageVersion.of(25)
-  }
 }
 
 // We MUST keep all dependencies in the build.gradle to allow dependabot to provide version updates
@@ -34,6 +28,8 @@ java {
 dependencies {
   // Api spec
   implementation "uk.gov.hmcts.cp:api-cp-crime-schedulingandlisting-courtschedule:1.1.2"
+  compileOnly "io.swagger.core.v3:swagger-annotations:2.2.42"
+  testCompileOnly "io.swagger.core.v3:swagger-annotations:2.2.42"
 
 
   // Java core
