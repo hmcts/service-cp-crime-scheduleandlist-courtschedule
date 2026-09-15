@@ -21,6 +21,7 @@ apply {
   from("$rootDir/gradle/jar.gradle")
 
   from("$rootDir/gradle/apitest.gradle")
+  from("$rootDir/gradle/java.gradle")
 }
 
 // We MUST keep all dependencies in the build.gradle to allow dependabot to provide version updates
@@ -29,6 +30,14 @@ dependencies {
   // Api spec
   implementation "uk.gov.hmcts.cp:api-cp-crime-schedulingandlisting-courtschedule:1.1.0"
 
+  // Resolves the @Schema/@Parameter annotations on the generated api-cp-* interface/models at
+  // compile time - without it -Werror fails on "unknown enum constant" for their RequiredMode/
+  // ParameterIn values. Not needed at runtime (the generated classes already carry them baked in).
+  compileOnly "io.swagger.core.v3:swagger-annotations-jakarta:2.2.55"
+  testCompileOnly "io.swagger.core.v3:swagger-annotations-jakarta:2.2.55"
+
+  // Entra access token validation (signature/claims verification against the tenant JWKS)
+  implementation "com.nimbusds:nimbus-jose-jwt:10.9.1"
 
   // Java core
   implementation 'net.logstash.logback:logstash-logback-encoder:8.1'

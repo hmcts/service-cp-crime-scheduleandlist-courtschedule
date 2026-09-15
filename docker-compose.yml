@@ -16,5 +16,8 @@ services:
       dockerfile: Dockerfile
     environment:
       CP_BACKEND_URL: "http://wiremock:8080"
+      # apiTest only exercises actuator endpoints, which are exempt from validation anyway - no
+      # real Entra tenant is available in this local docker-compose stack.
+      AUTH_MODE: "OFF"
     ports:
       - "4550:4550"

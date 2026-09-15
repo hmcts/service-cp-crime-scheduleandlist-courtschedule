@@ -18,10 +18,15 @@ Spring Boot service that retrieves court schedule data for a case URN by calling
 ```
 uk.gov.hmcts.cp/
   Application.java                          @SpringBootApplication
+  auth/
+    EntraTokenValidator                     Signature (RS256-pinned) + claims validation
+    EntraAuthProperties                     @Value auth.*; fails startup on invalid config
+    AuthorizationPolicy                     Deny-by-default exempt paths + recognised roles
+    AuthMode, ValidatedCaller, TokenValidationException
   clients/
     CourtScheduleClient                     RestTemplate → CP backend; sets CJSCPPUID header
   config/
-    AppConfig                               @Bean RestTemplate
+    AppConfig                               @Bean RestTemplate, HttpClient, ClockService, JWKSource, EntraTokenValidator
     AppPropertiesBackend                    @Value AMP_BACKEND_URL, CP_BACKEND_URL
   controllers/
     CourtScheduleController                 Implements generated API; delegates to CourtScheduleService
@@ -33,6 +38,7 @@ uk.gov.hmcts.cp/
   exceptions/
     GlobalExceptionHandler                  Maps domain exceptions to HTTP status codes
   filters/
+    ClientIdResolutionFilter                Validates Entra bearer tokens; see docs/jwt-validation-spec.md
     HearingResponseFilter                   Strips or transforms backend hearing fields before mapping
     TracingFilter                           Reads/generates X-Correlation-Id; propagates via MDC
   mappers/
@@ -40,6 +46,7 @@ uk.gov.hmcts.cp/
   services/
     CaseUrnMapperService                    Resolves case URN to case ID via CP backend
     CourtScheduleService                    Calls CourtScheduleClient → applies filter → maps response
+    ClockService                            Wraps Clock; all "now" access goes through this
 ```
 
 ## Environment Variables
@@ -50,12 +57,16 @@ uk.gov.hmcts.cp/
 | `AMP_BACKEND_URL` | Alternative backend URL (used by CaseUrnMapperService) | `http://localhost:8081` |
 | `CJSCPPUID` | User UUID header on all backend calls | `00000000-0000-0000-0000-000000000000` |
 | `rpe.AppInsightsInstrumentationKey` | Azure Application Insights key | `00000000-0000-0000-0000-000000000000` |
+| `AUTH_MODE` | Entra token validation mode: `OFF`/`OBSERVE`/`ENFORCE` | `ENFORCE` |
+| `AUTH_TENANT_ID` | Entra issuing tenant (see docs/jwt-validation-spec.md) | blank — no default on purpose |
+| `AUTH_AUDIENCE` | This API's own Entra audience | blank — no default on purpose |
 
 ## Repo-Specific Architecture Rules
 
 - **HearingResponseFilter**: Applied before `HearingsMapper` — it normalises or removes backend fields that should not appear in the API response. Modify the filter (not the mapper) to change what fields are included.
 - **CJSCPPUID header**: `CourtScheduleClient` sets `CJSCPPUID` on every backend request.
 - **Mapper is pure**: `HearingsMapper` only transforms types; no filtering or business logic.
+- **Entra token validation**: `ClientIdResolutionFilter` runs before the controller and rejects an invalid/missing bearer token (401/403) unless the path is in `AuthorizationPolicy`'s exact exempt list. See `docs/jwt-validation-spec.md`.
 
 ## Debugging
 
@@ -64,6 +75,7 @@ uk.gov.hmcts.cp/
 | Missing hearings in response | Check `HearingResponseFilter` — fields may be stripped; review filter logic |
 | 404 for valid URN | Backend does not have schedule for that case; check `CP_BACKEND_URL` and data |
 | Null fields in response | `@JsonInclude(NON_NULL)` suppresses nulls; check whether backend returned the field |
+| 401/403 on a valid-looking request | Check `AUTH_TENANT_ID`/`AUTH_AUDIENCE` match the token; see `docs/jwt-validation-spec.md` |
 
 ## Repo-Specific Notes
 

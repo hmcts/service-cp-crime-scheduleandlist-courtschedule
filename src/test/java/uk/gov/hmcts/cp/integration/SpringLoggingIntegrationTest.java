@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Map;
 
-@SpringBootTest
+@SpringBootTest(properties = "auth.mode=OFF")
 @AutoConfigureMockMvc
 @Slf4j
 class SpringLoggingIntegrationTest {

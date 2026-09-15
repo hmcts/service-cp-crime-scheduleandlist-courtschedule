@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, properties = {
-        "jwt.filter.enabled=false",
+        "auth.mode=OFF",
         "management.tracing.enabled=true"
 })
 @AutoConfigureMockMvc
