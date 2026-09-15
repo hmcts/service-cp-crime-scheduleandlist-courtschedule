@@ -9,7 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import uk.gov.hmcts.cp.helper.JwtHelper;
 
 import java.net.URL;
 import java.nio.file.Files;
@@ -115,7 +117,8 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
 
 
         mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, JwtHelper.bearerTokenWithAzp(UUID.randomUUID().toString())))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -132,7 +135,8 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
         stubFor(WireMock.get(urlEqualTo(expectedHearingsUrl)).willReturn(mockResponse));
 
         mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, JwtHelper.bearerTokenWithAzp(UUID.randomUUID().toString())))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -150,7 +154,8 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
         stubFor(WireMock.get(urlEqualTo(expectedHearingsUrl)).willReturn(mockResponse));
 
         mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, JwtHelper.bearerTokenWithAzp(UUID.randomUUID().toString())))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -168,7 +173,8 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
         stubFor(WireMock.get(urlEqualTo(expectedHearingsUrl)).willReturn(mockResponse));
 
         mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, JwtHelper.bearerTokenWithAzp(UUID.randomUUID().toString())))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -184,7 +190,8 @@ class CourtScheduleControllerIntegrationTest extends IntegrationTestBase {
     @SneakyThrows
     private void amp_endpoint_and_verify_response(String expectedResponse) {
         mockMvc.perform(get("/case/{case_urn}/courtschedule", caseUrn)
-                        .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, JwtHelper.bearerTokenWithAzp(UUID.randomUUID().toString())))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(expectedResponse))

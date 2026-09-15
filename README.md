@@ -1,5 +1,9 @@
 # Service: Common Platform (CP) Crime Scheduling and Listing Court Schedule
 
+### Key Documentation
+
+- [Entra access token validation](docs/jwt-validation-spec.md)
+
 ## Documentation
 
 Further documentation see the [HMCTS Marketplace Springboot template readme](https://github.com/hmcts/service-hmcts-marketplace-springboot-template/blob/main/README.md).
