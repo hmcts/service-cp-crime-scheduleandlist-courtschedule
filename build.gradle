@@ -70,4 +70,8 @@ dependencies {
 
   implementation 'org.springframework.boot:spring-boot-starter-actuator'
   implementation 'org.springframework.boot:spring-boot-starter-opentelemetry'
+
+  // management.endpoints.web.exposure.include lists "prometheus", but that actuator endpoint only
+  // exists when a Prometheus registry implementation is on the classpath - without this it 404s.
+  implementation 'io.micrometer:micrometer-registry-prometheus'
 }

@@ -70,7 +70,7 @@ class ClientIdResolutionFilterTest {
     @Test
     @DisplayName("public paths bypass the filter without a token")
     void publicPathIsNotFiltered() throws Exception {
-        final MockHttpServletRequest request = get("/health");
+        final MockHttpServletRequest request = get("/actuator/health");
 
         filter(AuthMode.ENFORCE).doFilter(request, response, filterChain);
 

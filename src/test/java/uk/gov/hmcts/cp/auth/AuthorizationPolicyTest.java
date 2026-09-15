@@ -76,13 +76,13 @@ class AuthorizationPolicyTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"/", "/health", "/info", "/prometheus", "/error"})
+    @ValueSource(strings = {"/", "/error", "/actuator", "/actuator/health", "/actuator/info", "/actuator/prometheus"})
     void publicPathsDoNotRequireAToken(final String path) {
         assertThat(policy.isExemptFromValidation(path)).isTrue();
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"/healthx", "/health/x", "/infox", "/errorx"})
+    @ValueSource(strings = {"/errorx", "/actuatorx", "/health", "/info", "/prometheus"})
     @DisplayName("a path that merely starts with a public path is not public")
     void publicPrefixDoesNotLeakToNeighbouringPaths(final String path) {
         assertThat(policy.isExemptFromValidation(path)).isFalse();
