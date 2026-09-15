@@ -296,6 +296,9 @@ class EntraTokenValidationApiTest {
         LOG.warn("TLS VERIFICATION DISABLED for {} — SERVICE_TLS_INSECURE is set. "
                 + "Certificates are not checked, so this run does not prove which host answered.", BASE_URL);
         try {
+            // codeql[java/insecure-trustmanager] Deliberate curl-k equivalent, opt-in only via
+            // SERVICE_TLS_INSECURE (default false), refused above for a live-looking host, never
+            // used for the Entra token request, and this whole class is @Disabled by default.
             final TrustManager[] trustAll = {new X509TrustManager() {
                 @Override
                 public void checkClientTrusted(final X509Certificate[] chain, final String authType) {
