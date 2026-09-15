@@ -65,7 +65,7 @@ nobody should later "harden" this into an outage.
 
 ### One role, no read/write separation
 
-Entra issues a single application role, `court-schedule.read`, for this API. `AuthorizationPolicy`
+Entra issues a single application role, `app.read`, for this API. `AuthorizationPolicy`
 recognises exactly that one role; there is nothing to separate.
 
 ### `azp` is the identity, `oid`/`sub` is not
@@ -127,7 +127,7 @@ coverage.
 ## 6. Entra prerequisites (not code)
 
 - App registration exposing this API's audience.
-- The `court-schedule.read` app role declared **and assigned, with admin consent** — a
+- The `app.read` app role declared **and assigned, with admin consent** — a
   declared-but-unconsented role produces a token that looks correct but silently omits `roles`.
 - `requestedAccessTokenVersion` pinned to `2`.
 - Per-environment tenant/audience values wired into the deployment config

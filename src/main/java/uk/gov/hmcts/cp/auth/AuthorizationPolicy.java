@@ -15,7 +15,7 @@ import java.util.Set;
 public class AuthorizationPolicy {
 
     /** The only application role Entra issues for this API. */
-    public static final String ROLE_READ = "court-schedule.read";
+    public static final String ROLE_READ = "app.read";
 
     private static final Set<String> KNOWN_ROLES = Set.of(ROLE_READ);
 

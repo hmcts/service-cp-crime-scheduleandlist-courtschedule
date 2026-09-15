@@ -1,5 +1,6 @@
 package uk.gov.hmcts.cp;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -58,7 +59,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
  * direnv allow
  * </pre>
  *
- * The client needs the {@code court-schedule.read} app role assignment on this API's app
+ * The client needs the {@code app.read} app role assignment on this API's app
  * registration, admin-consented. A registration alone is not enough: without the assignment Entra
  * issues a token carrying no {@code roles}, and every case then fails on the role check rather than
  * on whatever it was meant to exercise.
@@ -352,7 +353,7 @@ class EntraTokenValidationApiTest {
             final java.util.Map<String, Object> parsed = OBJECT_MAPPER.readValue(json, java.util.Map.class);
             final Object value = parsed.get(field);
             return value == null ? null : value.toString();
-        } catch (final Exception e) {
+        } catch (final JsonProcessingException e) {
             throw new IllegalStateException("could not read field " + field + " from Entra response", e);
         }
     }

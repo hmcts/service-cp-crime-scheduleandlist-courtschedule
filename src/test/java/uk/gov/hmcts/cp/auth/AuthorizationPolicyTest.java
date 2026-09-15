@@ -99,7 +99,7 @@ class AuthorizationPolicyTest {
 
     @Test
     void callerWithAnUnrecognisedRoleIsRejected() {
-        assertThatThrownBy(() -> policy.assertAuthorized(caller("court-schedule.somethingelse")))
+        assertThatThrownBy(() -> policy.assertAuthorized(caller("app.somethingelse")))
                 .isInstanceOf(TokenValidationException.class)
                 .extracting(ex -> ((TokenValidationException) ex).getReason())
                 .isEqualTo(TokenValidationException.Reason.INSUFFICIENT_ROLE);
@@ -112,7 +112,7 @@ class AuthorizationPolicyTest {
     }
 
     @Test
-    @DisplayName("only court-schedule.read is recognised")
+    @DisplayName("only app.read is recognised")
     void onlyOneRoleExists() {
         assertThat(policy.knownRoles()).containsExactly(AuthorizationPolicy.ROLE_READ);
     }
