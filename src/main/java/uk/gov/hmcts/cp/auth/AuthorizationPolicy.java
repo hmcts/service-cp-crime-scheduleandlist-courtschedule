@@ -2,6 +2,7 @@ package uk.gov.hmcts.cp.auth;
 
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -19,15 +20,15 @@ public class AuthorizationPolicy {
 
     private static final Set<String> KNOWN_ROLES = Set.of(ROLE_READ);
 
-    /**
-     * Infrastructure endpoints, carrying no case data. {@code management.endpoints.web.base-path} is
-     * "/" in this service, so actuator endpoints are top-level paths rather than under "/actuator".
-     */
-    private static final Set<String> PUBLIC_EXACT_PATHS = Set.of("/", "", "/health", "/info", "/prometheus", "/error");
+    /** Infrastructure endpoints, carrying no case data. */
+    private static final Set<String> PUBLIC_EXACT_PATHS = Set.of("/", "", "/error");
+    private static final List<String> PUBLIC_PATH_ROOTS = List.of("/actuator");
 
-    /** True when the path is reachable without a token — see {@link #PUBLIC_EXACT_PATHS}. */
+    /** True when the path is reachable without a token — see the two lists above. */
     public boolean isExemptFromValidation(final String requestUri) {
-        return PUBLIC_EXACT_PATHS.contains(stripTrailingSlash(requestUri));
+        final String path = stripTrailingSlash(requestUri);
+        return PUBLIC_EXACT_PATHS.contains(path)
+                || PUBLIC_PATH_ROOTS.stream().anyMatch(root -> path.equals(root) || path.startsWith(root + "/"));
     }
 
     /** The roles this API recognises; a caller needs at least one of them. */

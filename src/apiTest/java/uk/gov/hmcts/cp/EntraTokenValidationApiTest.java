@@ -215,12 +215,12 @@ class EntraTokenValidationApiTest {
     @Test
     @DisplayName("an exempt path needs no token in any mode")
     void exemptPathNeedsNoToken() {
-        final ResponseEntity<String> response = get("/health", null);
+        final ResponseEntity<String> response = get("/actuator/health", null);
 
         // Deployed ingresses and APIM products routinely do not expose actuator endpoints. A 404
         // means "not routed here", which is not a validation failure — abort rather than report one.
         assumeTrue(response.getStatusCode() != HttpStatus.NOT_FOUND,
-                "/health is not routed at " + BASE_URL + " — nothing to assert");
+                "/actuator/health is not routed at " + BASE_URL + " — nothing to assert");
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
@@ -296,10 +296,10 @@ class EntraTokenValidationApiTest {
         LOG.warn("TLS VERIFICATION DISABLED for {} — SERVICE_TLS_INSECURE is set. "
                 + "Certificates are not checked, so this run does not prove which host answered.", BASE_URL);
         try {
-            // Deliberate curl-k equivalent, opt-in only via SERVICE_TLS_INSECURE (default false),
-            // refused above for a live-looking host, never used for the Entra token request, and
-            // this whole class is @Disabled by default. Excluded from CodeQL scanning as test code
-            // - see .github/codeql/codeql-config.yml.
+            // codeql[java/insecure-trustmanager] Deliberate curl-k equivalent, opt-in only via
+            // SERVICE_TLS_INSECURE (default false), refused above for a live-looking host, never
+            // used for the Entra token request, and this whole class is @Disabled by default.
+            // Also excluded from CodeQL scanning as test code - see .github/codeql/codeql-config.yml.
             final TrustManager[] trustAll = {new X509TrustManager() {
                 @Override
                 public void checkClientTrusted(final X509Certificate[] chain, final String authType) {

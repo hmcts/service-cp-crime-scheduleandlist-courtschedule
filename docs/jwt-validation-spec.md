@@ -79,13 +79,14 @@ signature-valid token that then fails downstream for reasons that look unrelated
 ## 3. Endpoint coverage
 
 `AuthorizationPolicy.isExemptFromValidation` is deny-by-default: every path requires a token unless
-listed. The exemption list is exact-match only, never a prefix — `AuthorizationPolicyTest` proves
-near-miss paths (`/healthx`, `/health/x`) stay protected, and that every path in the OpenAPI contract
-(read by reflection from `CourtScheduleApi`, not restated in the test) requires one.
+listed. The exact-match list (`/`, `/error`) never matches by prefix; `/actuator` is the one
+deliberate prefix exemption, matched as a path root rather than restated per sub-path.
+`AuthorizationPolicyTest` proves near-miss paths (`/errorx`, `/actuatorx`, `/health`) stay protected,
+and that every path in the OpenAPI contract (read by reflection from `CourtScheduleApi`, not
+restated in the test) requires one.
 
-**Exempt** (infrastructure, no case data): `/`, `/health`, `/info`, `/prometheus`, `/error`. Note
-`management.endpoints.web.base-path` is `/` in this service, so actuator endpoints are top-level
-paths rather than under `/actuator`.
+**Exempt** (infrastructure, no case data): `/`, `/error`, and everything under `/actuator`
+(`management.endpoints.web.base-path` is `/actuator` in this service).
 
 **Protected:** `GET /case/{case_urn}/courtschedule` — the only business endpoint.
 
