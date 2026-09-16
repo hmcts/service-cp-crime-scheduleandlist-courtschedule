@@ -256,7 +256,7 @@ class ClientIdResolutionFilterTest {
     private ClientIdResolutionFilter filter(final AuthMode mode) {
         return new ClientIdResolutionFilter(
                 tokenValidator,
-                new AuthorizationPolicy(),
+                new AuthorizationPolicy("/actuator"),
                 properties(mode),
                 meterRegistry);
     }

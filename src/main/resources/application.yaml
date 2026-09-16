@@ -8,7 +8,10 @@ management:
       show-details: "always"
   endpoints:
     web:
-      base-path: /actuator
+      # Overridden per-deployment where the ingress route forwards the full path unrewritten
+      # (e.g. the /case/ route has no prefix strip, so this pod needs MANAGEMENT_BASE_PATH=/case/actuator
+      # for actuator to be reachable at all) — see docs/jwt-validation-spec.md section 3.
+      base-path: ${MANAGEMENT_BASE_PATH:/actuator}
       exposure:
         include: health, info, prometheus
   tracing:

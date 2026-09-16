@@ -1,5 +1,6 @@
 package uk.gov.hmcts.cp.auth;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,13 +23,23 @@ public class AuthorizationPolicy {
 
     /** Infrastructure endpoints, carrying no case data. */
     private static final Set<String> PUBLIC_EXACT_PATHS = Set.of("/", "", "/error");
-    private static final List<String> PUBLIC_PATH_ROOTS = List.of("/actuator");
 
-    /** True when the path is reachable without a token — see the two lists above. */
+    /**
+     * Tracks {@code management.endpoints.web.base-path} rather than a hardcoded "/actuator" — some
+     * deployments of this same image sit behind an ingress route that forwards the full path
+     * unrewritten, and are given a different base path (e.g. "/case/actuator") accordingly.
+     */
+    private final List<String> publicPathRoots;
+
+    public AuthorizationPolicy(@Value("${management.endpoints.web.base-path}") final String actuatorBasePath) {
+        this.publicPathRoots = List.of(actuatorBasePath);
+    }
+
+    /** True when the path is reachable without a token — see the two fields above. */
     public boolean isExemptFromValidation(final String requestUri) {
         final String path = stripTrailingSlash(requestUri);
         return PUBLIC_EXACT_PATHS.contains(path)
-                || PUBLIC_PATH_ROOTS.stream().anyMatch(root -> path.equals(root) || path.startsWith(root + "/"));
+                || publicPathRoots.stream().anyMatch(root -> path.equals(root) || path.startsWith(root + "/"));
     }
 
     /** The roles this API recognises; a caller needs at least one of them. */

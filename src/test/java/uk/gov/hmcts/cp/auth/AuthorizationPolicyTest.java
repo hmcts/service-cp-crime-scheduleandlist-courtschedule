@@ -56,7 +56,7 @@ class AuthorizationPolicyTest {
     private static final Pattern PATH_VARIABLE = Pattern.compile("\\{[^}]+}");
     private static final String CONCRETE_ID = "ABCD1234567";
 
-    private final AuthorizationPolicy policy = new AuthorizationPolicy();
+    private final AuthorizationPolicy policy = new AuthorizationPolicy("/actuator");
 
     @Test
     @DisplayName("path discovery actually found the contract, so the deny-by-default test cannot pass vacuously")
