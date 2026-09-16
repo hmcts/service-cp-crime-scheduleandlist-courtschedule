@@ -85,8 +85,10 @@ deliberate prefix exemption, matched as a path root rather than restated per sub
 and that every path in the OpenAPI contract (read by reflection from `CourtScheduleApi`, not
 restated in the test) requires one.
 
-**Exempt** (infrastructure, no case data): `/`, `/error`, and everything under `/actuator`
-(`management.endpoints.web.base-path` is `/actuator` in this service).
+**Exempt** (infrastructure, no case data): `/`, `/error`, and everything under whatever
+`management.endpoints.web.base-path` currently resolves to (default `/actuator`; overridable per
+deployment via `MANAGEMENT_BASE_PATH` — see `application.yaml`). `AuthorizationPolicy` reads this
+same property at construction, so the exemption always tracks wherever actuator actually lives.
 
 **Protected:** `GET /case/{case_urn}/courtschedule` — the only business endpoint.
 
