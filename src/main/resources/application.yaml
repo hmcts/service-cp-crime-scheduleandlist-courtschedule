@@ -14,6 +14,13 @@ management:
       base-path: ${MANAGEMENT_BASE_PATH:/actuator}
       exposure:
         include: health, info, prometheus
+  info:
+    env:
+      enabled: true
+    java:
+      enabled: true
+    build:
+      enabled: true
   tracing:
     enabled: true
     sampling:
