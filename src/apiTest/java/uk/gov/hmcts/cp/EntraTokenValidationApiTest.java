@@ -296,10 +296,9 @@ class EntraTokenValidationApiTest {
         LOG.warn("TLS VERIFICATION DISABLED for {} — SERVICE_TLS_INSECURE is set. "
                 + "Certificates are not checked, so this run does not prove which host answered.", BASE_URL);
         try {
-            // codeql[java/insecure-trustmanager] Deliberate curl-k equivalent, opt-in only via
-            // SERVICE_TLS_INSECURE (default false), refused above for a live-looking host, never
-            // used for the Entra token request, and this whole class is @Disabled by default.
-            // Also excluded from CodeQL scanning as test code - see .github/codeql/codeql-config.yml.
+            // Deliberate curl-k equivalent, opt-in only via SERVICE_TLS_INSECURE (default false),
+            // refused above for a live-looking host, never used for the Entra token request, and
+            // this whole class is @Disabled by default.
             final TrustManager[] trustAll = {new X509TrustManager() {
                 @Override
                 public void checkClientTrusted(final X509Certificate[] chain, final String authType) {
@@ -317,7 +316,7 @@ class EntraTokenValidationApiTest {
                 }
             }};
             final SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, trustAll, null);
+            sslContext.init(null, trustAll, null); // codeql[java/insecure-trustmanager] see SERVICE_TLS_INSECURE above
             // The JDK client checks the hostname inside the engine, so a permissive trust manager
             // alone is not enough to match curl -k.
             System.setProperty("jdk.internal.httpclient.disableHostnameVerification", "true");
