@@ -102,10 +102,14 @@ there is no equivalent of an `INTERNAL_UNVALIDATED_PATHS` exemption to carry.
 | Property | Env var | Purpose | Default |
 |---|---|---|---|
 | `auth.mode` | `AUTH_MODE` | `OFF` / `OBSERVE` / `ENFORCE` | `ENFORCE` |
-| `auth.tenant-id` | `AUTH_TENANT_ID` | Issuing tenant | blank — no default on purpose |
-| `auth.audience` | `AUTH_AUDIENCE` | This API's own audience | blank — no default on purpose |
+| `auth.tenant-id` | `AUTH_TENANT_ID` | Primary issuing tenant | blank — no default on purpose |
+| `auth.audience` | `AUTH_AUDIENCE` | This API's own audience in the primary tenant | blank — no default on purpose |
 | `auth.issuer` | `AUTH_ISSUER` | Overrides the tenant-derived issuer | derived |
 | `auth.jwks-uri` | `AUTH_JWKS_URI` | Overrides the tenant-derived JWKS URI | derived |
+| `auth.cp-tenant-id` | `AUTH_CP_TENANT_ID` | Legacy CP issuing tenant | blank — CP tokens rejected |
+| `auth.cp-audience` | `AUTH_CP_AUDIENCE` | This API's own audience in the CP tenant | blank — CP tokens rejected |
+| `auth.cp-issuer` | `AUTH_CP_ISSUER` | Overrides the CP tenant-derived issuer | derived |
+| `auth.cp-jwks-uri` | `AUTH_CP_JWKS_URI` | Overrides the CP tenant-derived JWKS URI | derived |
 | `auth.clock-skew-seconds` | `AUTH_CLOCK_SKEW_SECONDS` | Applied to `exp`/`nbf` | `60` (capped at 300) |
 | `auth.jwks-cache-ttl-seconds` | `AUTH_JWKS_CACHE_TTL_SECONDS` | JWKS cache TTL | `600` |
 
@@ -115,6 +119,16 @@ does not independently gate it against which environment it thinks it is running
 Leaving tenant/audience blank is deliberate: a default would let a deployment that forgot to inject
 come up healthy against another environment's tenant and reject every token, silently. Run locally
 with `AUTH_MODE=OFF`, which skips the check.
+
+### Two issuers: primary and CP on one pod
+
+The pod trusts the primary issuer (`auth.*`, required) and, while CP consumers remain, CP
+(`auth.cp-*`, optional; AMP-1380, retired by AMP-1381).
+
+- The token's `iss` picks one issuer by exact match; the token is validated against that issuer's
+  tenant, audience and JWKS only. Unknown or missing `iss` is rejected (`INVALID_CLAIMS`).
+- The CP tenant and audience are set together or not at all; otherwise startup fails.
+- `cp.auth.success` is tagged `issuer=primary|cp`. Remove `AUTH_CP_*` to stop accepting CP tokens.
 
 ---
 

@@ -20,7 +20,8 @@ uk.gov.hmcts.cp/
   Application.java                          @SpringBootApplication
   auth/
     EntraTokenValidator                     Signature (RS256-pinned) + claims validation
-    EntraAuthProperties                     @Value auth.*; fails startup on invalid config
+    EntraAuthProperties                     @Value auth.*; trusted issuers (primary + optional CP); fails startup on invalid config
+    TrustedIssuer, JwkSourceFactory         One issuer's tenant/audience/JWKS; per-issuer key source
     AuthorizationPolicy                     Deny-by-default exempt paths + recognised roles
     AuthMode, ValidatedCaller, TokenValidationException
   clients/
@@ -58,8 +59,10 @@ uk.gov.hmcts.cp/
 | `CJSCPPUID` | User UUID header on all backend calls | `00000000-0000-0000-0000-000000000000` |
 | `rpe.AppInsightsInstrumentationKey` | Azure Application Insights key | `00000000-0000-0000-0000-000000000000` |
 | `AUTH_MODE` | Entra token validation mode: `OFF`/`OBSERVE`/`ENFORCE` | `ENFORCE` |
-| `AUTH_TENANT_ID` | Entra issuing tenant (see docs/jwt-validation-spec.md) | blank — no default on purpose |
-| `AUTH_AUDIENCE` | This API's own Entra audience | blank — no default on purpose |
+| `AUTH_TENANT_ID` | Primary Entra issuing tenant (see docs/jwt-validation-spec.md) | blank — no default on purpose |
+| `AUTH_AUDIENCE` | This API's own Entra audience in the primary tenant | blank — no default on purpose |
+| `AUTH_CP_TENANT_ID` | Legacy CP issuing tenant; set with `AUTH_CP_AUDIENCE` or not at all | blank — CP tokens rejected |
+| `AUTH_CP_AUDIENCE` | This API's own audience in the CP tenant | blank — CP tokens rejected |
 
 ## Repo-Specific Architecture Rules
 

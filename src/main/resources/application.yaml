@@ -70,10 +70,17 @@ auth:
   #
   # v2.0 tokens carry the bare client-ID GUID, not api://<...>. It must be this API's own
   # registration: a token minted for a sibling CP API is correctly rejected on audience.
+  #
+  # Primary issuer (required).
   tenant-id: ${AUTH_TENANT_ID:}
   audience: ${AUTH_AUDIENCE:}
   # Derived from tenant-id when blank.
   issuer: ${AUTH_ISSUER:}
   jwks-uri: ${AUTH_JWKS_URI:}
+  # Legacy CP issuer (optional, AMP-1380): set tenant and audience together, or neither.
+  cp-tenant-id: ${AUTH_CP_TENANT_ID:}
+  cp-audience: ${AUTH_CP_AUDIENCE:}
+  cp-issuer: ${AUTH_CP_ISSUER:}
+  cp-jwks-uri: ${AUTH_CP_JWKS_URI:}
   clock-skew-seconds: ${AUTH_CLOCK_SKEW_SECONDS:60}
   jwks-cache-ttl-seconds: ${AUTH_JWKS_CACHE_TTL_SECONDS:600}

@@ -89,7 +89,7 @@ class ClientIdResolutionFilterTest {
         filter(AuthMode.ENFORCE).doFilter(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
-        assertThat(meterRegistry.counter("cp.auth.success").count()).isEqualTo(1.0d);
+        assertThat(meterRegistry.counter("cp.auth.success", "issuer", "primary").count()).isEqualTo(1.0d);
     }
 
     @Test
@@ -265,11 +265,11 @@ class ClientIdResolutionFilterTest {
         return new EntraAuthProperties(mode,
                 "11111111-1111-1111-1111-111111111111",
                 "22222222-2222-2222-2222-222222222222",
-                "", "", 60, 600);
+                "", "", "", "", "", "", 60, 600);
     }
 
     private static ValidatedCaller validCaller() {
-        return new ValidatedCaller(CLIENT_ID, List.of(AuthorizationPolicy.ROLE_READ), true);
+        return new ValidatedCaller(CLIENT_ID, List.of(AuthorizationPolicy.ROLE_READ), true, "primary");
     }
 
     private static MockHttpServletRequest get(final String uri) {

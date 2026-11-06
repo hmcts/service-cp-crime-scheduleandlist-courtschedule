@@ -1,7 +1,5 @@
 package uk.gov.hmcts.cp.integration;
 
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.proc.SecurityContext;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +11,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.gov.hmcts.cp.auth.JwkSourceFactory;
 import uk.gov.hmcts.cp.config.AppPropertiesBackend;
 import uk.gov.hmcts.cp.helper.JwtHelper;
 
@@ -33,7 +32,7 @@ import uk.gov.hmcts.cp.helper.JwtHelper;
 public abstract class IntegrationTestBase {
 
     /**
-     * Serves the test signing key as the application's JWKS, replacing the bean that would otherwise
+     * Serves the test signing key as every trusted issuer's JWKS, replacing the bean that would otherwise
      * fetch Entra's.
      *
      * <p>Registered under its own name and marked {@code @Primary} rather than overriding the
@@ -48,8 +47,8 @@ public abstract class IntegrationTestBase {
 
         @Bean
         @Primary
-        JWKSource<SecurityContext> testEntraJwkSource() {
-            return JwtHelper.jwkSource();
+        JwkSourceFactory testEntraJwkSourceFactory() {
+            return jwksUri -> JwtHelper.jwkSource();
         }
     }
 

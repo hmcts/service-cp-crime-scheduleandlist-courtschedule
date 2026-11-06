@@ -107,7 +107,7 @@ class AuthorizationPolicyTest {
 
     @Test
     void callerWithNoRolesIsRejected() {
-        assertThatThrownBy(() -> policy.assertAuthorized(new ValidatedCaller(UUID.randomUUID(), List.of(), true)))
+        assertThatThrownBy(() -> policy.assertAuthorized(new ValidatedCaller(UUID.randomUUID(), List.of(), true, "primary")))
                 .isInstanceOf(TokenValidationException.class);
     }
 
@@ -118,6 +118,6 @@ class AuthorizationPolicyTest {
     }
 
     private static ValidatedCaller caller(final String... roles) {
-        return new ValidatedCaller(UUID.randomUUID(), List.of(roles), true);
+        return new ValidatedCaller(UUID.randomUUID(), List.of(roles), true, "primary");
     }
 }
