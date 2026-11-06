@@ -191,7 +191,7 @@ public class EntraAuthProperties {
         final List<TrustedIssuer> issuers;
         if (sharesPrimaryIssuer()) {
             issuers = List.of(new TrustedIssuer(PRIMARY_ISSUER_NAME + "+" + CP_ISSUER_NAME,
-                    issuer, tenantId, Set.of(audience, cpAudience), jwksUri));
+                    issuer, tenantId, Set.copyOf(List.of(audience, cpAudience)), jwksUri));
         } else if (isCpIssuerEnabled()) {
             issuers = List.of(primary,
                     new TrustedIssuer(CP_ISSUER_NAME, cpIssuer, cpTenantId, Set.of(cpAudience), cpJwksUri));

@@ -146,6 +146,15 @@ class EntraAuthPropertiesTest {
                 .satisfies(trusted -> assertThat(trusted.audiences()).containsExactlyInAnyOrder(AUDIENCE, CP_AUDIENCE));
     }
 
+    @Test
+    @DisplayName("a CP pair identical to the primary pair starts as one issuer")
+    void identicalCpPairStarts() {
+        final EntraAuthProperties properties = buildWithCp(TENANT, AUDIENCE, "");
+
+        assertThat(properties.getTrustedIssuers()).singleElement()
+                .satisfies(trusted -> assertThat(trusted.audiences()).containsExactly(AUDIENCE));
+    }
+
     private static EntraAuthProperties buildWithCp(final String cpTenant, final String cpAudience,
                                                    final String cpIssuer) {
         return new EntraAuthProperties(AuthMode.ENFORCE, TENANT, AUDIENCE, "", "",
