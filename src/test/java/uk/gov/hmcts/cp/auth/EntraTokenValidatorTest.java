@@ -70,11 +70,11 @@ class EntraTokenValidatorTest {
         unrelatedKey = new RSAKeyGenerator(2048).keyID(KEY_ID).generate();
         final JWKSource<SecurityContext> jwkSource =
                 new ImmutableJWKSet<>(new JWKSet(signingKey.toPublicJWK()));
-        validator = new EntraTokenValidator(properties(AuthMode.ENFORCE), jwkSource);
+        validator = new EntraTokenValidator(properties(AuthMode.ENFORCE), jwksUri -> jwkSource);
     }
 
     private static EntraAuthProperties properties(final AuthMode mode) {
-        return new EntraAuthProperties(mode, TENANT_ID, AUDIENCE, ISSUER, "", 60, 600);
+        return new EntraAuthProperties(mode, TENANT_ID, AUDIENCE, ISSUER, "", "", "", "", "", 60, 600);
     }
 
     // ---------------------------------------------------------------- happy path

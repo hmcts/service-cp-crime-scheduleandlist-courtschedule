@@ -1,14 +1,13 @@
 package uk.gov.hmcts.cp.config;
 
-import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.jwk.source.JWKSourceBuilder;
-import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.cp.auth.EntraAuthProperties;
 import uk.gov.hmcts.cp.auth.EntraTokenValidator;
+import uk.gov.hmcts.cp.auth.JwkSourceFactory;
 import uk.gov.hmcts.cp.services.ClockService;
 
 import java.net.MalformedURLException;
@@ -43,7 +42,7 @@ public class AppConfig {
     }
 
     /**
-     * Entra's published signing keys.
+     * Entra's published signing keys, one source per trusted issuer.
      *
      * <p>Built once at startup so there is no outbound call per request. Nimbus handles the three
      * things that matter operationally: the cache, a rate-limited refresh when an unknown {@code kid}
@@ -51,20 +50,25 @@ public class AppConfig {
      * a redeploy will have an outage), and serving stale keys through a bounded Entra outage.
      */
     @Bean
-    public JWKSource<SecurityContext> entraJwkSource(final EntraAuthProperties authProperties)
-            throws MalformedURLException {
-        return JWKSourceBuilder
-                .create(URI.create(authProperties.getJwksUri()).toURL())
-                .cache(Duration.ofSeconds(authProperties.getJwksCacheTtlSeconds()).toMillis(),
-                        JWKS_REFRESH_TIMEOUT_MS)
-                .rateLimited(JWKS_MIN_REFRESH_INTERVAL_MS)
-                .outageTolerant(JWKS_OUTAGE_TTL_MS)
-                .build();
+    public JwkSourceFactory entraJwkSourceFactory(final EntraAuthProperties authProperties) {
+        final long cacheTtlMs = Duration.ofSeconds(authProperties.getJwksCacheTtlSeconds()).toMillis();
+        return jwksUri -> {
+            try {
+                return JWKSourceBuilder
+                        .create(URI.create(jwksUri).toURL())
+                        .cache(cacheTtlMs, JWKS_REFRESH_TIMEOUT_MS)
+                        .rateLimited(JWKS_MIN_REFRESH_INTERVAL_MS)
+                        .outageTolerant(JWKS_OUTAGE_TTL_MS)
+                        .build();
+            } catch (final MalformedURLException e) {
+                throw new IllegalStateException("invalid JWKS URI: " + jwksUri, e);
+            }
+        };
     }
 
     @Bean
     public EntraTokenValidator entraTokenValidator(final EntraAuthProperties authProperties,
-                                                   final JWKSource<SecurityContext> entraJwkSource) {
-        return new EntraTokenValidator(authProperties, entraJwkSource);
+                                                   final JwkSourceFactory entraJwkSourceFactory) {
+        return new EntraTokenValidator(authProperties, entraJwkSourceFactory);
     }
 }
