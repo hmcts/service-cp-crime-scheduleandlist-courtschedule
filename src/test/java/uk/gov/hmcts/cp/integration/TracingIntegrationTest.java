@@ -32,6 +32,8 @@ class TracingIntegrationTest {
     private static final String TEST_TRACE_ID = "1234-1234";
     private static final String TEST_SPAN_ID = "567-567";
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final long LOG_WAIT_MILLIS = 5_000;
+    private static final long LOG_POLL_MILLIS = 50;
 
     @Value("${spring.application.name}")
     private String springApplicationName;
@@ -129,6 +131,21 @@ class TracingIntegrationTest {
     }
 
     private Map<String, Object> findLogWithTracing(final ByteArrayOutputStream buf) throws Exception {
+        // Logging goes through an AsyncAppender, so the line may reach STDOUT after the request returns.
+        final long deadline = System.currentTimeMillis() + LOG_WAIT_MILLIS;
+        while (true) {
+            try {
+                return findLogWithTracingOnce(buf);
+            } catch (IllegalStateException e) {
+                if (System.currentTimeMillis() >= deadline) {
+                    throw e;
+                }
+                Thread.sleep(LOG_POLL_MILLIS);
+            }
+        }
+    }
+
+    private Map<String, Object> findLogWithTracingOnce(final ByteArrayOutputStream buf) {
         final String[] lines = buf.toString(java.nio.charset.StandardCharsets.UTF_8).split("\\R");
 
         // Look for RootController log with "START" message
