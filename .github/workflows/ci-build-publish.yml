@@ -275,11 +275,10 @@ jobs:
     if: ${{ inputs.trigger_deploy && inputs.deploy_dev }}
     runs-on: ubuntu-latest
     steps:
-      # dev runs only the -cnp entry (single dual-issuer /slc pod, AMP-1380)
       - name: Deploy via ADO pipeline
         uses: hmcts/action-ado-deploy@v1
         with:
-          service_name: ${{ needs.Build.outputs.repo_name }}-cnp
+          service_name: ${{ needs.Build.outputs.repo_name }}
           image_tag: ${{ needs.Wait-For-ACR-Push.outputs.real_tag }}
           app_id: ${{ secrets.DEPLOYMENT_APP_ID }}
           app_private_key: ${{ secrets.DEPLOYMENT_APP_PRIVATE_KEY }}
