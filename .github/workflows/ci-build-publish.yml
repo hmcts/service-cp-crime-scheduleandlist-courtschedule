@@ -275,10 +275,12 @@ jobs:
     if: ${{ inputs.trigger_deploy && inputs.deploy_dev }}
     runs-on: ubuntu-latest
     steps:
+      # dev runs a single SLC pod (/slc) from the -cnp values entry; it accepts
+      # both CNP and CP Entra tokens (AMP-1380).
       - name: Deploy via ADO pipeline
         uses: hmcts/action-ado-deploy@v1
         with:
-          service_name: ${{ needs.Build.outputs.repo_name }}
+          service_name: ${{ needs.Build.outputs.repo_name }}-cnp
           image_tag: ${{ needs.Wait-For-ACR-Push.outputs.real_tag }}
           app_id: ${{ secrets.DEPLOYMENT_APP_ID }}
           app_private_key: ${{ secrets.DEPLOYMENT_APP_PRIVATE_KEY }}
