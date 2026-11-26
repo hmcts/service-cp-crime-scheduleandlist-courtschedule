@@ -46,8 +46,6 @@ public class ClientIdResolutionFilter extends OncePerRequestFilter {
     private static final String METRIC_FAILURE = "cp.auth.failure";
     private static final String METRIC_OBSERVED_FAILURE = "cp.auth.observed.failure";
     private static final String TAG_REASON = "reason";
-    /** primary or cp: shows when CP traffic has stopped. */
-    private static final String TAG_ISSUER = "issuer";
 
     private final EntraTokenValidator tokenValidator;
     private final AuthorizationPolicy authorizationPolicy;
@@ -102,7 +100,7 @@ public class ClientIdResolutionFilter extends OncePerRequestFilter {
         try {
             caller = tokenValidator.validate(authorizationHeader);
             authorizationPolicy.assertAuthorized(caller);
-            meterRegistry.counter(METRIC_SUCCESS, TAG_ISSUER, caller.issuerName()).increment();
+            meterRegistry.counter(METRIC_SUCCESS).increment();
         } catch (final TokenValidationException ex) {
             if (authProperties.getMode() != AuthMode.OBSERVE) {
                 throw ex;
@@ -133,8 +131,7 @@ public class ClientIdResolutionFilter extends OncePerRequestFilter {
         return new ValidatedCaller(
                 tokenValidator.unverifiedClientIdForNonEnforcingModesOnly(authorizationHeader),
                 List.of(),
-                false,
-                ValidatedCaller.UNVERIFIED_ISSUER);
+                false);
     }
 
     /**
