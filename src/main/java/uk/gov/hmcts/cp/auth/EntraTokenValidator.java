@@ -17,10 +17,8 @@ import java.text.ParseException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static uk.gov.hmcts.cp.auth.TokenValidationException.Reason.DELEGATED_TOKEN;
 import static uk.gov.hmcts.cp.auth.TokenValidationException.Reason.EMPTY_TOKEN;
@@ -44,9 +42,6 @@ import static uk.gov.hmcts.cp.auth.TokenValidationException.Reason.UNSUPPORTED_S
  * <p>Note that Entra's JWKS entries carry no {@code alg} field, so the permitted algorithm cannot be
  * inferred from the key set and must be pinned here.
  *
- * <p>The token's {@code iss} picks one {@link TrustedIssuer} (primary or CP); the token is validated
- * against that issuer's tenant, audience and keys only.
- *
  * <p>Deliberately <b>not</b> checked, because each lacks a threat model in this context: in-app TLS
  * enforcement, token size limits, duplicate JSON keys, {@code iat} max age, {@code typ}, and replay
  * or nonce tracking.
@@ -64,23 +59,15 @@ public class EntraTokenValidator {
     private static final String CLAIM_EXPIRY = "exp";
     private static final String TOKEN_VERSION_V2 = "2.0";
 
-    /** One processor per trusted issuer, keyed by exact {@code iss}. */
-    private final Map<String, IssuerProcessor> processorsByIssuer;
+    private final DefaultJWTProcessor<SecurityContext> processor;
 
-    private record IssuerProcessor(String name, DefaultJWTProcessor<SecurityContext> processor) { }
-
-    private record VerifiedToken(String issuerName, JWTClaimsSet claims) { }
-
-    public EntraTokenValidator(final EntraAuthProperties properties, final JwkSourceFactory jwkSources) {
-        this.processorsByIssuer = properties.getTrustedIssuers().stream()
-                .collect(Collectors.toUnmodifiableMap(TrustedIssuer::issuer, trusted -> new IssuerProcessor(
-                        trusted.name(),
-                        buildProcessor(trusted, properties.getClockSkewSeconds(),
-                                jwkSources.forJwksUri(trusted.jwksUri())))));
+    public EntraTokenValidator(final EntraAuthProperties properties,
+                               final JWKSource<SecurityContext> jwkSource) {
+        this.processor = buildProcessor(properties, jwkSource);
     }
 
     private static DefaultJWTProcessor<SecurityContext> buildProcessor(
-            final TrustedIssuer trusted, final int clockSkewSeconds, final JWKSource<SecurityContext> jwkSource) {
+            final EntraAuthProperties properties, final JWKSource<SecurityContext> jwkSource) {
 
         final DefaultJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
 
@@ -89,8 +76,8 @@ public class EntraTokenValidator {
         jwtProcessor.setJWSKeySelector(new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, jwkSource));
 
         final JWTClaimsSet exactMatch = new JWTClaimsSet.Builder()
-                .issuer(trusted.issuer())
-                .claim(CLAIM_TENANT_ID, trusted.tenantId())
+                .issuer(properties.getIssuer())
+                .claim(CLAIM_TENANT_ID, properties.getTenantId())
                 .claim(CLAIM_TOKEN_VERSION, TOKEN_VERSION_V2)
                 .build();
 
@@ -98,13 +85,13 @@ public class EntraTokenValidator {
         // decide whether "aud" is mandatory, and Set.of(...) throws NPE on contains(null) rather
         // than returning false.
         final DefaultJWTClaimsVerifier<SecurityContext> verifier = new DefaultJWTClaimsVerifier<>(
-                new HashSet<>(trusted.audiences()),
+                new HashSet<>(Set.of(properties.getAudience())),
                 exactMatch,
                 new HashSet<>(Set.of(CLAIM_EXPIRY)),
                 // A delegated (user) token carries scp. Prohibiting it enforces app-only without
                 // depending on idtyp, which Entra omits unless explicitly enabled as an optional claim.
                 new HashSet<>(Set.of(CLAIM_SCP)));
-        verifier.setMaxClockSkew(clockSkewSeconds);
+        verifier.setMaxClockSkew(properties.getClockSkewSeconds());
         jwtProcessor.setJWTClaimsSetVerifier(verifier);
 
         return jwtProcessor;
@@ -113,8 +100,8 @@ public class EntraTokenValidator {
     /** Validates the {@code Authorization} header and returns the verified caller. */
     public ValidatedCaller validate(final String authorizationHeader) throws TokenValidationException {
         final String token = extractBearerToken(authorizationHeader);
-        final VerifiedToken verified = verify(token);
-        return toCaller(verified.claims(), verified.issuerName());
+        final JWTClaimsSet claims = verify(token);
+        return toCaller(claims);
     }
 
     /**
@@ -149,16 +136,15 @@ public class EntraTokenValidator {
         return token;
     }
 
-    private VerifiedToken verify(final String token) throws TokenValidationException {
+    private JWTClaimsSet verify(final String token) throws TokenValidationException {
         final SignedJWT signedJwt;
         try {
             signedJwt = SignedJWT.parse(token);
         } catch (final ParseException e) {
             throw new TokenValidationException(MALFORMED_TOKEN, e);
         }
-        final IssuerProcessor selected = selectByIssuer(signedJwt);
         try {
-            return new VerifiedToken(selected.name(), selected.processor().process(signedJwt, null));
+            return processor.process(signedJwt, null);
         } catch (final BadJWTException e) {
             throw new TokenValidationException(INVALID_CLAIMS, e);
         } catch (final BadJOSEException | JOSEException e) {
@@ -166,32 +152,13 @@ public class EntraTokenValidator {
         }
     }
 
-    /**
-     * Reads {@code iss} before signature verification only to choose the processor, which then
-     * verifies the signature with that tenant's keys and re-checks {@code iss}.
-     */
-    private IssuerProcessor selectByIssuer(final SignedJWT signedJwt) throws TokenValidationException {
-        final String unverifiedIssuer;
-        try {
-            unverifiedIssuer = signedJwt.getJWTClaimsSet().getIssuer();
-        } catch (final ParseException e) {
-            throw new TokenValidationException(MALFORMED_TOKEN, e);
-        }
-        final IssuerProcessor selected = unverifiedIssuer == null ? null : processorsByIssuer.get(unverifiedIssuer);
-        if (selected == null) {
-            throw new TokenValidationException(INVALID_CLAIMS);
-        }
-        return selected;
-    }
-
-    private static ValidatedCaller toCaller(final JWTClaimsSet claims, final String issuerName)
-            throws TokenValidationException {
+    private static ValidatedCaller toCaller(final JWTClaimsSet claims) throws TokenValidationException {
         assertAppOnly(claims);
         final List<String> roles = readRoles(claims);
         if (roles.isEmpty()) {
             throw new TokenValidationException(MISSING_ROLE);
         }
-        return new ValidatedCaller(toClientId(claims), roles, true, issuerName);
+        return new ValidatedCaller(toClientId(claims), roles, true);
     }
 
     /**
